@@ -7,10 +7,11 @@ import { imageHash as callbackImageHash } from 'image-hash'
 import { ImgurClient } from 'imgur'
 
 import { Service } from '@/decorators'
-import { Image, ImageRepository } from '@/entities'
 import { env } from '@/env'
 import { Database, Logger } from '@/services'
 import { base64Encode, fileOrDirectoryExists, getFiles } from '@/utils/functions'
+
+import { Image } from '../generated/prisma/client'
 
 const imageHasher = promisify(callbackImageHash)
 
@@ -26,13 +27,10 @@ export class ImagesUpload {
 		})
 		: null
 
-	private imageRepo: ImageRepository
-
 	constructor(
 		private db: Database,
 		private logger: Logger
 	) {
-		this.imageRepo = this.db.get(Image)
 	}
 
 	isValidImageFormat(file: string): boolean {
@@ -54,15 +52,18 @@ export class ImagesUpload {
 			.map(file => file.replace(`${this.imageFolderPath}/`, ''))
 
 		// remove all images from the database that are not anymore in the filesystem
-		const imagesInDb = await this.imageRepo.findAll()
+		const imagesInDb = await this.db.prisma.image.findMany()
 
 		for (const image of imagesInDb) {
-			const imagePath = `${image.basePath !== '' ? `${image.basePath}/` : ''}${image.fileName}`
+			const imagePath = `${image.basePath !== '' ? `${image.basePath}/` : ''}${image.filename}`
 
 			// delete the image if it is not in the filesystem anymore
 			if (!images.includes(imagePath)) {
-				await this.imageRepo.nativeDelete(image)
-				await this.db.em.flush()
+				await this.db.prisma.image.delete({
+					where: {
+						id: image.id,
+					},
+				})
 				await this.deleteImageFromImgur(image)
 			} else if (!await this.isImgurImageValid(image.url)) {
 				// reupload if the image is not on imgur anymore
@@ -78,8 +79,10 @@ export class ImagesUpload {
                 true
 			) as string
 
-			const imageInDb = await this.imageRepo.findOne({
-				hash: imageHash,
+			const imageInDb = await this.db.prisma.image.findFirst({
+				where: {
+					hash: imageHash,
+				},
 			})
 
 			if (!imageInDb)
@@ -87,8 +90,8 @@ export class ImagesUpload {
 			else if (
 				imageInDb && (
 					imageInDb.basePath !== imagePath.split('/').slice(0, -1).join('/')
-					|| imageInDb.fileName !== imagePath.split('/').slice(-1)[0])
-			) console.warn(`Image ${chalk.bold.green(imagePath)} has the same hash as ${chalk.bold.green(imageInDb.basePath + (imageInDb.basePath?.length ? '/' : '') + imageInDb.fileName)} so it will skip`)
+					|| imageInDb.filename !== imagePath.split('/').slice(-1)[0])
+			) console.warn(`Image ${chalk.bold.green(imagePath)} has the same hash as ${chalk.bold.green(imageInDb.basePath + (imageInDb.basePath?.length ? '/' : '') + imageInDb.filename)} so it will skip`)
 		}
 	}
 
@@ -99,7 +102,7 @@ export class ImagesUpload {
 		await this.imgurClient.deleteImage(image.deleteHash)
 
 		this.logger.log(
-            `Image ${image.fileName} deleted from database because it is not in the filesystem anymore`,
+            `Image ${image.filename} deleted from database because it is not in the filesystem anymore`,
             'info',
             true
 		)
@@ -133,15 +136,17 @@ export class ImagesUpload {
 			}
 
 			// add the image to the database
-			const image = new Image()
-			image.fileName = imageFileName
-			image.basePath = imageBasePath
-			image.url = uploadResponse.data.link
-			image.size = uploadResponse.data.size
-			image.tags = imageBasePath.split('/')
-			image.hash = imageHash
-			image.deleteHash = uploadResponse.data.deletehash || ''
-			await this.db.em.persistAndFlush(image)
+			await this.db.prisma.image.create({
+				data: {
+					filename: imageFileName,
+					basePath: imageBasePath,
+					url: uploadResponse.data.link,
+					size: uploadResponse.data.size,
+					tags: imageBasePath.split('/'),
+					hash: imageHash,
+					deleteHash: uploadResponse.data.deletehash || '',
+				},
+			})
 
 			// log the success
 			this.logger.log(

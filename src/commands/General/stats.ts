@@ -1,7 +1,4 @@
-import {
-	Pagination,
-	PaginationType,
-} from '@discordx/pagination'
+import { Pagination } from '@discordx/pagination'
 import { Category } from '@discordx/utilities'
 import { ApplicationCommandOptionType, CommandInteraction, EmbedBuilder, User } from 'discord.js'
 import { Client } from 'discordx'
@@ -46,7 +43,8 @@ export default class StatsCommand {
 
 	constructor(
 		private stats: Stats
-	) {}
+	) {
+	}
 
 	@Slash({
 		name: 'stats',
@@ -74,10 +72,7 @@ export default class StatsCommand {
 			interaction,
 			embeds.map(embed => ({
 				embeds: [embed],
-			})),
-			{
-				type: PaginationType.Button,
-			}
+			}))
 		).send()
 	}
 

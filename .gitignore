@@ -20,3 +20,8 @@ logs/
 
 # other
 tests/
+src/generated/prisma
+/.idea/
+
+/database/enmap.sqlite-shm
+/database/enmap.sqlite-wal

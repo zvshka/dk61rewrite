@@ -1,21 +1,26 @@
 import { env } from '@/env'
+import { getPrefixFromMessage } from '@/utils/functions'
+
+import { GeneralConfigType } from '../utils/types/configs'
 
 export const generalConfig: GeneralConfigType = {
 
-	name: 'tscord', // the name of your bot
+	name: 'DK61', // the name of your bot
 	description: '', // the description of your bot
-	defaultLocale: 'en', // default language of the bot, must be a valid locale
+	defaultLocale: 'ru', // default language of the bot, must be a valid locale
 	ownerId: env.BOT_OWNER_ID,
-	timezone: 'Europe/Paris', // default TimeZone to well format and localize dates (logs, stats, etc)
+	timezone: 'Europe/Moscow', // default TimeZone to well format and localize dates (logs, stats, etc)
 
-	simpleCommandsPrefix: '!', // default prefix for simple command messages (old way to do commands on discord)
+	defaultPrefix: '.',
+	simpleCommandsPrefix: message => getPrefixFromMessage(message), // default prefix for simple command messages (old way to do commands on discord)
+	quoting: '\\',
 	automaticDeferring: true, // enable or not the automatic deferring of the replies of the bot on the command interactions
 
 	// useful links
 	links: {
-		invite: 'https://www.change_invite_link_here.com',
-		supportServer: 'https://discord.com/your_invitation_link',
-		gitRemoteRepo: 'https://github.com/barthofu/tscord',
+		invite: 'https://discord.com/oauth2/authorize?client_id=595909192678768652&scope=bot',
+		supportServer: 'Сам себе помоги (❁´◡`❁)',
+		gitRemoteRepo: 'https://github.com/zvshka/dk61rewrite',
 	},
 
 	automaticUploadImagesToImgur: false, // enable or not the automatic assets upload
@@ -25,11 +30,11 @@ export const generalConfig: GeneralConfigType = {
 	// define the bot activities (phrases under its name). Types can be: PLAYING, LISTENING, WATCHING, STREAMING
 	activities: [
 		{
-			text: 'discord.js v14 with tscord',
+			text: 'Хофлена на мыло!',
 			type: 'PLAYING',
 		},
 		{
-			text: 'some knowledge',
+			text: 'Фотки чурочки фруктовой',
 			type: 'STREAMING',
 		},
 	],
@@ -38,6 +43,5 @@ export const generalConfig: GeneralConfigType = {
 
 // global colors
 export const colorsConfig = {
-
 	primary: '#2F3136',
 }

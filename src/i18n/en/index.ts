@@ -15,6 +15,17 @@ const en = {
 		NO_COMMAND_DESCRIPTION: 'No description provided.',
 	},
 	COMMANDS: {
+		SETTINGS: {
+			OPTIONS: {
+				STARBOARD_CHANNEL: 'Starboard channel',
+				STARBOARD_EMOJI: 'Emoji for starboard',
+				STARBOARD_COUNT: 'Emoji count',
+				QUOTES_PREFIX: 'Prefix for quoting'
+			},
+			EMBED: {
+				DESCRIPTION: 'Settings updated successfully!'
+			}
+		},
 		INVITE: {
 			DESCRIPTION: 'Invite the bot to your server!',
 			EMBED: {

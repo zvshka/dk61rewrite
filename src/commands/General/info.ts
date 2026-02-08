@@ -131,7 +131,7 @@ export default class InfoCommand {
 			.addComponents(...buttons)
 
 		// finally send the embed
-		interaction.followUp({
+		await interaction.followUp({
 			embeds: [embed],
 			components: [row],
 		})

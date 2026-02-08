@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Guild entity
+model Guild {
+  id               String  @id
+  prefix           String? @default(".")
+  quotesPrefix     String  @default("\\") @map("quotes_prefix")
+  starboardEmoji   String? @default("⭐") @map("starboard_emoji")
+  starboardChannel String? @map("starboard_channel")
+  starboardCount   Int     @default(3) @map("starboard_count")
+
+  deleted Boolean @default(false)
+
+  lastInteract DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt @default(now())
+
+  starredMessages StarredMessage[]
+  welcomeImages   WelcomeImage[]
+  answers         PingAnswer[]
+  welcomeMessages WelcomeMessage[]
+}
+
+model User {
+  id String @id
+
+  lastInteract DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Image {
+  id String @id @default(nanoid())
+
+  filename   String
+  basePath   String   @default("")
+  url        String
+  size       Int
+  tags       String[]
+  hash       String
+  deleteHash String
+
+  lastInteract DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Stat {
+  id             String @id @default(nanoid())
+  type           String
+  value          String
+  additionalData Json?
+
+  createdAt DateTime @default(now())
+}
+
+model StarredMessage {
+  guild            Guild  @relation(fields: [guildId], references: [id])
+  guildId          String
+  starredMessageId String
+  botMessageId     String
+
+  @@id([guildId, starredMessageId])
+}
+
+model WelcomeImage {
+  id  Int    @id @default(autoincrement())
+  url String
+
+  isApi       Boolean? @default(false)
+  pathToImage String?
+
+  guild   Guild  @relation(fields: [guildId], references: [id])
+  guildId String
+}
+
+model WelcomeMessage {
+  id      Int    @id @default(autoincrement())
+  text    String
+  guild   Guild  @relation(fields: [guildId], references: [id])
+  guildId String
+}
+
+model PingAnswer {
+  id   Int    @id @default(autoincrement())
+  text String
+
+  guild   Guild  @relation(fields: [guildId], references: [id])
+  guildId String
+}

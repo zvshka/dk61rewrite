@@ -1,195 +1,290 @@
-import fs from 'node:fs'
-
-import { EntityName, MikroORM, Options } from '@mikro-orm/core'
-import fastFolderSizeSync from 'fast-folder-size/sync'
-import { backup, restore } from 'saveqlite'
+import { PrismaPg } from '@prisma/adapter-pg'
+import Enmap from 'enmap'
 import { delay, inject } from 'tsyringe'
 
-import { databaseConfig, mikroORMConfig } from '@/configs'
-import { Schedule, Service } from '@/decorators'
-import * as entities from '@/entities'
+import { Service } from '@/decorators'
 import { env } from '@/env'
-import { Logger, PluginsManager, Store } from '@/services'
-import { resolveDependency } from '@/utils/functions'
+import { Logger, Store } from '@/services'
+
+import { PrismaClient } from '../generated/prisma/client'
 
 @Service()
 export class Database {
 
-	private _orm: MikroORM<DatabaseDriver>
+	private _prisma: PrismaClient
+	private readonly _dataStore: Enmap
 
 	constructor(
 		@inject(delay(() => Store)) private store: Store,
-        @inject(delay(() => Logger)) private logger: Logger
-	) {}
+		@inject(delay(() => Logger)) private logger: Logger
+	) {
+		// Инициализация Prisma Client с настройками логгирования при необходимости
+		const adapter = new PrismaPg({ connectionString: env.DATABASE_URL })
+		this._prisma = new PrismaClient({
+			adapter,
+			// log: env.NODE_ENV === 'development'
+			// 	? ['query', 'error', 'warn']
+			// 	: ['error'],
+		})
 
-	async initialize() {
-		const pluginsManager = await resolveDependency(PluginsManager)
-
-		// get config
-		const config = mikroORMConfig[env.NODE_ENV || 'development'] as Options<DatabaseDriver>
-
-		// defines entities into the config
-		config.entities = [...Object.values(entities), ...pluginsManager.getEntities()]
-
-		// initialize the ORM using the configuration exported in `mikro-orm.config.ts`
-		this._orm = await MikroORM.init(config)
-
-		const shouldMigrate = !this.store.get('botHasBeenReloaded')
-		if (shouldMigrate) {
-			const migrator = this._orm.getMigrator()
-
-			// create migration if no one is present in the migrations folder
-			const pendingMigrations = await migrator.getPendingMigrations()
-			const executedMigrations = await migrator.getExecutedMigrations()
-			if (pendingMigrations.length === 0 && executedMigrations.length === 0)
-				await migrator.createInitialMigration()
-
-			// migrate to the latest migration
-			await this._orm.getMigrator().up()
-		}
-	}
-
-	async refreshConnection() {
-		await this._orm.close()
-		this._orm = await MikroORM.init()
-	}
-
-	get orm(): MikroORM<DatabaseDriver> {
-		return this._orm
-	}
-
-	get em(): DatabaseEntityManager {
-		return this._orm.em
+		this._dataStore = new Enmap({
+			name: 'dataStore',
+			dataDir: './database',
+		})
 	}
 
 	/**
-	 * Shorthand to get custom and natives repositories
-	 * @param entity Entity of the custom repository to get
+	 * Инициализация подключения к БД
+	 * Миграции управляются ВНЕ приложения (prisma migrate deploy)
 	 */
-	get<T extends object>(entity: EntityName<T>) {
-		return this._orm.em.getRepository(entity)
-	}
-
-	/**
-	 * Create a snapshot of the database each day at 00:00
-	 */
-	@Schedule('0 0 * * *')
-	async backup(snapshotName?: string): Promise<boolean> {
-		const { formatDate } = await import('@/utils/functions')
-
-		if (!databaseConfig.backup.enabled && !snapshotName)
-			return false
-		if (!this.isSQLiteDatabase()) {
-			this.logger.log('Database is not SQLite, couldn\'t backup')
-
-			return false
-		}
-
-		const backupPath = databaseConfig.backup.path
-		if (!backupPath) {
-			this.logger.log('Backup path not set, couldn\'t backup', 'error', true)
-
-			return false
-		}
-
-		if (!snapshotName)
-			snapshotName = `snapshot-${formatDate(new Date(), 'onlyDateFileName')}`
-		const objectsPath = `${backupPath}objects/` as `${string}/`
-
+	async initialize(): Promise<void> {
 		try {
-			await backup(
-				mikroORMConfig[env.NODE_ENV]!.dbName!,
-				`${snapshotName}.txt`,
-				objectsPath
-			)
+			// Явное подключение (опционально, Prisma подключается лениво)
+			await this._prisma.$connect()
 
-			return true
-		} catch (e) {
-			const errorMessage = typeof e === 'string' ? e : e instanceof Error ? e.message : 'Unknown error'
-
-			this.logger.log(`Couldn't backup : ${errorMessage}`, 'error', true)
-
-			return false
-		}
-	}
-
-	/**
-	 * Restore the SQLite database from a snapshot file.
-	 * @param snapshotName name of the snapshot to restore
-	 * @returns true if the snapshot has been restored, false otherwise
-	 */
-	async restore(snapshotName: string): Promise<boolean> {
-		if (!this.isSQLiteDatabase()) {
-			this.logger.log('Database is not SQLite, couldn\'t restore', 'error')
-
-			return false
-		}
-
-		const backupPath = databaseConfig.backup.path
-		if (!backupPath)
-			this.logger.log('Backup path not set, couldn\'t restore', 'error', true)
-
-		try {
-			console.debug(mikroORMConfig[env.NODE_ENV]!.dbName!)
-			console.debug(`${backupPath}${snapshotName}`)
-			await restore(
-				mikroORMConfig[env.NODE_ENV]!.dbName!,
-                `${backupPath}${snapshotName}`
-			)
-
-			await this.refreshConnection()
-
-			return true
+			// Проверка состояния после перезагрузки (для бизнес-логики приложения)
+			if (!this.store.get('botHasBeenReloaded')) {
+				this.logger.log('Database connected successfully', 'info')
+			}
 		} catch (error) {
-			console.debug(error)
-			this.logger.log('Snapshot file not found, couldn\'t restore', 'error', true)
-
-			return false
+			this.logger.log(`Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error', true)
+			throw error
 		}
 	}
 
-	getBackupList(): string[] | null {
-		const backupPath = databaseConfig.backup.path
-		if (!backupPath) {
-			this.logger.log('Backup path not set, couldn\'t get list of backups', 'error')
-
-			return null
+	/**
+	 * Пересоздание подключения после восстановления из бэкапа
+	 */
+	async refreshConnection(): Promise<void> {
+		try {
+			await this._prisma.$disconnect()
+		} catch {
+			// Игнорируем ошибки отключения
 		}
 
-		const files = fs.readdirSync(backupPath)
-		const backupList = files.filter(file => file.startsWith('snapshot'))
+		// Пересоздаем клиент с теми же настройками
+		const adapter = new PrismaPg({ connectionString: env.DATABASE_URL })
+		this._prisma = new PrismaClient({
+			adapter,
+			log: env.NODE_ENV === 'development'
+				? ['query', 'error', 'warn']
+				: ['error'],
+		})
 
-		return backupList
+		await this._prisma.$connect()
+		this.logger.log('Database connection refreshed after restore', 'info')
 	}
 
-	getSize(): DatabaseSize {
-		const size: DatabaseSize = {
-			db: null,
-			backups: null,
-		}
-
-		if (this.isSQLiteDatabase()) {
-			const dbPath = mikroORMConfig[env.NODE_ENV]!.dbName!
-			const dbSize = fs.statSync(dbPath).size
-
-			size.db = dbSize
-		}
-
-		const backupPath = databaseConfig.backup.path
-		if (backupPath) {
-			const backupSize = fastFolderSizeSync(backupPath)
-
-			size.backups = backupSize || null
-		}
-
-		return size
+	get prisma(): PrismaClient {
+		return this._prisma
 	}
 
-	isSQLiteDatabase(): boolean {
-		const config = mikroORMConfig[env.NODE_ENV]
+	get dataStore(): Enmap {
+		return this._dataStore
+	}
 
-		// @ts-expect-error
-		return !!config.dbName && !config.port
+	/**
+	 * Создание резервной копии SQLite БД
+	 * @param snapshotName Имя файла снапшота (без расширения)
+	 */
+	// @Schedule('0 0 * * *')
+	// async backup(snapshotName?: string): Promise<boolean> {
+	// 	// Проверка включения бэкапов в конфиге
+	// 	if (!databaseConfig.backup.enabled && !snapshotName) {
+	// 		return false
+	// 	}
+	//
+	// 	// Только для SQLite
+	// 	if (!this.isSQLiteDatabase()) {
+	// 		this.logger.log('Backup only supported for SQLite databases', 'warn')
+	//
+	// 		return false
+	// 	}
+	//
+	// 	const backupPath = databaseConfig.backup.path
+	// 	if (!backupPath) {
+	// 		this.logger.log('Backup path not configured', 'error', true)
+	//
+	// 		return false
+	// 	}
+	//
+	// 	// Формируем имя файла
+	// 	const finalSnapshotName = snapshotName || `snapshot-${formatDate(new Date(), 'onlyDateFileName')}`
+	// 	const objectsPath = `${backupPath}objects/` as `${string}/`
+	// 	const dbPath = this.getDatabasePath()
+	//
+	// 	try {
+	// 		// Гарантируем, что папка для бэкапов существует
+	// 		if (!fs.existsSync(backupPath)) {
+	// 			fs.mkdirSync(backupPath, { recursive: true })
+	// 		}
+	// 		if (!fs.existsSync(objectsPath)) {
+	// 			fs.mkdirSync(objectsPath, { recursive: true })
+	// 		}
+	//
+	// 		await backup(dbPath, `${finalSnapshotName}.txt`, objectsPath)
+	// 		this.logger.log(`Backup created successfully: ${finalSnapshotName}`, 'info')
+	//
+	// 		return true
+	// 	} catch (e) {
+	// 		const errorMessage = e instanceof Error ? e.message : String(e)
+	// 		this.logger.log(`Backup failed: ${errorMessage}`, 'error', true)
+	//
+	// 		return false
+	// 	}
+	// }
+
+	/**
+	 * Восстановление БД из снапшота
+	 * @param snapshotName Имя файла снапшота (с расширением .txt)
+	 */
+	// async restore(snapshotName: string): Promise<boolean> {
+	// 	if (!this.isSQLiteDatabase()) {
+	// 		this.logger.log('Restore only supported for SQLite databases', 'error')
+	//
+	// 		return false
+	// 	}
+	//
+	// 	const backupPath = databaseConfig.backup.path
+	// 	if (!backupPath) {
+	// 		this.logger.log('Backup path not configured', 'error', true)
+	//
+	// 		return false
+	// 	}
+	//
+	// 	const dbPath = this.getDatabasePath()
+	// 	const snapshotPath = `${backupPath}${snapshotName}`
+	//
+	// 	// Проверка существования файла
+	// 	if (!fs.existsSync(snapshotPath)) {
+	// 		this.logger.log(`Snapshot file not found: ${snapshotPath}`, 'error', true)
+	//
+	// 		return false
+	// 	}
+	//
+	// 	try {
+	// 		// Отключаем текущее подключение перед восстановлением
+	// 		await this._prisma.$disconnect()
+	//
+	// 		// Восстанавливаем файл БД
+	// 		await restore(dbPath, snapshotPath)
+	//
+	// 		// Пересоздаем подключение
+	// 		await this.refreshConnection()
+	//
+	// 		this.logger.log(`Database restored successfully from ${snapshotName}`, 'info')
+	//
+	// 		return true
+	// 	} catch (error) {
+	// 		const errorMessage = error instanceof Error ? error.message : String(error)
+	// 		this.logger.log(`Restore failed: ${errorMessage}`, 'error', true)
+	//
+	// 		// Пытаемся восстановить исходное подключение
+	// 		try {
+	// 			await this.refreshConnection()
+	// 		} catch (reconnectError) {
+	// 			this.logger.log(`Failed to reconnect after restore error: ${reconnectError instanceof Error ? reconnectError.message : 'Unknown'}`, 'error')
+	// 		}
+	//
+	// 		return false
+	// 	}
+	// }
+
+	/**
+	 * Получение списка доступных бэкапов
+	 */
+	// getBackupList(): string[] | null {
+	// 	const backupPath = databaseConfig.backup.path
+	// 	if (!backupPath || !fs.existsSync(backupPath)) {
+	// 		this.logger.log('Backup path invalid or not found', 'error')
+	//
+	// 		return null
+	// 	}
+	//
+	// 	try {
+	// 		const files = fs.readdirSync(backupPath)
+	//
+	// 		return files
+	// 			.filter(file => file.startsWith('snapshot') && file.endsWith('.txt'))
+	// 			.sort() // Сортируем по имени (хронологически)
+	// 	} catch (error) {
+	// 		this.logger.log(`Failed to read backup directory: ${error instanceof Error ? error.message : 'Unknown'}`, 'error')
+	//
+	// 		return null
+	// 	}
+	// }
+
+	/**
+	 * Получение размеров БД и бэкапов
+	 */
+	// getSize(): DatabaseSize {
+	// 	const size: DatabaseSize = { db: null, backups: null }
+	//
+	// 	if (this.isSQLiteDatabase()) {
+	// 		try {
+	// 			const dbPath = this.getDatabasePath()
+	// 			if (fs.existsSync(dbPath)) {
+	// 				size.db = fs.statSync(dbPath).size
+	// 			}
+	// 		} catch (error) {
+	// 			this.logger.log(`Failed to get DB size: ${error instanceof Error ? error.message : 'Unknown'}`, 'warn')
+	// 		}
+	// 	}
+	//
+	// 	const backupPath = databaseConfig.backup.path
+	// 	if (backupPath && fs.existsSync(backupPath)) {
+	// 		try {
+	// 			size.backups = fastFolderSizeSync(backupPath) || null
+	// 		} catch (error) {
+	// 			this.logger.log(`Failed to calculate backup size: ${error instanceof Error ? error.message : 'Unknown'}`, 'warn')
+	// 		}
+	// 	}
+	//
+	// 	return size
+	// }
+
+	/**
+	 * Проверка, является ли текущая БД SQLite
+	 * Определяется по конфигурации приложения
+	 */
+	// isSQLiteDatabase(): boolean {
+	// 	// Предполагаем, что тип БД указан в конфигурации приложения
+	// 	// Альтернатива: проверять строку подключения из env.DATABASE_URL
+	// 	return env.DATABASE_PROVIDER === 'sqlite'
+	// 		|| (env.DATABASE_URL && env.DATABASE_URL.startsWith('file:'))
+	// }
+
+	/**
+	 * Получение абсолютного пути к файлу SQLite БД
+	 * @throws Error если путь не может быть определен
+	 */
+	// private getDatabasePath(): string {
+	// 	if (!this.isSQLiteDatabase()) {
+	// 		throw new Error('Database is not SQLite')
+	// 	}
+	//
+	// 	// Приоритет: явный путь из конфига > извлечение из DATABASE_URL
+	// 	if (databaseConfig.sqlitePath) {
+	// 		return databaseConfig.sqlitePath
+	// 	}
+	//
+	// 	if (env.DATABASE_URL && env.DATABASE_URL.startsWith('file:')) {
+	// 		// Извлекаем путь из строки подключения Prisma (file:./dev.db -> ./dev.db)
+	// 		return env.DATABASE_URL.substring(5)
+	// 	}
+	//
+	// 	throw new Error('Cannot determine SQLite database path. Configure databaseConfig.sqlitePath or DATABASE_URL')
+	// }
+
+	/**
+	 * Корректное завершение работы
+	 */
+	async disconnect(): Promise<void> {
+		try {
+			await this._prisma.$disconnect()
+		} catch (error) {
+			this.logger.log(`Error during database disconnect: ${error instanceof Error ? error.message : 'Unknown'}`, 'warn')
+		}
 	}
 
 }

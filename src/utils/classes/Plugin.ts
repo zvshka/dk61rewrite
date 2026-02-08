@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import { sep } from 'node:path'
 
 import { importx, resolve } from '@discordx/importer'
-import { AnyEntity, EntityClass } from '@mikro-orm/core'
 import semver from 'semver'
 import { BaseTranslation } from 'typesafe-i18n'
 
@@ -19,7 +18,7 @@ export class Plugin {
 	private _valid: boolean = true
 
 	// Specific values
-	private _entities: { [key: string]: EntityClass<AnyEntity> }
+	private _entities: { [key: string]: any }
 	private _controllers: { [key: string]: typeof BaseController }
 	private _services: { [key: string]: any }
 	private _translations: { [key: string]: BaseTranslation }
@@ -77,7 +76,7 @@ export class Plugin {
 		return import(`${this._path}/api/controllers`)
 	}
 
-	private async getEntities(): Promise<{ [key: string]: EntityClass<AnyEntity> }> {
+	private async getEntities(): Promise<{ [key: string]: any }> {
 		if (!fs.existsSync(`${this._path}/entities`))
 			return {}
 

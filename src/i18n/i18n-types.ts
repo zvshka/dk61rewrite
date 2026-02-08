@@ -7,9 +7,7 @@ export type BaseLocale = 'en'
 
 export type Locales =
 	| 'en'
-	| 'fr'
 	| 'ru'
-	| 'uk'
 
 export type Translation = RootTranslation
 
@@ -47,6 +45,32 @@ type RootTranslation = {
 		NO_COMMAND_DESCRIPTION: string
 	}
 	COMMANDS: {
+		SETTINGS: {
+			OPTIONS: {
+				/**
+				 * S​t​a​r​b​o​a​r​d​ ​c​h​a​n​n​e​l
+				 */
+				STARBOARD_CHANNEL: string
+				/**
+				 * E​m​o​j​i​ ​f​o​r​ ​s​t​a​r​b​o​a​r​d
+				 */
+				STARBOARD_EMOJI: string
+				/**
+				 * E​m​o​j​i​ ​c​o​u​n​t
+				 */
+				STARBOARD_COUNT: string
+				/**
+				 * P​r​e​f​i​x​ ​f​o​r​ ​q​u​o​t​i​n​g
+				 */
+				QUOTES_PREFIX: string
+			}
+			EMBED: {
+				/**
+				 * S​e​t​t​i​n​g​s​ ​u​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+				 */
+				DESCRIPTION: string
+			}
+		}
 		INVITE: {
 			/**
 			 * I​n​v​i​t​e​ ​t​h​e​ ​b​o​t​ ​t​o​ ​y​o​u​r​ ​s​e​r​v​e​r​!
@@ -206,6 +230,32 @@ export type TranslationFunctions = {
 		NO_COMMAND_DESCRIPTION: () => LocalizedString
 	}
 	COMMANDS: {
+		SETTINGS: {
+			OPTIONS: {
+				/**
+				 * Starboard channel
+				 */
+				STARBOARD_CHANNEL: () => LocalizedString
+				/**
+				 * Emoji for starboard
+				 */
+				STARBOARD_EMOJI: () => LocalizedString
+				/**
+				 * Emoji count
+				 */
+				STARBOARD_COUNT: () => LocalizedString
+				/**
+				 * Prefix for quoting
+				 */
+				QUOTES_PREFIX: () => LocalizedString
+			}
+			EMBED: {
+				/**
+				 * Settings updated successfully!
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+		}
 		INVITE: {
 			/**
 			 * Invite the bot to your server!

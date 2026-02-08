@@ -15,6 +15,17 @@ const ru = {
 		NO_COMMAND_DESCRIPTION: 'Описание отсутствует.',
 	},
 	COMMANDS: {
+		SETTINGS: {
+			OPTIONS: {
+				STARBOARD_CHANNEL: 'Канал доски почета',
+				STARBOARD_EMOJI: 'Реакция для доски почета',
+				STARBOARD_COUNT: 'Необходимое количество',
+				QUOTES_PREFIX: 'Префикс для цитат'
+			},
+			EMBED: {
+				DESCRIPTION: 'Настройки успешно обновлены!'
+			}
+		},
 		INVITE: {
 			DESCRIPTION: 'Пригласить бота на свой сервер!',
 			EMBED: {

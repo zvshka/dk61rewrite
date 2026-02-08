@@ -1,3 +1,5 @@
+import type { IPrefixResolver } from 'discordx'
+
 type GeneralConfigType = {
 
 	name: string
@@ -7,7 +9,9 @@ type GeneralConfigType = {
 	timezone: string
 	automaticUploadImagesToImgur: boolean
 
-	simpleCommandsPrefix: string
+	defaultPrefix: string
+	simpleCommandsPrefix: string | IPrefixResolver
+	quoting: string
 	automaticDeferring: boolean
 
 	links: {

@@ -20,7 +20,6 @@
 
 		"baseUrl": ".",
 		"paths": {
-
 			"@/decorators": ["src/utils/decorators"],
 			"@/decorators/*": ["src/plugins/*/utils/decorators"],
 
@@ -61,7 +60,7 @@
 	},
 
 	"include": ["src", "**/*.ts", "src/**/*.json"],
-	"exclude": ["build", "node_modules", "tests", "mikro-orm.config.ts", "package.json"],
+	"exclude": ["build", "node_modules", "tests", "prisma.config.ts", "package.json"],
 	"paths": ["node_modules/*", "src/utils/types/*", "src/plugins/*/utils/types/*"],
 
 	"ts-node": {

@@ -1,5 +1,12 @@
 import { Category } from '@discordx/utilities'
-import { ActionRowBuilder, APISelectMenuOption, CommandInteraction, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
+import {
+	ActionRowBuilder,
+	APISelectMenuOption,
+	CommandInteraction,
+	EmbedBuilder,
+	StringSelectMenuBuilder,
+	StringSelectMenuInteraction,
+} from 'discord.js'
 import { Client, MetadataStorage, SelectMenuComponent } from 'discordx'
 import { TranslationFunctions } from 'src/i18n/i18n-types'
 
@@ -82,11 +89,11 @@ export default class HelpCommand {
 					.map((cmd) => {
 						return `</${
 							cmd.group ? `${cmd.group} ` : ''
-								}${cmd.subgroup ? `${cmd.subgroup} ` : ''
-								}${cmd.name
-								}:${
-								applicationCommands.find(acmd => acmd.name === (cmd.group ? cmd.group : cmd.name))!.id
-								}>`
+						}${cmd.subgroup ? `${cmd.subgroup} ` : ''
+						}${cmd.name
+						}:${
+							applicationCommands.find(acmd => acmd.name === (cmd.group ? cmd.group : cmd.name))!.id
+						}>`
 					})
 
 				embed.addFields([{
@@ -130,7 +137,7 @@ export default class HelpCommand {
 			embed.addFields([{
 				name,
 				value: fieldValue,
-				inline:	resultsOfPage.length > 5,
+				inline: resultsOfPage.length > 5,
 			}])
 		}
 

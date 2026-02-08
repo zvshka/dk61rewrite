@@ -18,7 +18,7 @@ import { apiConfig, logsConfig } from '@/configs'
 import { Schedule, Service } from '@/decorators'
 import { env } from '@/env'
 import { locales } from '@/i18n'
-import { Pastebin, PluginsManager, Scheduler, Store } from '@/services'
+import { PluginsManager, Scheduler, Store } from '@/services'
 import { fileOrDirectoryExists, formatDate, getTypeOfInteraction, numberAlign, oneLine, resolveAction, resolveChannel, resolveDependency, resolveGuild, resolveUser, validString } from '@/utils/functions'
 
 const defaultConsole = { ...console }
@@ -54,7 +54,7 @@ export class Logger {
         @inject(delay(() => Client)) private client: Client,
         @inject(delay(() => Scheduler)) private scheduler: Scheduler,
         @inject(delay(() => Store)) private store: Store,
-        @inject(delay(() => Pastebin)) private pastebin: Pastebin,
+        // @inject(delay(() => Pastebin)) private pastebin: Pastebin,
         @inject(delay(() => PluginsManager)) private pluginsManager: PluginsManager
 	) {
 		if (!this.store.get('botHasBeenReloaded')) {
@@ -462,9 +462,9 @@ export class Logger {
 		}
 
 		if (embedMessage.length >= 4096) {
-			const paste = await this.pastebin.createPaste(`${embedTitle}\n${embedMessage}`)
-			console.log(paste?.getLink())
-			embedMessage = `[Pastebin of the error](https://rentry.co/${paste?.getLink()})`
+			// const paste = await this.pastebin.createPaste(`${embedTitle}\n${embedMessage}`)
+			// console.log(paste?.getLink())
+			// embedMessage = `[Pastebin of the error](https://rentry.co/${paste?.getLink()})`
 		}
 
 		if (logsConfig.error.console)

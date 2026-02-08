@@ -1,9 +1,8 @@
-import { ActivityType } from 'discord.js'
+import { ActivityType, Events } from 'discord.js'
 import { Client } from 'discordx'
 
 import { generalConfig } from '@/configs'
 import { Discord, Injectable, Once, Schedule } from '@/decorators'
-import { Data } from '@/entities'
 import { Database, Logger, Scheduler, Store } from '@/services'
 import { resolveDependency, syncAllGuilds } from '@/utils/functions'
 
@@ -20,8 +19,8 @@ export default class ReadyEvent {
 
 	private activityIndex = 0
 
-	@Once('ready')
-	async readyHandler([client]: [Client]) {
+	@Once(Events.ClientReady)
+	async clientReadyHandler([client]: [Client]) {
 		// make sure all guilds are cached
 		await client.guilds.fetch()
 
@@ -32,7 +31,7 @@ export default class ReadyEvent {
 		await this.changeActivity()
 
 		// update last startup time in the database
-		await this.db.get(Data).set('lastStartup', Date.now())
+		this.db.dataStore.set('lastStartup', Date.now())
 
 		// start scheduled jobs
 		this.scheduler.startAllJobs()
@@ -57,7 +56,7 @@ export default class ReadyEvent {
 		if (activity.type === 'STREAMING') { // streaming activity
 			client.user?.setStatus('online')
 			client.user?.setActivity(activity.text, {
-				url: 'https://www.twitch.tv/discord',
+				url: 'https://www.twitch.tv/zvshka',
 				type: ActivityType.Streaming,
 			})
 		} else { // other activities

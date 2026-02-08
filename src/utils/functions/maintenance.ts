@@ -1,4 +1,3 @@
-import { Data } from '@/entities'
 import { Database } from '@/services'
 import { resolveDependency } from '@/utils/functions'
 
@@ -7,8 +6,7 @@ import { resolveDependency } from '@/utils/functions'
  */
 export async function isInMaintenance(): Promise<boolean> {
 	const db = await resolveDependency(Database)
-	const dataRepository = db.get(Data)
-	const maintenance = await dataRepository.get('maintenance')
+	const maintenance = db.dataStore.get('maintenance')
 
 	return maintenance
 }
@@ -18,6 +16,6 @@ export async function isInMaintenance(): Promise<boolean> {
  */
 export async function setMaintenance(maintenance: boolean) {
 	const db = await resolveDependency(Database)
-	const dataRepository = db.get(Data)
-	await dataRepository.set('maintenance', maintenance)
+
+	db.dataStore.set('maintenance', maintenance)
 }

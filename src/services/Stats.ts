@@ -1,20 +1,26 @@
 import process from 'node:process'
 
-import { EntityRepository } from '@mikro-orm/core'
 import { constant } from 'case'
 import { Client, SimpleCommandMessage } from 'discordx'
-import osu from 'node-os-utils'
+import { OSUtils } from 'node-os-utils'
 import pidusage from 'pidusage'
 import { delay, inject } from 'tsyringe'
 
 import { statsConfig } from '@/configs'
 import { Schedule, Service } from '@/decorators'
-import { Guild, Stat, User } from '@/entities'
 import { Database } from '@/services'
-import { datejs, formatDate, getTypeOfInteraction, resolveAction, resolveChannel, resolveGuild, resolveUser } from '@/utils/functions'
+import {
+	datejs,
+	formatDate,
+	getTypeOfInteraction,
+	resolveAction,
+	resolveChannel,
+	resolveGuild,
+	resolveUser,
+} from '@/utils/functions'
 
 const allInteractions = {
-	$or: [
+	OR: [
 		{ type: 'SIMPLE_COMMAND_MESSAGE' },
 		{ type: 'CHAT_INPUT_COMMAND_INTERACTION' },
 		{ type: 'USER_CONTEXT_MENU_COMMAND_INTERACTION' },
@@ -25,13 +31,13 @@ const allInteractions = {
 @Service()
 export class Stats {
 
-	private statsRepo: EntityRepository<Stat>
+	private osu: OSUtils
 
 	constructor(
 		private db: Database,
-        @inject(delay(() => Client)) private client: Client
+		@inject(delay(() => Client)) private client: Client
 	) {
-		this.statsRepo = this.db.get(Stat)
+		this.osu = new OSUtils()
 	}
 
 	/**
@@ -41,13 +47,13 @@ export class Stats {
 	 * @param additionalData in JSON format
 	 */
 	async register(type: string, value: string, additionalData?: any) {
-		const stat = new Stat()
-		stat.type = type
-		stat.value = value
-		if (additionalData)
-			stat.additionalData = additionalData
-
-		await this.db.em.persistAndFlush(stat)
+		await this.db.prisma.stat.create({
+			data: {
+				type,
+				value,
+				additionalData,
+			},
+		})
 	}
 
 	/**
@@ -93,78 +99,51 @@ export class Stats {
 	 * Returns an object with the total stats for each type.
 	 */
 	async getTotalStats() {
-		const totalStatsObj = {
+		return {
 			TOTAL_USERS: this.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0),
 			TOTAL_GUILDS: this.client.guilds.cache.size,
-			TOTAL_ACTIVE_USERS: await this.db.get(User).count(),
-			TOTAL_COMMANDS: await this.statsRepo.count(allInteractions),
+			TOTAL_ACTIVE_USERS: await this.db.prisma.user.count(),
+			TOTAL_COMMANDS: await this.db.prisma.stat.count({ where: allInteractions }),
 		}
-
-		return totalStatsObj
 	}
 
 	/**
 	 * Get the last saved interaction.
 	 */
 	async getLastInteraction() {
-		const lastInteraction = await this.statsRepo.findOne(allInteractions, {
-			orderBy: { createdAt: 'DESC' },
+		return this.db.prisma.stat.findFirst({
+			where: allInteractions,
+			orderBy: {
+				createdAt: 'desc',
+			},
 		})
-
-		return lastInteraction
 	}
 
 	/**
 	 * Get the last guild added to the database.
 	 */
 	async getLastGuildAdded() {
-		const guilds = await this.db.get(Guild).find({}, {
-			orderBy: { createdAt: 'DESC' },
+		return this.db.prisma.guild.findFirst({
+			orderBy: { createdAt: 'desc' },
 		})
-
-		return guilds[0]
 	}
 
 	/**
 	 * Get commands sorted by total amount of uses in DESC order.
 	 */
 	async getTopCommands() {
-		if ('createQueryBuilder' in this.db.em) {
-			const qb = this.db.em.createQueryBuilder(Stat)
-			const query = qb
-				.select(['type', 'value as name', 'count(*) as count'])
-				.where(allInteractions)
-				.groupBy(['type', 'value'])
-
-			const slashCommands = await query.execute()
-
-			return slashCommands.sort((a: any, b: any) => b.count - a.count)
-		} else if ('aggregate' in this.db.em) {
-			// @ts-expect-error
-			const slashCommands = await this.db.em.aggregate(Stat, [
-				{
-					$match: allInteractions,
-				},
-				{
-					$group: {
-						_id: { type: '$type', value: '$value' },
-						count: { $sum: 1 },
-					},
-				},
-				{
-					$replaceRoot: {
-						newRoot: {
-							$mergeObjects: [
-								'$_id',
-								{ count: '$count' },
-							],
-						},
-					},
-				},
-			])
-
-			return slashCommands.sort((a: any, b: any) => b.count - a.count)
-		} else {
+		try {
+			// Для SQLite/PostgreSQL используем raw SQL для оптимизации
+			return await this.db.prisma.$queryRaw`
+                SELECT type,
+                       value as name,
+                       COUNT(*) as count
+                FROM "stat"
+                WHERE type IN (${allInteractions.OR.map(x => x.type).join(', ')})
+                GROUP BY type, value
+                ORDER BY count DESC
+			`
+		} catch (e) {
 			return []
 		}
 	}
@@ -181,13 +160,16 @@ export class Stats {
 			'>1000': 0,
 		}
 
-		const users = await this.db.get(User).findAll()
+		const users = await this.db.prisma.user.findMany()
 
 		for (const user of users) {
-			const commandsCount = await this.db.get(Stat).count({
-				...allInteractions,
-				additionalData: {
-					user: user.id,
+			const commandsCount = await this.db.prisma.stat.count({
+				where: {
+					...allInteractions,
+					additionalData: {
+						path: ['user'],
+						equals: user.id,
+					},
 				},
 			})
 
@@ -215,17 +197,24 @@ export class Stats {
 			totalCommands: number
 		}[] = []
 
-		const guilds = await this.db.get(Guild).getActiveGuilds()
+		const guilds = await this.db.prisma.guild.findMany({
+			where: {
+				deleted: false,
+			},
+		})
 
 		for (const guild of guilds) {
 			const discordGuild = await this.client.guilds.fetch(guild.id).catch(() => null)
 			if (!discordGuild)
 				continue
 
-			const commandsCount = await this.db.get(Stat).count({
-				...allInteractions,
-				additionalData: {
-					guild: guild.id,
+			const commandsCount = await this.db.prisma.stat.count({
+				where: {
+					...allInteractions,
+					additionalData: {
+						path: ['guild'],
+						equals: guild.id,
+					},
 				},
 			})
 
@@ -266,7 +255,7 @@ export class Stats {
 	 * @param stats
 	 */
 	cumulateStatPerInterval(stats: StatPerInterval): StatPerInterval {
-		const cumulatedStats = stats
+		return stats
 			.reverse()
 			.reduce((acc, stat, i) => {
 				if (acc.length === 0) {
@@ -281,8 +270,6 @@ export class Stats {
 				return acc
 			}, [] as StatPerInterval)
 			.reverse()
-
-		return cumulatedStats
 	}
 
 	/**
@@ -299,14 +286,11 @@ export class Stats {
 				return aa < bb ? -1 : (aa > bb ? 1 : 0)
 			})
 
-		const sumStats = allDays.map(day => ({
+		return allDays.map(day => ({
 			date: day,
-			count:
-            (stats1.find(stat => stat.date === day)?.count || 0)
-            + (stats2.find(stat => stat.date === day)?.count || 0),
+			count: (stats1.find(stat => stat.date === day)?.count || 0)
+			+ (stats2.find(stat => stat.date === day)?.count || 0),
 		}))
-
-		return sumStats
 	}
 
 	/**
@@ -318,11 +302,13 @@ export class Stats {
 		const start = datejs(date).startOf('day').toDate()
 		const end = datejs(date).endOf('day').toDate()
 
-		const stats = await this.statsRepo.find({
-			type,
-			createdAt: {
-				$gte: start,
-				$lte: end,
+		const stats = await this.db.prisma.stat.findMany({
+			where: {
+				type,
+				createdAt: {
+					gte: start,
+					lte: end,
+				},
 			},
 		})
 
@@ -340,7 +326,7 @@ export class Stats {
 			cpu: pidUsage.cpu.toFixed(1),
 			memory: {
 				usedInMb: (pidUsage.memory / (1024 * 1024)).toFixed(1),
-				percentage: (pidUsage.memory / osu.mem.totalMem() * 100).toFixed(1),
+				percentage: (pidUsage.memory / Number(this.osu.memory.totalMem()) * 100).toFixed(1),
 			},
 		}
 	}
@@ -350,12 +336,12 @@ export class Stats {
 	 */
 	async getHostUsage() {
 		return {
-			cpu: await osu.cpu.usage(),
-			memory: await osu.mem.info(),
-			os: await osu.os.oos(),
-			uptime: await osu.os.uptime(),
-			hostname: await osu.os.hostname(),
-			platform: await osu.os.platform(),
+			cpu: await this.osu.cpu.usage(),
+			memory: await this.osu.memory.info(),
+			os: this.osu.getPlatformInfo().arch,
+			uptime: await this.osu.system.uptime(),
+			hostname: '',
+			platform: this.osu.getPlatformInfo().platform,
 
 			// drive: osu.drive.info(),
 		}

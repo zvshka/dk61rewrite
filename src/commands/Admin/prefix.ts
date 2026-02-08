@@ -4,9 +4,8 @@ import { Client } from 'discordx'
 
 import { generalConfig } from '@/configs'
 import { Discord, Injectable, Slash, SlashOption } from '@/decorators'
-import { Guild } from '@/entities'
 import { UnknownReplyError } from '@/errors'
-import { Guard, UserPermissions } from '@/guards'
+import { Guard, GuildOnly, UserPermissions } from '@/guards'
 import { Database } from '@/services'
 import { resolveGuild, simpleSuccessEmbed } from '@/utils/functions'
 
@@ -17,11 +16,13 @@ export default class PrefixCommand {
 
 	constructor(
 		private db: Database
-	) {}
+	) {
+	}
 
 	@Slash({ name: 'prefix' })
 	@Guard(
-		UserPermissions(['Administrator'])
+		UserPermissions(['Administrator']),
+		GuildOnly
 	)
 	async prefix(
 		@SlashOption({
@@ -34,20 +35,31 @@ export default class PrefixCommand {
 			{ localize }: InteractionData
 	) {
 		const guild = resolveGuild(interaction)
-		const guildData = await this.db.get(Guild).findOne({ id: guild?.id || '' })
+
+		if (!guild) throw new UnknownReplyError(interaction)
+
+		const guildData = await this.db.prisma.guild.findFirst({
+			where: {
+				id: guild?.id || '',
+			},
+		})
 
 		if (guildData) {
-			guildData.prefix = prefix || null
-			this.db.em.persistAndFlush(guildData)
+			await this.db.prisma.guild.update({
+				where: {
+					id: guild.id,
+				},
+				data: {
+					prefix: prefix || null,
+				},
+			})
 
 			simpleSuccessEmbed(
 				interaction,
 				localize.COMMANDS.PREFIX.EMBED.DESCRIPTION({
-					prefix: prefix || generalConfig.simpleCommandsPrefix,
+					prefix: prefix || generalConfig.defaultPrefix,
 				})
 			)
-		} else {
-			throw new UnknownReplyError(interaction)
 		}
 	}
 

@@ -3,7 +3,7 @@ import { ClientOptions } from 'discordx'
 
 import { generalConfig, logsConfig } from '@/configs'
 import { env } from '@/env'
-import { ExtractLocale, Maintenance, NotBot, RequestContextIsolator } from '@/guards'
+import { ExtractLocale, Maintenance, NotBot } from '@/guards'
 
 export function clientConfig(): ClientOptions {
 	return {
@@ -33,7 +33,6 @@ export function clientConfig(): ClientOptions {
 		silent: !logsConfig.debug,
 
 		guards: [
-			RequestContextIsolator,
 			NotBot,
 			Maintenance,
 			ExtractLocale,

@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import { sep } from 'node:path'
 
 import { resolve } from '@discordx/importer'
-import { AnyEntity, EntityClass } from '@mikro-orm/core'
+// import { AnyEntity, EntityClass } from '@mikro-orm/core'
 import { BaseTranslation } from 'typesafe-i18n'
 import { ImportLocaleMapping, storeTranslationsToDisk } from 'typesafe-i18n/importer'
 
@@ -33,9 +33,9 @@ export class PluginsManager {
 		}
 	}
 
-	public getEntities(): EntityClass<AnyEntity>[] {
-		return this._plugins.map(plugin => Object.values(plugin.entities)).flat()
-	}
+	// public getEntities(): EntityClass<AnyEntity>[] {
+	// 	return this._plugins.map(plugin => Object.values(plugin.entities)).flat()
+	// }
 
 	public getControllers(): typeof BaseController[] {
 		return this._plugins.map(plugin => Object.values(plugin.controllers)).flat()

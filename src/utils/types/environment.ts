@@ -2,7 +2,7 @@ import process from 'node:process'
 
 import { cleanEnv, num, str } from 'envalid'
 
-import { apiConfig, generalConfig, mikroORMConfig } from '@/configs'
+import { apiConfig, generalConfig } from '@/configs'
 
 export const env = cleanEnv(process.env, {
 	NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
@@ -10,6 +10,8 @@ export const env = cleanEnv(process.env, {
 	BOT_TOKEN: str(),
 	TEST_GUILD_ID: str(),
 	BOT_OWNER_ID: str(),
+
+	DATABASE_URL: str(),
 
 	DATABASE_HOST: str({ default: undefined }),
 	DATABASE_PORT: num({ default: undefined }),
@@ -24,21 +26,7 @@ export const env = cleanEnv(process.env, {
 })
 
 export function checkEnvironmentVariables() {
-	const config = mikroORMConfig[env.NODE_ENV]
-
-	// @ts-expect-error
-	const isSqliteDatabase = !!config.dbName && !config.port
-	if (!isSqliteDatabase) {
-		cleanEnv(process.env, {
-			DATABASE_HOST: str(),
-			DATABASE_PORT: num(),
-			DATABASE_NAME: str(),
-			DATABASE_USER: str(),
-			DATABASE_PASSWORD: str(),
-		})
-	}
-
-	if (apiConfig.enabled === true) {
+	if (apiConfig.enabled) {
 		cleanEnv(process.env, {
 			API_PORT: num(),
 			API_ADMIN_TOKEN: str(),

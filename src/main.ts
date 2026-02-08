@@ -4,7 +4,6 @@ import 'dotenv/config'
 import process from 'node:process'
 
 import { resolve } from '@discordx/importer'
-import { RequestContext } from '@mikro-orm/core'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import discordLogs from 'discord-logs'
@@ -107,7 +106,7 @@ async function init() {
 	await pluginManager.loadPlugins()
 	await pluginManager.syncTranslations()
 
-	// strart spinner
+	// start spinner
 	console.log('\n')
 	logger.startSpinner('Starting...')
 
@@ -125,67 +124,68 @@ async function init() {
 
 	// import all the commands and events
 	await loadFiles(importPattern)
-	await pluginManager.importCommands()
-	await pluginManager.importEvents()
+	// await pluginManager.importCommands()
+	// await pluginManager.importEvents()
 
-	RequestContext.create(db.orm.em, async () => {
-		const watcher = env.NODE_ENV === 'development' ? chokidar.watch(importPattern) : null
+	// Инициализация данных и запуск бота
+	// (RequestContext больше не нужен - это было специфично для MikroORM)
+	const watcher = env.NODE_ENV === 'development' ? chokidar.watch(importPattern) : null
 
-		// init the data table if it doesn't exist
-		await initDataTable()
+	// init the data table if it doesn't exist
+	await initDataTable(db)
 
-		// init plugins services
-		await pluginManager.initServices()
+	// init plugins services
+	await pluginManager.initServices()
 
-		// init the plugin main file
-		await pluginManager.execMains()
+	// init the plugin main file
+	await pluginManager.execMains()
 
-		// log in with the bot token
-		if (!env.BOT_TOKEN) throw new NoBotTokenError()
-		client.login(env.BOT_TOKEN)
-			.then(async () => {
-				if (env.NODE_ENV === 'development') {
-					// reload commands and events when a file changes
-					watcher?.on('change', () => reload(client))
+	// log in with the bot token
+	if (!env.BOT_TOKEN) throw new NoBotTokenError()
 
-					// reload commands and events when a file is added
-					watcher?.on('add', () => reload(client))
+	client.login(env.BOT_TOKEN)
+		.then(async () => {
+			if (env.NODE_ENV === 'development') {
+				// reload commands and events when a file changes
+				watcher?.on('change', () => reload(client))
 
-					// reload commands and events when a file is deleted
-					watcher?.on('unlink', () => reload(client))
+				// reload commands and events when a file is added
+				watcher?.on('add', () => reload(client))
+
+				// reload commands and events when a file is deleted
+				watcher?.on('unlink', () => reload(client))
+			}
+
+			// start the api server
+			if (apiConfig.enabled) {
+				const server = await resolveDependency(Server)
+				await server.start()
+			}
+
+			// upload images to imgur if configured
+			if (env.IMGUR_CLIENT_ID && generalConfig.automaticUploadImagesToImgur) {
+				const imagesUpload = await resolveDependency(ImagesUpload)
+				await imagesUpload.syncWithDatabase()
+			}
+
+			const store = container.resolve(Store)
+			store.select('ready').subscribe(async (ready) => {
+				// check that all properties that are not null are set to true
+				if (
+					Object
+						.values(ready)
+						.filter(value => value !== null)
+						.every(value => value === true)
+				) {
+					const eventManager = await resolveDependency(EventManager)
+					eventManager.emit('templateReady') // the template is fully ready!
 				}
-
-				// start the api server
-				if (apiConfig.enabled) {
-					const server = await resolveDependency(Server)
-					await server.start()
-				}
-
-				// upload images to imgur if configured
-				if (env.IMGUR_CLIENT_ID && generalConfig.automaticUploadImagesToImgur) {
-					const imagesUpload = await resolveDependency(ImagesUpload)
-					await imagesUpload.syncWithDatabase()
-				}
-
-				const store = await container.resolve(Store)
-				store.select('ready').subscribe(async (ready) => {
-					// check that all properties that are not null are set to true
-					if (
-						Object
-							.values(ready)
-							.filter(value => value !== null)
-							.every(value => value === true)
-					) {
-						const eventManager = await resolveDependency(EventManager)
-						eventManager.emit('templateReady') // the template is fully ready!
-					}
-				})
 			})
-			.catch((err) => {
-				console.error(err)
-				process.exit(1)
-			})
-	})
+		})
+		.catch((err) => {
+			console.error(err)
+			process.exit(1)
+		})
 }
 
 init()

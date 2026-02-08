@@ -6,7 +6,6 @@ import { Client, MetadataStorage } from 'discordx'
 
 import { BotOnline, DevAuthenticated } from '@/api/middlewares'
 import { generalConfig } from '@/configs'
-import { Guild, User } from '@/entities'
 import { Database } from '@/services'
 import { BaseController } from '@/utils/classes'
 import { getDevs, isDev, isInMaintenance, resolveDependencies, setMaintenance } from '@/utils/functions'
@@ -62,7 +61,9 @@ export class BotController extends BaseController {
 			discordGuild.iconURL = discordRawGuild.iconURL()
 			discordGuild.bannerURL = discordRawGuild.bannerURL()
 
-			const databaseGuild = await this.db.get(Guild).findOne({ id: discordGuild.id })
+			const databaseGuild = await this.db.prisma.guild.findUnique({
+				where: { id: discordGuild.id },
+			})
 
 			body.push({
 				discord: discordGuild,
@@ -85,7 +86,9 @@ export class BotController extends BaseController {
 		discordGuild.bannerURL = discordRawGuild.bannerURL()
 
 		// get database guild
-		const databaseGuild = await this.db.get(Guild).findOne({ id })
+		const databaseGuild = await this.db.prisma.guild.findUnique({
+			where: { id: discordGuild.id },
+		})
 
 		return {
 			discord: discordGuild,
@@ -118,8 +121,7 @@ export class BotController extends BaseController {
 		let invite: any
 		for (const channel of guildChannels.values()) {
 			if (
-				channel
-				&& (guild.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.CreateInstantInvite) || false)
+				channel && guild.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.CreateInstantInvite)
 				&& [ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildAnnouncement].includes(channel.type)
 			) {
 				invite = await (channel as BaseGuildTextChannel | BaseGuildVoiceChannel | NewsChannel | undefined)?.createInvite()
@@ -148,7 +150,9 @@ export class BotController extends BaseController {
 					discordUser.iconURL = member.user.displayAvatarURL()
 					discordUser.bannerURL = member.user.bannerURL()
 
-					const databaseUser = await this.db.get(User).findOne({ id: discordUser.id })
+					const databaseUser = await this.db.prisma.user.findUnique({
+						where: { id: discordUser.id },
+					})
 
 					users.push({
 						discord: discordUser,
@@ -173,7 +177,9 @@ export class BotController extends BaseController {
 		discordUser.bannerURL = discordRawUser.bannerURL()
 
 		// get database user
-		const databaseUser = await this.db.get(User).findOne({ id })
+		const databaseUser = await this.db.prisma.user.findUnique({
+			where: { id: discordUser.id },
+		})
 
 		return {
 			discord: discordUser,

@@ -1,7 +1,6 @@
 import { Message } from 'discord.js'
 
 import { generalConfig } from '@/configs'
-import { Guild } from '@/entities'
 import { Database } from '@/services'
 import { resolveDependency } from '@/utils/functions'
 
@@ -11,10 +10,19 @@ import { resolveDependency } from '@/utils/functions'
  */
 export async function getPrefixFromMessage(message: Message) {
 	const db = await resolveDependency(Database)
-	const guildRepo = db.get(Guild)
+
+	const prefixes = [generalConfig.defaultPrefix]
 
 	const guildId = message.guild?.id
-	const guildData = await guildRepo.findOne({ id: guildId })
+	const guildData = await db.prisma.guild.findUnique({
+		where: {
+			id: guildId,
+		},
+	})
 
-	return guildData?.prefix || generalConfig.simpleCommandsPrefix
+	if (guildData && guildData.prefix) {
+		prefixes.push(guildData.prefix)
+	}
+
+	return prefixes
 }

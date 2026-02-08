@@ -1,7 +1,7 @@
 import '@tsed/swagger'
 
-import { CreateRequestContext, MikroORM } from '@mikro-orm/core'
-import { Inject, PlatformAcceptMimesMiddleware, PlatformApplication } from '@tsed/common'
+import { Inject, PlatformApplication } from '@tsed/common'
+import { PlatformAcceptMimesMiddleware } from '@tsed/platform-accept-mimes'
 import { PlatformExpress } from '@tsed/platform-express'
 import bodyParser from 'body-parser'
 
@@ -16,14 +16,11 @@ export class Server {
 
 	@Inject() app: PlatformApplication
 
-	orm: MikroORM
-
 	constructor(
 		private pluginsManager: PluginsManager,
 		private store: Store,
 		db: Database
 	) {
-		this.orm = db.orm
 	}
 
 	$beforeRoutesInit() {
@@ -36,7 +33,6 @@ export class Server {
 		return null
 	}
 
-	@CreateRequestContext()
 	async start(): Promise<void> {
 		const platform = await PlatformExpress.bootstrap(Server, {
 			rootDir: __dirname,

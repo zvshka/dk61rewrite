@@ -1,4 +1,3 @@
-import { Image } from '@/entities'
 import { Database } from '@/services'
 import { resolveDependency } from '@/utils/functions'
 
@@ -9,16 +8,17 @@ import { resolveDependency } from '@/utils/functions'
  */
 export async function getImage(imageName: string): Promise<string | null> {
 	const db = await resolveDependency(Database)
-	const imageRepo = db.get(Image)
 
-	const image = await imageRepo.findOne({
-		$or: [
-			{ fileName: imageName },
-			{ fileName: `${imageName}.png` },
-			{ fileName: `${imageName}.jpg` },
-			{ fileName: `${imageName}.jpeg` },
-			{ fileName: `${imageName}.gif` },
-		],
+	const image = await db.prisma.image.findFirst({
+		where: {
+			OR: [
+				{ filename: imageName },
+				{ filename: `${imageName}.png` },
+				{ filename: `${imageName}.jpg` },
+				{ filename: `${imageName}.jpeg` },
+				{ filename: `${imageName}.gif` },
+			],
+		},
 	})
 
 	return image?.url || null

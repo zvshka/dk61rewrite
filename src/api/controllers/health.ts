@@ -1,12 +1,10 @@
 import { Controller, Get, UseBefore } from '@tsed/common'
 import { Client } from 'discordx'
 
-import { Data } from '@/entities'
+import { DevAuthenticated } from '@/api/middlewares'
 import { Database, Logger, Stats } from '@/services'
 import { BaseController } from '@/utils/classes'
 import { isInMaintenance, resolveDependencies } from '@/utils/functions'
-
-import { DevAuthenticated } from '../middlewares/devAuthenticated'
 
 @Controller('/health')
 export class HealthController extends BaseController {
@@ -32,7 +30,7 @@ export class HealthController extends BaseController {
 		return {
 			online: this.client.user?.presence.status !== 'offline',
 			uptime: this.client.uptime,
-			lastStartup: await this.db.get(Data).get('lastStartup'),
+			lastStartup: await this.db.dataStore.get('lastStartup'),
 		}
 	}
 

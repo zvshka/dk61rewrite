@@ -9,6 +9,7 @@ import { SimpleCommandMessage } from 'discordx'
 export async function replyToInteraction(interaction: CommandInteraction | SimpleCommandMessage, message: string | { [key: string]: any }) {
 	if (interaction instanceof CommandInteraction)
 		await interaction.followUp(message)
-	else if (interaction instanceof SimpleCommandMessage)
+	else {
 		await interaction.message.reply(message)
+	}
 }
