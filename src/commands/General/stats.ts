@@ -5,7 +5,7 @@ import { Client } from 'discordx'
 
 import { Discord, Injectable, Slash, SlashOption } from '@/decorators'
 import { Stats } from '@/services'
-import { getColor } from '@/utils/functions'
+import { getColor, simpleErrorEmbed } from '@/utils/functions'
 
 const statsResolver: StatsResolverType = [
 	{
@@ -56,6 +56,10 @@ export default class StatsCommand {
 			{ localize }: InteractionData
 	) {
 		const embeds: EmbedBuilder[] = []
+
+		// TODO Перевод
+		if (days <= 0) return simpleErrorEmbed(interaction, 'Количество дней не может быть меньше 1.')
+		if (days > 120) return simpleErrorEmbed(interaction, 'Количество дней не может превышать 120.')
 
 		for (const stat of statsResolver) {
 			const stats = await stat.data(this.stats, days)
