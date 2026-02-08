@@ -1,3 +1,5 @@
+import { StatsConfigType } from '../utils/types/configs'
+
 export const statsConfig: StatsConfigType = {
 
 	interaction: {

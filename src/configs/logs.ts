@@ -1,3 +1,5 @@
+import { LogsConfigType } from '../utils/types/configs'
+
 export const logsConfig: LogsConfigType = {
 
 	debug: false, // set the discordx client debug logs
