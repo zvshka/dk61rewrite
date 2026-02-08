@@ -8,9 +8,10 @@
     "version": "2.4"
   },
   "scripts": {
-    "build": "npm run build:clean && npm run build:compile",
+    "build": "npm run build:clean && npm run build:prisma && npm run build:compile",
+    "build:prisma": "prisma generate",
     "build:clean": "rimraf build/",
-    "build:compile": "tsc --project tsconfig.json --skipLibCheck && npm run build:alias && prisma generate",
+    "build:compile": "tsc --project tsconfig.json --skipLibCheck && npm run build:alias ",
     "build:alias": "tsc-alias -p tsconfig.json",
     "build:start": "npm run build && npm run start",
     "install:plugins": "installoop --rootDir=./build/plugins",
