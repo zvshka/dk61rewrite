@@ -21,7 +21,6 @@ function splitEmoji(string: string) {
 function fillQuoteText(
 	ctx: SKRSContext2D,
 	img: Image,
-	ent: string,
 	x: number,
 	y: number,
 	currWidth: number,
@@ -30,22 +29,17 @@ function fillQuoteText(
 	fontSize: number,
 	baseLine: number
 ) {
-	if (ent.startsWith('«')) {
-		ctx.fillText('«', x + currWidth, y)
-		currWidth += ctx.measureText('«').width + fontSize / 5
-	}
+	const emojiWidthCoefficient = img.height / fontSize
+	const emojiWidth = img.width / emojiWidthCoefficient
 	ctx.drawImage(
 		img,
 		x + currWidth + emojiSideMargin,
 		y + emojiUpMargin - fontSize - baseLine,
-		img.width * (fontSize / img.height),
+		emojiWidth,
 		fontSize
 	)
-	currWidth += fontSize + emojiSideMargin * 2 + fontSize / 5
-	if (ent.endsWith('».')) {
-		ctx.fillText('».', x + currWidth, y)
-		currWidth += ctx.measureText('».').width + fontSize / 5
-	}
+
+	currWidth += emojiWidth + emojiSideMargin * 2 + fontSize / 5
 
 	return currWidth
 }
@@ -75,15 +69,23 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 		const parsed = parse(ent) // parsing to check later if emote is an twemoji
 		const regExToSearch = /<?(a:|:)\w*:(\d*)>/
 		const matched = ent.match(regExToSearch)
+		if (ent.startsWith('«')) {
+			ctx.fillText('«', x + currWidth, y)
+			currWidth += ctx.measureText('«').width + fontSize / 5
+		}
+		if (ent.endsWith('».')) {
+			ctx.fillText('».', x + currWidth, y)
+			currWidth += ctx.measureText('».').width + fontSize / 5
+		}
 		if (matched) {
 			const img = await loadImage(
 				`https://cdn.discordapp.com/emojis/${matched![2]}.png`
 			)
-			currWidth = fillQuoteText(ctx, img, ent, x, y, currWidth, emojiSideMargin, emojiUpMargin, fontSize, baseLine)
+			currWidth = fillQuoteText(ctx, img, x, y, currWidth, emojiSideMargin, emojiUpMargin, fontSize, baseLine)
 		} else if (parsed.length > 0) {
 			// checking if twemoji or not
 			const img = await loadImage(parsed[0].url)
-			currWidth = fillQuoteText(ctx, img, ent, x, y, currWidth, emojiSideMargin, emojiUpMargin, fontSize, baseLine)
+			currWidth = fillQuoteText(ctx, img, x, y, currWidth, emojiSideMargin, emojiUpMargin, fontSize, baseLine)
 		} else {
 			// if string
 			ctx.fillText(ent, x + currWidth, y)
