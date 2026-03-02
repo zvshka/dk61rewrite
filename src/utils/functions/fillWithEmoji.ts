@@ -3,7 +3,7 @@ import { parse } from '@twemoji/parser'
 
 // starting function from here
 const emojiPercent1 = 0.1
-const emojiPercent2 = 0.4
+const emojiPercent2 = 0.9
 
 function splitEmoji(string: string) {
 	let toReturn = ''
