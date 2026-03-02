@@ -80,21 +80,6 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 			currWidth += fontSize / 5
 		}
 
-		// Обработка кавычек (если нужно)
-		if (ent.startsWith('«')) {
-			ctx.fillText('«', x + currWidth, y)
-			currWidth += ctx.measureText('«').width
-		}
-		if (ent.endsWith('»')) {
-			// Обрабатываем » и ». отдельно
-			const hasDot = ent.endsWith('».')
-			const quoteText = hasDot ? '».' : '»'
-			ctx.fillText(quoteText, x + currWidth, y)
-			currWidth += ctx.measureText(quoteText).width
-			lastWasEmoji = false
-			continue
-		}
-
 		// Определяем, нужно ли применять отступы:
 		// - если это эмодзи, и следующий/предыдущий элемент — тоже эмодзи → отступы не нужны
 		const applyEmojiMargins = isEmoji && !lastWasEmoji // упрощённо: отступы только при смене типа
@@ -107,6 +92,14 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 		}
 
 		if (img !== null) {
+			if (ent.startsWith('«')) {
+				ctx.fillText('«', x + currWidth, y)
+				currWidth += ctx.measureText('«').width + fontSize / 5
+			}
+			if (ent.endsWith('».')) {
+				ctx.fillText('».', x + currWidth, y)
+				currWidth += ctx.measureText('».').width + fontSize / 5
+			}
 			currWidth = fillQuoteWithImage(
 				ctx,
 				img,
