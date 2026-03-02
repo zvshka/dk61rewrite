@@ -1,5 +1,9 @@
-import { loadImage, SKRSContext2D } from '@napi-rs/canvas'
+import { Image, loadImage, SKRSContext2D } from '@napi-rs/canvas'
 import { parse } from '@twemoji/parser'
+
+// starting function from here
+const emojiPercent1 = 0.1
+const emojiPercent2 = 0.7
 
 function splitEmoji(string: string) {
 	let toReturn = ''
@@ -13,14 +17,44 @@ function splitEmoji(string: string) {
 
 	return toReturn.trim()
 }
+
+function fillQuoteText(
+	ctx: SKRSContext2D,
+	img: Image,
+	ent: string,
+	x: number,
+	y: number,
+	currWidth: number,
+	emojiSideMargin: number,
+	emojiUpMargin: number,
+	fontSize: number,
+	baseLine: number
+) {
+	if (ent.startsWith('«')) {
+		ctx.fillText('«', x + currWidth, y)
+		currWidth += ctx.measureText('«').width + fontSize / 5
+	}
+	ctx.drawImage(
+		img,
+		x + currWidth + emojiSideMargin,
+		y + emojiUpMargin - fontSize - baseLine,
+		img.width * (fontSize / img.height),
+		fontSize
+	)
+	currWidth += fontSize + emojiSideMargin * 2 + fontSize / 5
+	if (ent.endsWith('».')) {
+		ctx.fillText('».', x + currWidth, y)
+		currWidth += ctx.measureText('».').width + fontSize / 5
+	}
+
+	return currWidth
+}
+
 export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number, y: number) {
 	if (!text) throw new Error('(discord-emoji-canvas) No Text was provided')
 	if (!ctx) throw new Error(`(discord-emoji-canvas) No Context was provided`)
 	if (!x) throw new Error(`(discord-emoji-canvas) No x axis was provided`)
 	if (!y) throw new Error(`(discord-emoji-canvas) No y axis was provided`)
-	// starting function from here
-	const emojiPercent1 = 0.1
-	const emojiPercent2 = 0.7
 	const fontSize = Number.parseInt(ctx.font)
 	const emojiSideMargin = fontSize * emojiPercent1
 	const emojiUpMargin = fontSize * emojiPercent2
@@ -42,44 +76,14 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 		const regExToSearch = /<?(a:|:)\w*:(\d*)>/
 		const matched = ent.match(regExToSearch)
 		if (matched) {
-			if (ent.startsWith('«')) {
-				ctx.fillText('«', x + currWidth, y)
-				currWidth += ctx.measureText('«').width + fontSize / 5
-			}
 			const img = await loadImage(
 				`https://cdn.discordapp.com/emojis/${matched![2]}.png`
 			)
-			ctx.drawImage(
-				img,
-				x + currWidth + emojiSideMargin,
-				y + emojiUpMargin - fontSize - baseLine,
-				fontSize,
-				fontSize
-			)
-			currWidth += fontSize + emojiSideMargin * 2 + fontSize / 5
-			if (ent.endsWith('».')) {
-				ctx.fillText('».', x + currWidth, y)
-				currWidth += ctx.measureText('».').width + fontSize / 5
-			}
+			currWidth = fillQuoteText(ctx, img, ent, x, y, currWidth, emojiSideMargin, emojiUpMargin, fontSize, baseLine)
 		} else if (parsed.length > 0) {
-			if (ent.startsWith('«')) {
-				ctx.fillText('«', x + currWidth, y)
-				currWidth += ctx.measureText('«').width + fontSize / 5
-			}
 			// checking if twemoji or not
 			const img = await loadImage(parsed[0].url)
-			ctx.drawImage(
-				img,
-				x + currWidth + emojiSideMargin,
-				y + emojiUpMargin - fontSize - baseLine,
-				fontSize,
-				fontSize
-			)
-			currWidth += fontSize + emojiSideMargin * 2 + fontSize / 5
-			if (ent.endsWith('».')) {
-				ctx.fillText('».', x + currWidth, y)
-				currWidth += ctx.measureText('».').width + fontSize / 5
-			}
+			currWidth = fillQuoteText(ctx, img, ent, x, y, currWidth, emojiSideMargin, emojiUpMargin, fontSize, baseLine)
 		} else {
 			// if string
 			ctx.fillText(ent, x + currWidth, y)

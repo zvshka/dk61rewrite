@@ -10,6 +10,8 @@ export const mainTextSize = 52
 export const secondaryTextSize = 42
 export const globalMargin = 25
 
+const quoteWidth = 1000
+
 /**
  * Цитировать сообщение.
  * @param initiator
@@ -25,7 +27,7 @@ export async function quoteMessage(initiator: MessageContextMenuCommandInteracti
 	if (!targetMessage.content || targetMessage.content.trim().length === 0) return initiator.reply('В сообщении нет текста.')
 
 	// Создаем канвас для отрисовки
-	const textCanvas = createCanvas(1000, 500)
+	const textCanvas = createCanvas(quoteWidth, 500)
 	const textCtx = textCanvas.getContext('2d')
 
 	// Получаем полные данные человека, который отправил цитируемое сообщение.
@@ -42,7 +44,7 @@ export async function quoteMessage(initiator: MessageContextMenuCommandInteracti
 	const lines = text.split('\n')
 		.map(row => getLines(textCtx, row, 880, `${mainTextSize}px Google Sans Italic`)).flat()
 
-	const width = 1000
+	const width = quoteWidth
 	const height = 155 + calcHeight(lines) + 270
 
 	const canvas = createCanvas(width, height)
