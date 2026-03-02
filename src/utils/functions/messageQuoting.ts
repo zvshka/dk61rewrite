@@ -148,7 +148,7 @@ function getLines(ctx: SKRSContext2D, text: string, maxWidth: number, font: stri
 		const toMeasure = `${currentLine} ${word}`
 		const width = ctx.measureText(
 			toMeasure
-				.replaceAll(/<?(a:|:)\w*:(\d{17}|\d{18})>/gi, 'EM')
+				.replaceAll(/<?(a:|:)\w*:(\d*)>/gi, 'EM')
 		).width
 		if (width < maxWidth) {
 			currentLine += ` ${word}`

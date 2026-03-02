@@ -67,7 +67,7 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 		// starting loop
 		const ent = entity[i] // getting current word or emoji
 		const parsed = parse(ent) // parsing to check later if emote is an twemoji
-		const regExToSearch = /<?(a:|:)\w*:(\d*)>/
+		const regExToSearch = /<?(a:|:)\w*:(\d*)>/gi
 		const matched = ent.match(regExToSearch)
 
 		if (matched || parsed.length > 0) {
