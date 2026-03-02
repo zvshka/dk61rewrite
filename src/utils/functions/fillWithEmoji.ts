@@ -82,6 +82,7 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 		}
 
 		if (matched) {
+			console.log(matched)
 			const img = await loadImage(
 				`https://cdn.discordapp.com/emojis/${matched![2]}.png`
 			)
