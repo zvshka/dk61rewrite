@@ -3,7 +3,7 @@ import { parse } from '@twemoji/parser'
 
 // starting function from here
 const emojiPercent1 = 0.1
-const emojiPercent2 = 0.7
+const emojiPercent2 = 0.4
 
 function splitEmoji(string: string) {
 	let toReturn = ''
@@ -69,14 +69,18 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 		const parsed = parse(ent) // parsing to check later if emote is an twemoji
 		const regExToSearch = /<?(a:|:)\w*:(\d*)>/
 		const matched = ent.match(regExToSearch)
-		if (ent.startsWith('«')) {
-			ctx.fillText('«', x + currWidth, y)
-			currWidth += ctx.measureText('«').width + fontSize / 5
+
+		if (matched || parsed.length > 0) {
+			if (ent.startsWith('«')) {
+				ctx.fillText('«', x + currWidth, y)
+				currWidth += ctx.measureText('«').width + fontSize / 5
+			}
+			if (ent.endsWith('».')) {
+				ctx.fillText('».', x + currWidth, y)
+				currWidth += ctx.measureText('».').width + fontSize / 5
+			}
 		}
-		if (ent.endsWith('».')) {
-			ctx.fillText('».', x + currWidth, y)
-			currWidth += ctx.measureText('».').width + fontSize / 5
-		}
+
 		if (matched) {
 			const img = await loadImage(
 				`https://cdn.discordapp.com/emojis/${matched![2]}.png`
