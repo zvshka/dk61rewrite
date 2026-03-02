@@ -67,7 +67,7 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 		// starting loop
 		const ent = entity[i] // getting current word or emoji
 		const parsed = parse(ent) // parsing to check later if emote is an twemoji
-		const regExToSearch = /<?(a:|:)\w*:(\d*)>/gi
+		const regExToSearch = /<?(a:|:)\w*:(\d*)>/i
 		const matched = ent.match(regExToSearch)
 
 		if (matched || parsed.length > 0) {
@@ -82,7 +82,6 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 		}
 
 		if (matched) {
-			console.log(matched)
 			const img = await loadImage(
 				`https://cdn.discordapp.com/emojis/${matched![2]}.png`
 			)
