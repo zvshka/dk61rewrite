@@ -53,7 +53,7 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
 	const emojiSideMargin = fontSize * emojiPercent1
 	const emojiUpMargin = fontSize * emojiPercent2
 	const entity = text
-		.replace('>', '> ')
+		.replaceAll('>', '> ')
 		.split(' ')
 		.map(splitEmoji)
 		.flat()
