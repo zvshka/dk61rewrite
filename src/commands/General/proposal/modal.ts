@@ -42,8 +42,7 @@ export default class ProposalModal {
       return;
     }
 
-    // const endsAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    const endsAt = new Date(Date.now() + 10 *1000);
+    const endsAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const proposal = await this.db.prisma.proposal.create({
       data: {

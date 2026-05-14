@@ -130,7 +130,7 @@ export default class SettingsCommand {
         });
       }
 
-      simpleSuccessEmbed(interaction, localize.COMMANDS.SETTINGS.EMBED.DESCRIPTION());
+      return simpleSuccessEmbed(interaction, localize.COMMANDS.SETTINGS.EMBED.DESCRIPTION());
     }
   }
 }

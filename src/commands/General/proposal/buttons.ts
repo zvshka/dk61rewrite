@@ -10,7 +10,7 @@ import {
 
 import { ButtonComponent, Discord, Injectable } from '@/decorators';
 import { Database } from '@/services';
-import { resolveGuild } from '@/utils/functions';
+import { resolveGuild, simpleErrorEmbed } from '@/utils/functions';
 import ProposalScheduler from "./scheduler";
 
 @Discord()
@@ -196,7 +196,9 @@ export default class ProposalButtonHandler {
           buttonAgainst,
           buttonRemove
         );
-        await interaction.update({ embeds: [embed], components: [row] });
+        await interaction.update({ embeds: [embed], components: [row] }).catch(() => {
+          simpleErrorEmbed(interaction, 'Что-то пошло нет... попробуй еще раз позже.')
+        });
       }
     }
 
