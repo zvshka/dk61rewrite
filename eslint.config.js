@@ -1,137 +1,54 @@
-const antfu = require('@antfu/eslint-config').default
-const pluginSimpleImportSort = require('eslint-plugin-simple-import-sort')
+// eslint.config.js
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import prettier from 'eslint-config-prettier';
 
-module.exports = antfu(
+export default tseslint.config(
+	// Игнорируем артефакты и генерацию
+	{ ignores: ['dist/', 'node_modules/', 'prisma/generated/', '**/coverage/'] },
+
+	// Базовые JS-правила
+	js.configs.recommended,
+
+	// Отключаем конфликтующие с Prettier правила
+	prettier,
+
+	// TypeScript-правила с проверкой типов
+	...tseslint.configs.recommendedTypeChecked.map(config => ({
+		...config,
+		files: ['**/*.ts', '**/*.mts', '**/*.cts'],
+	})),
+
 	{
-		stylistic: {
-			indent: 'tab',
-			quotes: 'single',
-			semi: false,
-
-			// https://eslint.style/packages/ts
-			overrides: {
-				'curly': 'off',
-				'style/eol-last': 'off',
-				'style/block-spacing': ['error', 'always'],
-				'style/brace-style': ['error', '1tbs'],
-				'style/comma-dangle': ['error', {
-					arrays: 'always-multiline',
-					objects: 'always-multiline',
-					imports: 'always-multiline',
-					exports: 'always-multiline',
-					functions: 'never',
-				}],
-				'style/comma-spacing': ['error', { before: false, after: true }],
-				'style/func-call-spacing': ['error', 'never'],
-				'style/lines-around-comment': ['error', {
-					beforeBlockComment: true,
-					afterBlockComment: false,
-					beforeLineComment: false,
-					afterLineComment: false,
-					allowBlockStart: true,
-					allowBlockEnd: true,
-					allowObjectStart: true,
-					allowObjectEnd: true,
-					allowArrayStart: true,
-					allowArrayEnd: true,
-				}],
-				'style/member-delimiter-style': ['error', {
-					multiline: {
-						delimiter: 'none',
-						requireLast: true,
-					},
-					singleline: {
-						delimiter: 'comma',
-						requireLast: false,
-					},
-				}],
-				'style/object-curly-spacing': ['error', 'always'],
-				'style/padded-blocks': ['error', {
-					blocks: 'never',
-					classes: 'always',
-					switches: 'never',
-				}],
-				'style/padding-line-between-statements': [
-					'error',
-					{ blankLine: 'always', prev: '*', next: 'class' },
-					{ blankLine: 'always', prev: '*', next: 'block' },
-					{ blankLine: 'always', prev: '*', next: 'return' },
-					{ blankLine: 'always', prev: '*', next: 'case' },
-					{ blankLine: 'always', prev: '*', next: 'default' },
-				],
-				'style/quote-props': ['error', 'consistent-as-needed'],
-
-				// 'style/space-before-blocks': ['error', 'always'],
-				'style/type-annotation-spacing': ['error', {
-					before: false,
-					after: true,
-					overrides: {
-						arrow: { before: true, after: true },
-					},
-				}],
+		files: ['**/*.ts', '**/*.mts', '**/*.cts'],
+		languageOptions: {
+			parserOptions: {
+				project: true,
+				tsconfigRootDir: import.meta.dirname,
 			},
 		},
-
-		jsonc: false,
-		yaml: false,
-
-		linterOptions: {
-			reportUnusedDisableDirectives: false,
-		},
-
-		ignores: [
-			'node_modules',
-			'build',
-			'logs',
-			'database',
-		],
-	},
-	{
-		plugins: {
-			'simple-import-sort': pluginSimpleImportSort,
-		},
 		rules: {
-			'ts/ban-ts-comment': 'off',
-			'ts/consistent-type-imports': 'off',
-			'ts/consistent-type-definitions': ['error', 'type'],
+			// 🛡️ Строгая работа с промисами (критично для Discord.js event handlers)
+			'@typescript-eslint/no-floating-promises': 'warn',
+			'@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: false }],
+			'@typescript-eslint/await-thenable': 'error',
 
-			'eslint-comments/no-unlimited-disable': 'off',
-			'eslint-comments/no-unused-disable': 'off',
+			// 📝 Читаемость и типизация
+			'@typescript-eslint/explicit-function-return-type': 'off',
+			'@typescript-eslint/no-explicit-any': 'warn',
+			'@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+			'@typescript-eslint/strict-boolean-expressions': 'warn',
+			'@typescript-eslint/prefer-optional-chain': 'warn',
+			'@typescript-eslint/no-unsafe-argument': 'off',
+			'@typescript-eslint/no-unsafe-assignment': 'off',
+			'@typescript-eslint/no-unsafe-return': 'off',
+			'@typescript-eslint/no-unsafe-call': 'off',
+			'@typescript-eslint/no-unsafe-member-access': 'warn',
+			'no-useless-escape': 'off',
 
-			'antfu/if-newline': 'off',
-
-			'no-unused-vars': 'off', // prefer unused-imports/no-unused-vars
-			'unused-imports/no-unused-vars': 'warn',
-
-			'no-console': 'off',
-
-			// Preferred "simple-import-sort" over "import/order"
-			// See: https://github.com/lydell/eslint-plugin-simple-import-sort#how-is-this-rule-different-from-importorder
-			'sort-imports': 'off',
-			'import/order': 'off',
-			'simple-import-sort/imports': [
-				'error',
-				{
-					groups: [
-						// Side effect imports.
-						['^\\u0000'],
-						// Node.js builtins prefixed with `node:`.
-						['^node:'],
-						// Packages.
-						// Things that start with a letter (or digit or underscore), or `@` followed by a letter.
-						['^@?\\w'],
-						// Internal packages.
-						// Things that start with `@/`.
-						['^@/\\w'],
-						// Other imports
-						['^\\w'],
-						// TypeScript import assignments.
-						['^\\u0001', '^\\u0002'],
-					],
-				},
-			],
-			'simple-import-sort/exports': 'off',
-			'import/no-duplicates': 'error',
+			// 🚫 Discord.js & Prisma специфика
+			'no-console': ['warn', { allow: ['warn', 'error'] }],
+			'@typescript-eslint/no-unnecessary-condition': 'warn',
 		},
 	}
-)
+);

@@ -1,62 +1,58 @@
-import '@tsed/swagger'
+import { Inject, PlatformApplication } from '@tsed/common';
+import { Database, PluginsManager, Store } from '@/services';
+import { PlatformAcceptMimesMiddleware } from '@tsed/platform-accept-mimes';
+import { PlatformExpress } from '@tsed/platform-express';
+import bodyParser from 'body-parser';
 
-import { Inject, PlatformApplication } from '@tsed/common'
-import { PlatformAcceptMimesMiddleware } from '@tsed/platform-accept-mimes'
-import { PlatformExpress } from '@tsed/platform-express'
-import bodyParser from 'body-parser'
-
-import * as controllers from '@/api/controllers'
-import { Log } from '@/api/middlewares'
-import { Service } from '@/decorators'
-import { env } from '@/env'
-import { Database, PluginsManager, Store } from '@/services'
+import * as controllers from '@/api/controllers';
+import { Log } from '@/api/middlewares';
+import { Service } from '@/decorators';
+import { env } from '@/env';
+import '@tsed/swagger';
 
 @Service()
 export class Server {
 
-	@Inject() app: PlatformApplication
+  constructor(
+    private app: PlatformApplication,
+    private pluginsManager: PluginsManager,
+    private store: Store,
+    db: Database
+  ) {}
 
-	constructor(
-		private pluginsManager: PluginsManager,
-		private store: Store,
-		db: Database
-	) {
-	}
+  $beforeRoutesInit() {
+    this.app
+      .use(bodyParser.json())
+      .use(bodyParser.urlencoded({ extended: true }))
+      .use(Log)
+      .use(PlatformAcceptMimesMiddleware);
 
-	$beforeRoutesInit() {
-		this.app
-			.use(bodyParser.json())
-			.use(bodyParser.urlencoded({ extended: true }))
-			.use(Log)
-			.use(PlatformAcceptMimesMiddleware)
+    return null;
+  }
 
-		return null
-	}
+  async start(): Promise<void> {
+    const platform = await PlatformExpress.bootstrap(Server, {
+      rootDir: __dirname,
+      httpPort: env.API_PORT,
+      httpsPort: false,
+      acceptMimes: ['application/json'],
+      mount: {
+        '/': [...Object.values(controllers), ...this.pluginsManager.getControllers()],
+      },
+      swagger: [
+        {
+          path: '/docs',
+          specVersion: '3.0.1',
+        },
+      ],
+      logger: {
+        level: 'warn',
+        disableRoutesSummary: true,
+      },
+    });
 
-	async start(): Promise<void> {
-		const platform = await PlatformExpress.bootstrap(Server, {
-			rootDir: __dirname,
-			httpPort: env.API_PORT,
-			httpsPort: false,
-			acceptMimes: ['application/json'],
-			mount: {
-				'/': [...Object.values(controllers), ...this.pluginsManager.getControllers()],
-			},
-			swagger: [
-				{
-					path: '/docs',
-					specVersion: '3.0.1',
-				},
-			],
-			logger: {
-				level: 'warn',
-				disableRoutesSummary: true,
-			},
-		})
-
-		platform.listen().then(() => {
-			this.store.update('ready', e => ({ ...e, api: true }))
-		})
-	}
-
+    platform.listen().then(() => {
+      this.store.update('ready', e => ({ ...e, api: true }));
+    });
+  }
 }

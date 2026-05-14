@@ -1,9 +1,9 @@
 {
-    "apps": [
-        {
-            "name": "DK61",
-            "script": "npm",
-            "args" : "run build:start"
-        }
-    ]
+  "apps": [
+    {
+      "name": "DK61",
+      "script": "npm",
+      "args": "run build:start"
+    }
+  ]
 }

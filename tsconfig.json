@@ -1,69 +1,75 @@
 {
-	"compilerOptions": {
+  "compilerOptions": {
+    "target": "es2024",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "rootDir": "src",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "paths": {
+      "@/decorators": ["src/utils/decorators"],
+      "@/decorators/*": ["src/plugins/*/utils/decorators"],
 
-		"target": "es2021",
-		"module": "commonjs",
-		"esModuleInterop": true,
-		"moduleResolution": "node",
+      "@/errors": ["src/utils/errors"],
+      "@/errors/*": ["src/plugins/*/utils/errors"],
 
-		"outDir": "build",
-		"rootDir": "src",
-		"resolveJsonModule": true,
-		
-		"strict": true,
-		"strictPropertyInitialization": false,
-		"allowSyntheticDefaultImports": true,
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"skipLibCheck": false,
-		"forceConsistentCasingInFileNames": true,
+      "@/entities": ["src/entities"],
+      "@/entities/*": ["src/plugins/*/entities"],
 
-		"baseUrl": ".",
-		"paths": {
-			"@/decorators": ["src/utils/decorators"],
-			"@/decorators/*": ["src/plugins/*/utils/decorators"],
+      "@/guards": ["src/guards"],
+      "@/guards/*": ["src/plugins/*/guards"],
 
-			"@/errors": ["src/utils/errors"],
-			"@/errors/*": ["src/plugins/*/utils/errors"],
+      "@/services": ["src/services"],
+      "@/services/*": ["src/plugins/*/services"],
 
-			"@/entities": ["src/entities"],
-			"@/entities/*": ["src/plugins/*/entities"],
+      "@/i18n": ["src/i18n"],
+      "@/i18n/*": ["src/plugins/*/i18n"],
 
-			"@/guards": ["src/guards"],
-			"@/guards/*": ["src/plugins/*/guards"],
-			
-			"@/services": ["src/services"],
-			"@/services/*": ["src/plugins/*/services"],
+      "@/configs": ["src/configs"],
+      "@/configs/*": ["src/plugins/*/configs"],
 
-			"@/i18n": ["src/i18n"],
-			"@/i18n/*": ["src/plugins/*/i18n"],
+      "@/utils/classes": ["src/utils/classes"],
+      "@/utils/classes/*": ["src/plugins/*/utils/classes"],
 
-			"@/configs": ["src/configs"],
-			"@/configs/*": ["src/plugins/*/configs"],
+      "@/utils/functions": ["src/utils/functions"],
+      "@/utils/functions/*": ["src/plugins/*/utils/functions"],
 
-			"@/utils/classes": ["src/utils/classes"],
-			"@/utils/classes/*": ["src/plugins/*/utils/classes"],
+      "@/api/controllers": ["src/api/controllers"],
+      "@/api/controllers/*": ["src/plugins/*/api/controllers"],
 
-			"@/utils/functions": ["src/utils/functions"],
-			"@/utils/functions/*": ["src/plugins/*/utils/functions"],
+      "@/api/middlewares": ["src/api/middlewares"],
+      "@/api/middlewares/*": ["src/plugins/*/api/middlewares"],
 
-			"@/api/controllers": ["src/api/controllers"],
-			"@/api/controllers/*": ["src/plugins/*/api/controllers"],
+      "@/api/server": ["src/api/server.ts"],
 
-			"@/api/middlewares": ["src/api/middlewares"],
-			"@/api/middlewares/*": ["src/plugins/*/api/middlewares"],
+      "@/env": ["src/utils/types/environment.ts"]
+    },
+    "resolveJsonModule": true,
 
-			"@/api/server": ["src/api/server.ts"],
+    "strict": true,
+    "strictPropertyInitialization": false,
 
-			"@/env": ["src/utils/types/environment.ts"]
-		}
-	},
+    "outDir": "build",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
 
-	"include": ["src", "**/*.ts", "src/**/*.json"],
-	"exclude": ["build", "node_modules", "tests", "prisma.config.ts", "package.json"],
-	"paths": ["node_modules/*", "src/utils/types/*", "src/plugins/*/utils/types/*"],
+    "skipLibCheck": false
+  },
 
-	"ts-node": {
-		"require": ["tsconfig-paths/register"]
-	}
+  "include": ["src", "**/*.ts", "src/**/*.json"],
+  "exclude": [
+    "build",
+    "node_modules",
+    "tests",
+    "prisma.config.ts",
+    "package.json",
+    "prettier.config.js"
+  ],
+  "paths": ["node_modules/*", "src/utils/types/*", "src/plugins/*/utils/types/*"],
+
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
 }

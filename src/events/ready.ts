@@ -1,73 +1,79 @@
-import { ActivityType, Events } from 'discord.js'
-import { Client } from 'discordx'
+import { ActivityType, Events } from 'discord.js';
+import { Client } from 'discordx';
 
-import { generalConfig } from '@/configs'
-import { Discord, Injectable, Once, Schedule } from '@/decorators'
-import { Database, Logger, Scheduler, Store } from '@/services'
-import { resolveDependency, syncAllGuilds } from '@/utils/functions'
+import { generalConfig } from '@/configs';
+import { Discord, Injectable, Once, Schedule } from '@/decorators';
+import { Database, Logger, Scheduler, Store } from '@/services';
+import { resolveDependency, syncAllGuilds } from '@/utils/functions';
 
 @Discord()
 @Injectable()
 export default class ReadyEvent {
+  constructor(
+    private db: Database,
+    private logger: Logger,
+    private scheduler: Scheduler,
+    private store: Store
+  ) {}
 
-	constructor(
-		private db: Database,
-		private logger: Logger,
-		private scheduler: Scheduler,
-		private store: Store
-	) {}
+  private activityIndex = 0;
 
-	private activityIndex = 0
+  @Once(Events.ClientReady)
+  async clientReadyHandler([client]: [Client]) {
+    // make sure all guilds are cached
+    await client.guilds.fetch();
 
-	@Once(Events.ClientReady)
-	async clientReadyHandler([client]: [Client]) {
-		// make sure all guilds are cached
-		await client.guilds.fetch()
+    // synchronize applications commands with Discord
+    await client.initApplicationCommands();
 
-		// synchronize applications commands with Discord
-		await client.initApplicationCommands()
+    // change activity
+    await this.changeActivity();
 
-		// change activity
-		await this.changeActivity()
+    // update last startup time in the database
+    this.db.dataStore.set('lastStartup', Date.now());
 
-		// update last startup time in the database
-		this.db.dataStore.set('lastStartup', Date.now())
+    // start scheduled jobs
+    this.scheduler.startAllJobs();
 
-		// start scheduled jobs
-		this.scheduler.startAllJobs()
+    // log startup
+    this.logger.logStartingConsole();
 
-		// log startup
-		await this.logger.logStartingConsole()
+    // synchronize guilds between discord and the database
+    await syncAllGuilds(client);
 
-		// synchronize guilds between discord and the database
-		await syncAllGuilds(client)
+    // the bot is fully ready
+    this.store.update('ready', e => ({ ...e, bot: true }));
+  }
 
-		// the bot is fully ready
-		this.store.update('ready', e => ({ ...e, bot: true }))
-	}
+  @Schedule('*/15 * * * * *') // each 15 seconds
+  async changeActivity() {
+    const ActivityTypeEnumString = [
+      'PLAYING',
+      'STREAMING',
+      'LISTENING',
+      'WATCHING',
+      'CUSTOM',
+      'COMPETING',
+    ];
 
-	@Schedule('*/15 * * * * *') // each 15 seconds
-	async changeActivity() {
-		const ActivityTypeEnumString = ['PLAYING', 'STREAMING', 'LISTENING', 'WATCHING', 'CUSTOM', 'COMPETING'] // DO NOT CHANGE THE ORDER
+    const client = await resolveDependency(Client);
+    const activity = generalConfig.activities[this.activityIndex];
 
-		const client = await resolveDependency(Client)
-		const activity = generalConfig.activities[this.activityIndex]
+    if (activity.type === 'STREAMING') {
+      // streaming activity
+      client.user?.setStatus('online');
+      client.user?.setActivity(activity.text, {
+        url: 'https://www.twitch.tv/zvshka',
+        type: ActivityType.Streaming,
+      });
+    } else {
+      // other activities
+      client.user?.setActivity(activity.text, {
+        type: ActivityTypeEnumString.indexOf(activity.type),
+      });
+    }
 
-		if (activity.type === 'STREAMING') { // streaming activity
-			client.user?.setStatus('online')
-			client.user?.setActivity(activity.text, {
-				url: 'https://www.twitch.tv/zvshka',
-				type: ActivityType.Streaming,
-			})
-		} else { // other activities
-			client.user?.setActivity(activity.text, {
-				type: ActivityTypeEnumString.indexOf(activity.type),
-			})
-		}
-
-		this.activityIndex++
-		if (this.activityIndex === generalConfig.activities.length)
-			this.activityIndex = 0
-	}
-
+    this.activityIndex++;
+    if (this.activityIndex === generalConfig.activities.length) this.activityIndex = 0;
+  }
 }

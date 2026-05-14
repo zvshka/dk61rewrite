@@ -44,7 +44,47 @@ type RootTranslation = {
 		 */
 		NO_COMMAND_DESCRIPTION: string
 	}
+	PROPOSAL_ERROR: {
+		/**
+		 * T​h​i​s​ ​i​s​ ​n​o​t​ ​a​ ​p​r​o​p​o​s​a​l​.
+		 */
+		NOT_PROPOSAL: string
+		/**
+		 * P​r​o​p​o​s​a​l​ ​n​o​t​ ​f​o​u​n​d​.
+		 */
+		NOT_FOUND: string
+		/**
+		 * V​o​t​i​n​g​ ​h​a​s​ ​a​l​r​e​a​d​y​ ​e​n​d​e​d​.
+		 */
+		ENDED: string
+		/**
+		 * F​i​l​l​ ​i​n​ ​a​l​l​ ​f​i​e​l​d​s​.
+		 */
+		EMPTY_FIELDS: string
+		/**
+		 * T​h​e​ ​p​r​o​p​o​s​a​l​ ​c​h​a​n​n​e​l​ ​n​o​ ​l​o​n​g​e​r​ ​e​x​i​s​t​s​.
+		 */
+		CHANNEL_INVALID: string
+		/**
+		 * Y​o​u​ ​h​a​v​e​ ​a​l​r​e​a​d​y​ ​v​o​t​e​d​ ​f​o​r​ ​t​h​i​s​ ​p​r​o​p​o​s​a​l​.
+		 */
+		ALREADY_VOTED_FOR: string
+		/**
+		 * Y​o​u​ ​h​a​v​e​ ​a​l​r​e​a​d​y​ ​v​o​t​e​d​ ​a​g​a​i​n​s​t​ ​t​h​i​s​ ​p​r​o​p​o​s​a​l​.
+		 */
+		ALREADY_VOTED_AGAINST: string
+	}
 	COMMANDS: {
+		QUOTE: {
+			/**
+			 * Q​u​o​t​e
+			 */
+			NAME: string
+			/**
+			 * M​e​s​s​a​g​e​ ​q​u​o​t​i​n​g​.
+			 */
+			DESCRIPTION: string
+		}
 		SETTINGS: {
 			OPTIONS: {
 				/**
@@ -63,6 +103,10 @@ type RootTranslation = {
 				 * P​r​e​f​i​x​ ​f​o​r​ ​q​u​o​t​i​n​g
 				 */
 				QUOTES_PREFIX: string
+				/**
+				 * C​h​a​n​n​e​l​ ​f​o​r​ ​s​e​n​d​i​n​g​ ​p​r​o​p​o​s​a​l​s
+				 */
+				PROPOSAL_CHANNEL: string
 			}
 			EMBED: {
 				/**
@@ -195,6 +239,50 @@ type RootTranslation = {
 			 */
 			MESSAGE: RequiredParams<'heartbeat' | 'member' | 'time'>
 		}
+		PROPOSAL: {
+			/**
+			 * p​r​o​p​o​s​a​l
+			 */
+			NAME: string
+			/**
+			 * C​r​e​a​t​e​ ​a​ ​n​e​w​ ​p​r​o​p​o​s​a​l​ ​f​o​r​ ​c​o​m​m​u​n​i​t​y​ ​v​o​t​i​n​g
+			 */
+			DESCRIPTION: string
+			OPTIONS: {
+				TOPIC: {
+					/**
+					 * t​o​p​i​c
+					 */
+					NAME: string
+					/**
+					 * T​h​e​ ​t​o​p​i​c​ ​o​f​ ​y​o​u​r​ ​p​r​o​p​o​s​a​l
+					 */
+					DESCRIPTION: string
+				}
+			}
+			/**
+			 * N​o​ ​p​r​o​p​o​s​a​l​ ​c​h​a​n​n​e​l​ ​i​s​ ​c​o​n​f​i​g​u​r​e​d​ ​f​o​r​ ​t​h​i​s​ ​s​e​r​v​e​r​.​ ​C​o​n​t​a​c​t​ ​a​n​ ​a​d​m​i​n​i​s​t​r​a​t​o​r​.
+			 */
+			NO_CHANNEL: string
+			MODAL: {
+				/**
+				 * N​e​w​ ​P​r​o​p​o​s​a​l
+				 */
+				TITLE: string
+				/**
+				 * P​r​o​p​o​s​a​l​ ​t​o​p​i​c
+				 */
+				TOPIC: string
+				/**
+				 * P​r​o​p​o​s​a​l​ ​t​e​x​t
+				 */
+				DESCRIPTION: string
+			}
+			/**
+			 * P​r​o​p​o​s​a​l​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​c​r​e​a​t​e​d​ ​a​n​d​ ​s​e​n​t​ ​t​o​ ​t​h​e​ ​p​r​o​p​o​s​a​l​ ​c​h​a​n​n​e​l​!
+			 */
+			SUCCESS: string
+		}
 	}
 }
 
@@ -229,7 +317,47 @@ export type TranslationFunctions = {
 		 */
 		NO_COMMAND_DESCRIPTION: () => LocalizedString
 	}
+	PROPOSAL_ERROR: {
+		/**
+		 * This is not a proposal.
+		 */
+		NOT_PROPOSAL: () => LocalizedString
+		/**
+		 * Proposal not found.
+		 */
+		NOT_FOUND: () => LocalizedString
+		/**
+		 * Voting has already ended.
+		 */
+		ENDED: () => LocalizedString
+		/**
+		 * Fill in all fields.
+		 */
+		EMPTY_FIELDS: () => LocalizedString
+		/**
+		 * The proposal channel no longer exists.
+		 */
+		CHANNEL_INVALID: () => LocalizedString
+		/**
+		 * You have already voted for this proposal.
+		 */
+		ALREADY_VOTED_FOR: () => LocalizedString
+		/**
+		 * You have already voted against this proposal.
+		 */
+		ALREADY_VOTED_AGAINST: () => LocalizedString
+	}
 	COMMANDS: {
+		QUOTE: {
+			/**
+			 * Quote
+			 */
+			NAME: () => LocalizedString
+			/**
+			 * Message quoting.
+			 */
+			DESCRIPTION: () => LocalizedString
+		}
 		SETTINGS: {
 			OPTIONS: {
 				/**
@@ -248,6 +376,10 @@ export type TranslationFunctions = {
 				 * Prefix for quoting
 				 */
 				QUOTES_PREFIX: () => LocalizedString
+				/**
+				 * Channel for sending proposals
+				 */
+				PROPOSAL_CHANNEL: () => LocalizedString
 			}
 			EMBED: {
 				/**
@@ -371,6 +503,50 @@ export type TranslationFunctions = {
 			 * {member} Pong! The message round-trip took {time}ms.{heartbeat}
 			 */
 			MESSAGE: (arg: { heartbeat: string, member: string, time: number }) => LocalizedString
+		}
+		PROPOSAL: {
+			/**
+			 * proposal
+			 */
+			NAME: () => LocalizedString
+			/**
+			 * Create a new proposal for community voting
+			 */
+			DESCRIPTION: () => LocalizedString
+			OPTIONS: {
+				TOPIC: {
+					/**
+					 * topic
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * The topic of your proposal
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+			}
+			/**
+			 * No proposal channel is configured for this server. Contact an administrator.
+			 */
+			NO_CHANNEL: () => LocalizedString
+			MODAL: {
+				/**
+				 * New Proposal
+				 */
+				TITLE: () => LocalizedString
+				/**
+				 * Proposal topic
+				 */
+				TOPIC: () => LocalizedString
+				/**
+				 * Proposal text
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			/**
+			 * Proposal successfully created and sent to the proposal channel!
+			 */
+			SUCCESS: () => LocalizedString
 		}
 	}
 }

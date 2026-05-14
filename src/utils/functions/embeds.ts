@@ -1,6 +1,7 @@
-import { CommandInteraction, EmbedBuilder } from 'discord.js'
+import { CommandInteraction, User } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 
-import { replyToInteraction } from '@/utils/functions'
+import { getColor, replyToInteraction } from '@/utils/functions';
 
 /**
  * Send a simple success embed
@@ -8,11 +9,12 @@ import { replyToInteraction } from '@/utils/functions'
  * @param message - message to log
  */
 export function simpleSuccessEmbed(interaction: CommandInteraction, message: string) {
-	const embed = new EmbedBuilder()
-		.setColor(0x57F287) // GREEN // see: https://github.com/discordjs/discord.js/blob/main/packages/discord.js/src/util/Colors.js
-		.setTitle(`✅ ${message}`)
+  const embed = new EmbedBuilder()
+    .setColor(0x57f287) // GREEN // see: https://github.com/discordjs/discord.js/blob/main/packages/discord.js/src/util/Colors.js
+    .setTitle(`✅ ${message}`);
 
-	replyToInteraction(interaction, { embeds: [embed] })
+  // TODO: Handle error properly
+  replyToInteraction(interaction, { embeds: [embed] }).catch(() => {});
 }
 
 /**
@@ -21,9 +23,30 @@ export function simpleSuccessEmbed(interaction: CommandInteraction, message: str
  * @param message - message to log
  */
 export function simpleErrorEmbed(interaction: CommandInteraction, message: string) {
-	const embed = new EmbedBuilder()
-		.setColor(0xED4245) // RED // see: https://github.com/discordjs/discord.js/blob/main/packages/discord.js/src/util/Colors.js
-		.setTitle(`❌ ${message}`)
+  const embed = new EmbedBuilder()
+    .setColor(0xed4245) // RED // see: https://github.com/discordjs/discord.js/blob/main/packages/discord.js/src/util/Colors.js
+    .setTitle(`❌ ${message}`);
 
-	replyToInteraction(interaction, { embeds: [embed] })
+  replyToInteraction(interaction, { embeds: [embed] }).catch(() => {});
+}
+
+export function createProposalEmbed(
+  title: string,
+  description: string,
+  forCount: number,
+  againstCount: number,
+  author: User,
+  isEnded: boolean = false
+) {
+  const embed = new EmbedBuilder()
+    .setAuthor({ name: author.tag, iconURL: author.displayAvatarURL() })
+    .setTitle(title)
+    .setDescription(description)
+    .setColor(isEnded ? 0x57f287 : getColor('primary'))
+    .setFooter({
+      text: `${forCount} за · ${againstCount} против${isEnded ? ' • Голосование завершено' : ''}`,
+    })
+    .setTimestamp();
+
+  return embed;
 }

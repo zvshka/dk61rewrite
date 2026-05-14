@@ -15,23 +15,26 @@ datasource db {
 
 // Guild entity
 model Guild {
-  id               String  @id
-  prefix           String? @default(".")
-  quotesPrefix     String  @default("\\") @map("quotes_prefix")
+  id           String  @id
+  prefix       String? @default(".")
+  quotesPrefix String  @default("\\") @map("quotes_prefix")
+
   starboardEmoji   String? @default("⭐") @map("starboard_emoji")
   starboardChannel String? @map("starboard_channel")
   starboardCount   Int     @default(3) @map("starboard_count")
+  proposalChannel  String? @map("proposal_channel")
 
   deleted Boolean @default(false)
 
   lastInteract DateTime @default(now())
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
 
   starredMessages StarredMessage[]
   welcomeImages   WelcomeImage[]
   answers         PingAnswer[]
   welcomeMessages WelcomeMessage[]
+  proposals       Proposal[]
 }
 
 model User {
@@ -40,6 +43,11 @@ model User {
   lastInteract DateTime @default(now())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  proposals Proposal[]
+
+  userFor     Proposal[] @relation(name: "usersFor")
+  userAgainst Proposal[] @relation(name: "usersAgainst")
 }
 
 model Image {
@@ -100,4 +108,30 @@ model PingAnswer {
 
   guild   Guild  @relation(fields: [guildId], references: [id])
   guildId String
+}
+
+model Proposal {
+  id          Int    @id @default(autoincrement())
+  text        String
+  description String
+
+  author User  @relation(fields: [authorId], references: [id])
+  guild  Guild @relation(fields: [guildId], references: [id])
+
+  usersFor     User[] @relation(name: "usersFor")
+  usersAgainst User[] @relation(name: "usersAgainst")
+
+  guildId  String
+  authorId String
+
+  createdAt         DateTime       @default(now())
+  endsAt            DateTime
+  proposalMessageId String?        @map("proposal_message_id")
+  status            ProposalStatus @default(ACTIVE)
+}
+
+enum ProposalStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
 }

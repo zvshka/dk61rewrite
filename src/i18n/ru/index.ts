@@ -14,17 +14,31 @@ const ru = {
 	SHARED: {
 		NO_COMMAND_DESCRIPTION: 'Описание отсутствует.',
 	},
+	PROPOSAL_ERROR: {
+		NOT_PROPOSAL: 'Это не голосование.',
+		NOT_FOUND: 'Голосование не найдено.',
+		ENDED: 'Голосование уже завершено.',
+		EMPTY_FIELDS: 'Заполните все поля.',
+		CHANNEL_INVALID: 'Канал для голосовалки больше не существует.',
+		ALREADY_VOTED_FOR: 'Вы уже проголосовали за это предложение.',
+		ALREADY_VOTED_AGAINST: 'Вы уже проголосовали против этого предложения.',
+	},
 	COMMANDS: {
+		QUOTE: {
+			NAME: 'Цитировать',
+			DESCRIPTION: 'Цитирование сообщения.',
+		},
 		SETTINGS: {
 			OPTIONS: {
 				STARBOARD_CHANNEL: 'Канал доски почета',
 				STARBOARD_EMOJI: 'Реакция для доски почета',
 				STARBOARD_COUNT: 'Необходимое количество',
-				QUOTES_PREFIX: 'Префикс для цитат'
+				QUOTES_PREFIX: 'Префикс для цитат',
+				PROPOSAL_CHANNEL: 'Канал для отправки голосовалок',
 			},
 			EMBED: {
-				DESCRIPTION: 'Настройки успешно обновлены!'
-			}
+				DESCRIPTION: 'Настройки успешно обновлены!',
+			},
 		},
 		INVITE: {
 			DESCRIPTION: 'Пригласить бота на свой сервер!',
@@ -74,7 +88,24 @@ const ru = {
 		},
 		PING: {
 			DESCRIPTION: 'Тук-тук!',
-			MESSAGE: '{member} Что нужно? Было потрачено {time} милисекунд на генерацию ответа. {heartbeat}',
+			MESSAGE: '{member} Что нужно? Было потрачено {time} миллисекунд на генерацию ответа. {heartbeat}',
+		},
+		PROPOSAL: {
+			NAME: 'proposal',
+			DESCRIPTION: 'Создать новое предложение для голосования',
+			OPTIONS: {
+				TOPIC: {
+					NAME: 'topic',
+					DESCRIPTION: 'Тема предложения',
+				},
+			},
+			NO_CHANNEL: 'В этом сервере не настроен канал для голосовалки. Обратитесь к администратору.',
+			MODAL: {
+				TITLE: 'Новое предложение',
+				TOPIC: 'Тема предложения',
+				DESCRIPTION: 'Текст предложения',
+			},
+			SUCCESS: 'Предложение успешно создано и отправлено в канал голосовалки!',
 		},
 	},
 } satisfies Translation

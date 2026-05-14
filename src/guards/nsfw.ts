@@ -1,24 +1,26 @@
-import { CommandInteraction, TextChannel } from 'discord.js'
-import { GuardFunction, SimpleCommandMessage } from 'discordx'
+import { CommandInteraction } from 'discord.js';
+import { GuardFunction, SimpleCommandMessage } from 'discordx';
+import { TextChannel } from 'discord.js';
 
-import { getLocaleFromInteraction, L } from '@/i18n'
-import { replyToInteraction, resolveChannel } from '@/utils/functions'
+import { getLocaleFromInteraction, L } from '@/i18n';
+import { replyToInteraction, resolveChannel } from '@/utils/functions';
 
 /**
  * Prevent NSFW command from running in non-NSFW channels
  */
-export const NSFW: GuardFunction<
-	| CommandInteraction
-	| SimpleCommandMessage
-> = async (arg, client, next) => {
-	const channel = resolveChannel(arg)
+export const NSFW: GuardFunction<CommandInteraction | SimpleCommandMessage> = async (
+  arg,
+  client,
+  next
+) => {
+  const channel = resolveChannel(arg);
 
-	if (!(channel instanceof TextChannel && !channel?.nsfw)) {
-		await next()
-	} else {
-		const locale = getLocaleFromInteraction(arg)
-		const localizedReplyMessage = L[locale].GUARDS.NSFW()
+  if (!(channel instanceof TextChannel && !channel?.nsfw)) {
+    await next();
+  } else {
+    const locale = getLocaleFromInteraction(arg);
+    const localizedReplyMessage = L[locale].GUARDS.NSFW();
 
-		await replyToInteraction(arg, localizedReplyMessage)
-	}
-}
+    await replyToInteraction(arg, localizedReplyMessage);
+  }
+};

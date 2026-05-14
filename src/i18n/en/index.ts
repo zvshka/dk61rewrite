@@ -14,17 +14,31 @@ const en = {
 	SHARED: {
 		NO_COMMAND_DESCRIPTION: 'No description provided.',
 	},
+	PROPOSAL_ERROR: {
+		NOT_PROPOSAL: 'This is not a proposal.',
+		NOT_FOUND: 'Proposal not found.',
+		ENDED: 'Voting has already ended.',
+		EMPTY_FIELDS: 'Fill in all fields.',
+		CHANNEL_INVALID: 'The proposal channel no longer exists.',
+		ALREADY_VOTED_FOR: 'You have already voted for this proposal.',
+		ALREADY_VOTED_AGAINST: 'You have already voted against this proposal.',
+	},
 	COMMANDS: {
+		QUOTE: {
+			NAME: 'Quote',
+			DESCRIPTION: 'Message quoting.',
+		},
 		SETTINGS: {
 			OPTIONS: {
 				STARBOARD_CHANNEL: 'Starboard channel',
 				STARBOARD_EMOJI: 'Emoji for starboard',
 				STARBOARD_COUNT: 'Emoji count',
-				QUOTES_PREFIX: 'Prefix for quoting'
+				QUOTES_PREFIX: 'Prefix for quoting',
+				PROPOSAL_CHANNEL: 'Channel for sending proposals',
 			},
 			EMBED: {
-				DESCRIPTION: 'Settings updated successfully!'
-			}
+				DESCRIPTION: 'Settings updated successfully!',
+			},
 		},
 		INVITE: {
 			DESCRIPTION: 'Invite the bot to your server!',
@@ -75,6 +89,23 @@ const en = {
 		PING: {
 			DESCRIPTION: 'Pong!',
 			MESSAGE: '{member:string} Pong! The message round-trip took {time:number}ms.{heartbeat:string}',
+		},
+		PROPOSAL: {
+			NAME: 'proposal',
+			DESCRIPTION: 'Create a new proposal for community voting',
+			OPTIONS: {
+				TOPIC: {
+					NAME: 'topic',
+					DESCRIPTION: 'The topic of your proposal',
+				},
+			},
+			NO_CHANNEL: 'No proposal channel is configured for this server. Contact an administrator.',
+			MODAL: {
+				TITLE: 'New Proposal',
+				TOPIC: 'Proposal topic',
+				DESCRIPTION: 'Proposal text',
+			},
+			SUCCESS: 'Proposal successfully created and sent to the proposal channel!',
 		},
 	},
 } satisfies BaseTranslation
