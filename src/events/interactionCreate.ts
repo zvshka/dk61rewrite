@@ -3,7 +3,7 @@ import { Database, Logger, Stats } from '@/services';
 
 import { CommandInteraction } from 'discord.js';
 import { generalConfig } from '@/configs';
-import { Discord, Guard, Injectable, On } from '@/decorators';
+import { Discord, Guard, Injectable, On, skipDeferCommands } from '@/decorators';
 import { Maintenance } from '@/guards';
 import { syncUser } from '@/utils/functions';
 
@@ -21,7 +21,10 @@ export default class InteractionCreateEvent {
   async interactionCreateHandler([interaction]: ArgsOf<'interactionCreate'>, client: Client) {
     // defer the reply
     if (generalConfig.automaticDeferring && interaction instanceof CommandInteraction) {
-      await interaction.deferReply();
+      const commandName = interaction.commandName;
+      if (!skipDeferCommands.has(commandName) && !interaction.deferred && !interaction.replied) {
+        await interaction.deferReply();
+      }
     }
 
     // insert user in db if not exists

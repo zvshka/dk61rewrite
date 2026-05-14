@@ -1,5 +1,6 @@
 export * from './AutoInjectable';
 
+export * from './SkipDefer'
 export * from './Modal';
 export * from './ContextMenu';
 export * from './Injectable';

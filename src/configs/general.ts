@@ -12,7 +12,7 @@ export const generalConfig: GeneralConfigType = {
   defaultPrefix: '.',
   simpleCommandsPrefix: message => getPrefixFromMessage(message), // default prefix for simple command messages (old way to do commands on discord)
   quoting: '\\',
-  automaticDeferring: false, // enable or not the automatic deferring of the replies of the bot on the command interactions
+  automaticDeferring: true, // enable or not the automatic deferring of the replies of the bot on the command interactions
 
   // useful links
   links: {

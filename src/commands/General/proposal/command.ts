@@ -9,7 +9,7 @@ import {
 import { Client } from 'discordx';
 import { Category } from '@discordx/utilities';
 
-import { Discord, Injectable, Slash, SlashOption } from '@/decorators';
+import { Discord, Injectable, SkipDefer, Slash, SlashOption } from '@/decorators';
 import { UnknownReplyError } from '@/errors';
 import { Guard, GuildOnly } from '@/guards';
 import { Database } from '@/services';
@@ -26,6 +26,7 @@ export default class ProposalCommand {
     localizationSource: 'COMMANDS.PROPOSAL',
   })
   @Guard(GuildOnly)
+  @SkipDefer()
   async proposal(
     @SlashOption({ name: 'text', type: ApplicationCommandOptionType.String, required: false })
     _text: string | undefined,

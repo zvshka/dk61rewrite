@@ -11,7 +11,11 @@ export async function replyToInteraction(
   message: string | { [key: string]: any }
 ) {
   if (interaction instanceof CommandInteraction || interaction instanceof ButtonInteraction) {
-    await interaction.followUp(message);
+    if (interaction.deferred || interaction.replied) {
+      await interaction.followUp(message);
+    } else {
+      await interaction.reply(message);
+    }
   } else {
     await interaction.message.reply(message);
   }
