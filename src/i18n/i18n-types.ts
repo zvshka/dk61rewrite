@@ -86,6 +86,10 @@ type RootTranslation = {
 			DESCRIPTION: string
 		}
 		SETTINGS: {
+			/**
+			 * s​e​t​t​i​n​g​s
+			 */
+			NAME: string
 			OPTIONS: {
 				/**
 				 * S​t​a​r​b​o​a​r​d​ ​c​h​a​n​n​e​l
@@ -116,6 +120,10 @@ type RootTranslation = {
 			}
 		}
 		INVITE: {
+			/**
+			 * i​n​v​i​t​e
+			 */
+			NAME: string
 			/**
 			 * I​n​v​i​t​e​ ​t​h​e​ ​b​o​t​ ​t​o​ ​y​o​u​r​ ​s​e​r​v​e​r​!
 			 */
@@ -176,6 +184,10 @@ type RootTranslation = {
 		}
 		STATS: {
 			/**
+			 * s​t​a​t​s
+			 */
+			NAME: string
+			/**
 			 * G​e​t​ ​s​o​m​e​ ​s​t​a​t​s​ ​a​b​o​u​t​ ​t​h​e​ ​b​o​t​.
 			 */
 			DESCRIPTION: string
@@ -199,6 +211,10 @@ type RootTranslation = {
 			}
 		}
 		HELP: {
+			/**
+			 * h​e​l​p
+			 */
+			NAME: string
 			/**
 			 * G​e​t​ ​g​l​o​b​a​l​ ​h​e​l​p​ ​a​b​o​u​t​ ​t​h​e​ ​b​o​t​ ​a​n​d​ ​i​t​s​ ​c​o​m​m​a​n​d​s
 			 */
@@ -359,6 +375,10 @@ export type TranslationFunctions = {
 			DESCRIPTION: () => LocalizedString
 		}
 		SETTINGS: {
+			/**
+			 * settings
+			 */
+			NAME: () => LocalizedString
 			OPTIONS: {
 				/**
 				 * Starboard channel
@@ -389,6 +409,10 @@ export type TranslationFunctions = {
 			}
 		}
 		INVITE: {
+			/**
+			 * invite
+			 */
+			NAME: () => LocalizedString
 			/**
 			 * Invite the bot to your server!
 			 */
@@ -446,6 +470,10 @@ export type TranslationFunctions = {
 		}
 		STATS: {
 			/**
+			 * stats
+			 */
+			NAME: () => LocalizedString
+			/**
 			 * Get some stats about the bot.
 			 */
 			DESCRIPTION: () => LocalizedString
@@ -469,6 +497,10 @@ export type TranslationFunctions = {
 			}
 		}
 		HELP: {
+			/**
+			 * help
+			 */
+			NAME: () => LocalizedString
 			/**
 			 * Get global help about the bot and its commands
 			 */

@@ -29,6 +29,7 @@ const ru = {
 			DESCRIPTION: 'Цитирование сообщения.',
 		},
 		SETTINGS: {
+			NAME: 'настройки',
 			OPTIONS: {
 				STARBOARD_CHANNEL: 'Канал доски почета',
 				STARBOARD_EMOJI: 'Реакция для доски почета',
@@ -41,6 +42,7 @@ const ru = {
 			},
 		},
 		INVITE: {
+			NAME: 'приглашение',
 			DESCRIPTION: 'Пригласить бота на свой сервер!',
 			EMBED: {
 				TITLE: 'Хочешь видеть меня у себя на сервере?',
@@ -48,7 +50,7 @@ const ru = {
 			},
 		},
 		PREFIX: {
-			NAME: 'prefix',
+			NAME: 'префикс',
 			DESCRIPTION: 'Изменить префикс для бота.',
 			OPTIONS: {
 				PREFIX: {
@@ -67,6 +69,7 @@ const ru = {
 			},
 		},
 		STATS: {
+			NAME: 'статистика',
 			DESCRIPTION: 'Получить статистику по боту.',
 			HEADERS: {
 				COMMANDS: 'Команды',
@@ -76,6 +79,7 @@ const ru = {
 			},
 		},
 		HELP: {
+			NAME: 'помощь',
 			DESCRIPTION: 'Глобальная справка по боту и его командам',
 			EMBED: {
 				TITLE: 'Панель помощи',
@@ -91,7 +95,7 @@ const ru = {
 			MESSAGE: '{member} Что нужно? Было потрачено {time} миллисекунд на генерацию ответа. {heartbeat}',
 		},
 		PROPOSAL: {
-			NAME: 'proposal',
+			NAME: 'предложение',
 			DESCRIPTION: 'Создать новое предложение для голосования',
 			OPTIONS: {
 				TOPIC: {

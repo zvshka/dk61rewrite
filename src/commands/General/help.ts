@@ -26,7 +26,7 @@ export default class HelpCommand {
     const components: any[] = [];
     components.push(this.getSelectDropdown('categories', localize).toJSON());
 
-    interaction.followUp({
+    await interaction.followUp({
       embeds: [embed],
       components,
     });
@@ -46,7 +46,7 @@ export default class HelpCommand {
     const components: any[] = [];
     components.push(this.getSelectDropdown(category, localize).toJSON());
 
-    interaction.update({
+    await interaction.update({
       embeds: [embed],
       components,
     });

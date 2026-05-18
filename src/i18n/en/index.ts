@@ -29,6 +29,7 @@ const en = {
 			DESCRIPTION: 'Message quoting.',
 		},
 		SETTINGS: {
+			NAME: 'settings',
 			OPTIONS: {
 				STARBOARD_CHANNEL: 'Starboard channel',
 				STARBOARD_EMOJI: 'Emoji for starboard',
@@ -41,6 +42,7 @@ const en = {
 			},
 		},
 		INVITE: {
+			NAME: 'invite',
 			DESCRIPTION: 'Invite the bot to your server!',
 			EMBED: {
 				TITLE: 'Invite me on your server!',
@@ -67,6 +69,7 @@ const en = {
 			},
 		},
 		STATS: {
+			NAME: 'stats',
 			DESCRIPTION: 'Get some stats about the bot.',
 			HEADERS: {
 				COMMANDS: 'Commands',
@@ -76,6 +79,7 @@ const en = {
 			},
 		},
 		HELP: {
+			NAME: 'help',
 			DESCRIPTION: 'Get global help about the bot and its commands',
 			EMBED: {
 				TITLE: 'Help panel',
