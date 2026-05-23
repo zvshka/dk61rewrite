@@ -1,4 +1,4 @@
-import { CommandInteraction, Message } from 'discord.js';
+import { CommandInteraction, GuildMember, Message } from 'discord.js';
 import { Client } from 'discordx';
 import { Category } from '@discordx/utilities';
 import { SimpleCommandMessage } from 'discordx';
@@ -40,7 +40,7 @@ export default class PingCommand {
       });
     } else {
       content = localize.COMMANDS.PING.MESSAGE({
-        member: msg.inGuild() ? `${interaction.member},` : '',
+        member: msg.inGuild() && interaction.member instanceof GuildMember ? `${interaction.member.toString()},` : '',
         time: msg.createdTimestamp - interaction.createdTimestamp,
         heartbeat: client.ws.ping ? ` The heartbeat ping is ${Math.round(client.ws.ping)}ms.` : '',
       });

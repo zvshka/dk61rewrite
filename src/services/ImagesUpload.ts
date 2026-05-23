@@ -126,7 +126,7 @@ export class ImagesUpload {
 
       if (!uploadResponse.success) {
         this.logger.log(
-          `Error uploading image ${imageFileName} to imgur: ${uploadResponse.status} ${uploadResponse.data}`,
+          `Error uploading image ${imageFileName} to imgur: ${uploadResponse.status}`,
           'error',
           true
         );

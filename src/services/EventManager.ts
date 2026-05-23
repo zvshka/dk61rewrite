@@ -3,10 +3,12 @@ import { Service } from '@/decorators';
 
 @Service()
 export class EventManager {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   private _events: Map<string, Function[]> = new Map();
 
   constructor(private logger: Logger) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   register(eventName: string, callback: Function): void {
     this._events.set(eventName, [...(this._events.get(eventName) || []), callback]);
   }
