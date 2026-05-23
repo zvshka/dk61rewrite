@@ -1,5 +1,12 @@
-import { Message, MessageReaction, PartialMessageReaction, TextChannel } from 'discord.js';
-import { ArgsOf, Client } from 'discordx';
+import {
+  Message,
+  MessageReaction,
+  PartialMessageReaction,
+  PartialUser,
+  TextChannel,
+  User,
+} from 'discord.js';
+import { ArgsOf } from 'discordx';
 import { Database, Logger } from '@/services';
 
 import { Colors, EmbedBuilder, Events } from 'discord.js';
@@ -16,7 +23,6 @@ export default class Starboard {
 
   private async fetchReaction(reaction: MessageReaction | PartialMessageReaction) {
     if (reaction.partial) {
-      // If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
       try {
         await reaction.fetch();
       } catch (error) {
@@ -39,70 +45,97 @@ export default class Starboard {
     }
   }
 
-  @On(Events.MessageReactionAdd)
-  @Guard(Maintenance)
-  async starboardAdd([reaction, user]: ArgsOf<'messageReactionAdd'>, client: Client) {
+  private async getStarboardContext(
+    reaction: MessageReaction | PartialMessageReaction,
+    user: User | PartialUser
+  ) {
     if (reaction.partial) await this.fetchReaction(reaction);
-    if (!reaction.message.guildId) return;
+    if (!reaction.message.guildId) return null;
+
     const guildSettings = await this.db.prisma.guild.findUnique({
-      where: {
-        id: reaction.message.guildId,
-      },
+      where: { id: reaction.message.guildId },
     });
-    if (!guildSettings?.starboardChannel) return;
-    if (reaction.emoji.toString() !== guildSettings.starboardEmoji) return;
+    if (!guildSettings?.starboardChannel) return null;
+    if (reaction.emoji.toString() !== guildSettings.starboardEmoji) return null;
+
+    // После fetch() можно безопасно привести к полному типу
+    const fullReaction = reaction as MessageReaction;
+    const fullUser = user as User;
+
     if (
-      !reaction.message.guild ||
-      !reaction.message.author ||
-      reaction.message.author?.id === user.id
-    )
-      return;
+      !fullReaction.message.guild ||
+      !fullReaction.message.author ||
+      fullReaction.message.author.id === fullUser.id
+    ) {
+      return null;
+    }
 
-    const reactionCount =
-      (reaction as MessageReaction).count -
-      (reaction.users.cache.has(reaction.message.author.id) ? 1 : 0);
-    if (reactionCount < guildSettings.starboardCount) return;
-
-    const starboard = await reaction.message.guild.channels.fetch(guildSettings.starboardChannel);
-    if (!starboard?.isSendable()) return;
+    const starboard = await fullReaction.message.guild.channels.fetch(guildSettings.starboardChannel);
+    if ((starboard?.isSendable()) === false) return null;
 
     const messageInDatabase = await this.db.prisma.starredMessage.findUnique({
       where: {
         guildId_starredMessageId: {
-          guildId: reaction.message.guildId,
-          starredMessageId: reaction.message.id,
+          guildId: fullReaction.message.guild.id,
+          starredMessageId: fullReaction.message.id,
         },
       },
     });
 
+    return {
+      reaction: fullReaction,
+      user: fullUser,
+      author: fullReaction.message.author,
+      guildId: fullReaction.message.guild.id,
+      messageId: fullReaction.message.id,
+      guildSettings,
+      starboard,
+      messageInDatabase,
+    };
+  }
+
+  @On(Events.MessageReactionAdd)
+  @Guard(Maintenance)
+  async starboardAdd([reaction, user]: ArgsOf<'messageReactionAdd'>) {
+    const ctx = await this.getStarboardContext(reaction, user);
+    if (!ctx) return;
+
+    const { reaction: fullReaction, author, guildSettings, starboard, messageInDatabase, guildId, messageId } = ctx;
+
+    const reactionCount =
+      (fullReaction.count ?? 0) -
+      (fullReaction.users.cache.has(author.id) ? 1 : 0);
+
+    if (reactionCount < guildSettings.starboardCount) return;
+
     if (!messageInDatabase) {
       const embed = new EmbedBuilder()
         .setAuthor({
-          name: reaction.message.author.username,
-          iconURL: reaction.message.author.avatarURL() ?? '',
+          name: author.username,
+          iconURL: author.avatarURL() ?? '',
         })
-        .addFields({ name: 'Souce:', value: `[Jump!](${reaction.message.url})` })
+        .addFields({ name: 'Source:', value: `[Jump!](${fullReaction.message.url})` }) // (Исправлена опечатка Souce -> Source)
         .setTimestamp();
 
-      if (reaction.message.content && reaction.message.content.length > 0) {
-        embed.setDescription(reaction.message.content);
+      if (fullReaction.message.content && fullReaction.message.content.length > 0) {
+        embed.setDescription(fullReaction.message.content);
       }
 
       if (reactionCount > 3) embed.setColor(Colors.Yellow);
       if (reactionCount > 5) embed.setColor(Colors.Orange);
       if (reactionCount > 7) embed.setColor(Colors.Blurple);
 
-      const reactionChannel = reaction.message.channel as TextChannel;
+      const reactionChannel = fullReaction.message.channel as TextChannel;
 
       if (!reactionChannel.nsfw) {
-        const attachment = reaction.message.attachments.first();
+        const attachment = fullReaction.message.attachments.first();
         if (attachment) {
           embed.setImage(attachment.url);
         }
       }
 
       const starboardMessage = await starboard.send({
-        content: `${reaction.emoji.toString()} **${reactionCount}** <#${reaction.message.channelId}>`,
+        content: `${fullReaction.emoji.toString()} **${reactionCount}** <#${fullReaction.message.channelId}>`,
         embeds: [embed],
       });
 
@@ -110,67 +143,43 @@ export default class Starboard {
 
       await this.db.prisma.starredMessage.create({
         data: {
-          guildId: starboardMessage.guildId,
-          starredMessageId: reaction.message.id,
+          guildId,
+          starredMessageId: messageId,
           botMessageId: starboardMessage.id,
         },
       });
     } else {
       const starboardMessage = await starboard.messages.fetch(messageInDatabase.botMessageId);
       if (starboardMessage) {
-        await this.editEmbed(starboardMessage, reactionCount, reaction as MessageReaction);
+        await this.editEmbed(starboardMessage, reactionCount, fullReaction);
       }
     }
   }
 
   @On(Events.MessageReactionRemove)
   @Guard(Maintenance)
-  async starboardRemove([reaction, user]: ArgsOf<'messageReactionRemove'>, client: Client) {
-    if (reaction.partial) await this.fetchReaction(reaction);
-    if (!reaction.message.guildId) return;
-    const guildSettings = await this.db.prisma.guild.findUnique({
-      where: {
-        id: reaction.message.guildId,
-      },
-    });
-    if (!guildSettings?.starboardChannel) return;
-    if (reaction.emoji.toString() !== guildSettings.starboardEmoji) return;
-    if (
-      !reaction.message.guild ||
-      !reaction.message.author ||
-      reaction.message.author?.id === user.id
-    )
-      return;
+  async starboardRemove([reaction, user]: ArgsOf<'messageReactionRemove'>) {
+    const ctx = await this.getStarboardContext(reaction, user);
+    if (!ctx) return;
 
-    const starboard = await reaction.message.guild.channels.fetch(guildSettings.starboardChannel);
-    if (!starboard?.isSendable()) return;
-
-    const messageInDatabase = await this.db.prisma.starredMessage.findUnique({
-      where: {
-        guildId_starredMessageId: {
-          guildId: reaction.message.guildId,
-          starredMessageId: reaction.message.id,
-        },
-      },
-    });
-
+    const { reaction: fullReaction, author, guildSettings, starboard, messageInDatabase, guildId, messageId } = ctx;
     if (!messageInDatabase) return;
 
     const botMessage = await starboard.messages.fetch(messageInDatabase.botMessageId);
     if (!botMessage) return;
 
     const reactionCount =
-      (reaction as MessageReaction).count -
-      (reaction.users.cache.has(reaction.message.author.id) ? 1 : 0);
+      (fullReaction.count ?? 0) -
+      (fullReaction.users.cache.has(author.id) ? 1 : 0);
 
     if (reactionCount >= guildSettings.starboardCount) {
-      await this.editEmbed(botMessage, reactionCount, reaction as MessageReaction);
+      await this.editEmbed(botMessage, reactionCount, fullReaction);
     } else {
       await this.db.prisma.starredMessage.delete({
         where: {
           guildId_starredMessageId: {
-            guildId: reaction.message.guildId,
-            starredMessageId: reaction.message.id,
+            guildId,
+            starredMessageId: messageId,
           },
         },
       });

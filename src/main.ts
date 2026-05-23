@@ -123,7 +123,7 @@ async function init() {
   const client = new Client(clientConfig());
 
   // Load all new events
-  discordLogs(client, { debug: false });
+  await discordLogs(client, { debug: false });
   container.registerInstance(Client, client);
 
   // import all the commands and events
@@ -137,10 +137,10 @@ async function init() {
   await initDataTable(db);
 
   // init plugins services
-  await pluginManager.initServices();
+  pluginManager.initServices();
 
   // init the plugin main file
-  await pluginManager.execMains();
+  pluginManager.execMains();
 
   // log in with the bot token
   if (!env.BOT_TOKEN) throw new NoBotTokenError();
@@ -149,6 +149,9 @@ async function init() {
     .login(env.BOT_TOKEN)
     .then(async () => {
       if (env.NODE_ENV === 'development') {
+
+        logger.log('[DEV] ⚠️⚠️⚠️ Dev mode enabled ⚠️⚠️⚠️')
+
         // reload commands and events when a file changes
         watcher?.on('change', () => reload(client));
 
@@ -180,7 +183,7 @@ async function init() {
             .every(value => value)
         ) {
           const eventManager = await resolveDependency(EventManager);
-          eventManager.emit('templateReady'); // the template is fully ready!
+          await eventManager.emit('templateReady'); // the template is fully ready!
         }
       });
     })

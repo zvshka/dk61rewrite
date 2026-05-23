@@ -1,9 +1,8 @@
-import { SimpleCommandMessage } from 'discordx';
+import { Client, SimpleCommandMessage } from 'discordx';
 
 import { Database } from '@/services';
 import process from 'node:process';
 import { constant } from 'case';
-import { Client } from 'discordx';
 import { OSUtils } from 'node-os-utils';
 import pidusage from 'pidusage';
 
@@ -87,7 +86,7 @@ export class Stats {
     const additionalData = {
       user: command.message.author.id,
       guild: command.message.guild?.id || 'dm',
-      channel: command.message.channel?.id,
+      channel: command.message.channel.id,
     };
 
     // add it to the db
@@ -134,13 +133,13 @@ export class Stats {
     try {
       // Для SQLite/PostgreSQL используем raw SQL для оптимизации
       return await this.db.prisma.$queryRaw`
-                SELECT type,
-                       value as name,
-                       COUNT(*) as count
-                FROM "stat"
-                WHERE type IN (${allInteractions.OR.map(x => x.type).join(', ')})
-                GROUP BY type, value
-                ORDER BY count DESC
+        SELECT type,
+               value as name,
+               COUNT(*) as count
+        FROM "stat"
+        WHERE type IN (${allInteractions.OR.map(x => x.type).join(', ')})
+        GROUP BY type, value
+        ORDER BY count DESC
 			`;
     } catch (e) {
       return [];

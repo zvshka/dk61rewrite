@@ -40,7 +40,7 @@ export class PluginsManager {
     for (const plugin of this._plugins) await plugin.importEvents();
   }
 
-  public async initServices(): Promise<{ [key: string]: any }> {
+  public initServices(): { [key: string]: any } {
     const services: { [key: string]: any } = {};
 
     for (const plugin of this._plugins) {
@@ -50,8 +50,8 @@ export class PluginsManager {
     return services;
   }
 
-  public async execMains(): Promise<void> {
-    for (const plugin of this._plugins) await plugin.execMain();
+  public execMains(): void {
+    for (const plugin of this._plugins) plugin.execMain();
   }
 
   public async syncTranslations(): Promise<void> {
