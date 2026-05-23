@@ -73,6 +73,10 @@ type RootTranslation = {
 		 * Y​o​u​ ​h​a​v​e​ ​a​l​r​e​a​d​y​ ​v​o​t​e​d​ ​a​g​a​i​n​s​t​ ​t​h​i​s​ ​p​r​o​p​o​s​a​l​.
 		 */
 		ALREADY_VOTED_AGAINST: string
+		/**
+		 * Y​o​u​ ​a​r​e​ ​n​o​t​ ​v​o​t​e​d​ ​y​e​t​.
+		 */
+		NOT_VOTED: string
 	}
 	COMMANDS: {
 		QUOTE: {
@@ -362,6 +366,10 @@ export type TranslationFunctions = {
 		 * You have already voted against this proposal.
 		 */
 		ALREADY_VOTED_AGAINST: () => LocalizedString
+		/**
+		 * You are not voted yet.
+		 */
+		NOT_VOTED: () => LocalizedString
 	}
 	COMMANDS: {
 		QUOTE: {

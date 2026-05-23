@@ -34,7 +34,7 @@ export default class PingCommand {
     let content;
     if (interaction instanceof SimpleCommandMessage) {
       content = localize.COMMANDS.PING.MESSAGE({
-        member: msg.inGuild() ? `${interaction.message.member},` : '',
+        member: msg.inGuild() ? `${interaction.message.member?.toString()},` : '',
         time: msg.createdTimestamp - interaction.message.createdTimestamp,
         heartbeat: client.ws.ping ? ` The heartbeat ping is ${Math.round(client.ws.ping)}ms.` : '',
       });

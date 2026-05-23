@@ -22,21 +22,20 @@ export default class ProposalScheduler {
       include: {
         author: true,
         guild: true,
+        _count: {
+          select: {
+            usersFor: true,
+            usersAgainst: true
+          }
+        }
       },
     });
 
     for (const proposal of expiredProposals) {
+      const { usersFor, usersAgainst } = proposal._count;
       await this.db.prisma.proposal.update({
         where: { id: proposal.id },
         data: { status: 'COMPLETED' },
-      });
-
-      const forCount = await this.db.prisma.proposal.count({
-        where: { id: proposal.id, usersFor: { some: { id: proposal.authorId } } },
-      });
-
-      const againstCount = await this.db.prisma.proposal.count({
-        where: { id: proposal.id, usersAgainst: { some: { id: proposal.authorId } } },
       });
 
       try {
@@ -46,14 +45,13 @@ export default class ProposalScheduler {
         const message = await channel.messages.fetch(proposal.proposalMessageId!);
         if (!message) continue;
 
-        const embed = new EmbedBuilder(message.embeds[0]?.data ?? {})
-          .setFooter({
-            text: `#${proposal.id} • Голосование завершено`,
-          });
+        const embed = new EmbedBuilder(message.embeds[0]?.data ?? {}).setFooter({
+          text: `#${proposal.id} • Голосование завершено`,
+        });
 
-        if (forCount > againstCount) {
+        if (usersFor > usersAgainst) {
           embed.setColor('Green');
-        } else if (againstCount > forCount) {
+        } else if (usersAgainst > usersFor) {
           embed.setColor('Red');
         } else {
           embed.setColor('Yellow');
@@ -62,12 +60,12 @@ export default class ProposalScheduler {
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId('vote-for')
-            .setLabel(`${forCount} 👍`)
+            .setLabel(`${usersFor} 👍`)
             .setStyle(ButtonStyle.Success)
             .setDisabled(true),
           new ButtonBuilder()
             .setCustomId('vote-against')
-            .setLabel(`${againstCount} 👎`)
+            .setLabel(`${usersAgainst} 👎`)
             .setStyle(ButtonStyle.Danger)
             .setDisabled(true)
         );

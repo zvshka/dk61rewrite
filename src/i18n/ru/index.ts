@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 import type { Translation } from '../i18n-types'
 
 const ru = {
@@ -22,6 +22,7 @@ const ru = {
 		CHANNEL_INVALID: 'Канал для голосовалки больше не существует.',
 		ALREADY_VOTED_FOR: 'Вы уже проголосовали за это предложение.',
 		ALREADY_VOTED_AGAINST: 'Вы уже проголосовали против этого предложения.',
+		NOT_VOTED: 'Вы еще не голосовали.'
 	},
 	COMMANDS: {
 		QUOTE: {

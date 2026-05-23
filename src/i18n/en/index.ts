@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 import type { BaseTranslation } from '../i18n-types'
 
 const en = {
@@ -22,6 +22,7 @@ const en = {
 		CHANNEL_INVALID: 'The proposal channel no longer exists.',
 		ALREADY_VOTED_FOR: 'You have already voted for this proposal.',
 		ALREADY_VOTED_AGAINST: 'You have already voted against this proposal.',
+		NOT_VOTED: 'You are not voted yet.'
 	},
 	COMMANDS: {
 		QUOTE: {

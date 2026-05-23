@@ -60,7 +60,10 @@ export default class ProposalButtonHandler {
 
     if (!voteData) return;
     const { hasVotedFor, hasVotedAgainst, proposal } = voteData;
-    if (!hasVotedFor && !hasVotedAgainst) return;
+    if (!hasVotedFor && !hasVotedAgainst) {
+      await this._handleError(interaction, localize.PROPOSAL_ERROR.NOT_VOTED());
+      return;
+    }
 
     await this.db.prisma.proposal.update({
       where: { id: proposal.id },
@@ -202,7 +205,6 @@ export default class ProposalButtonHandler {
       }
     }
 
-    // TODO Вынести в настройки?
     if (forCount + againstCount >= 20 && Math.abs(forCount - againstCount) >= 15) {
       await this.db.prisma.proposal.update({
         where: {
