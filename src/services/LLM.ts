@@ -24,7 +24,7 @@ export class LLM {
     const activeConfig = llmConfig.provider === 'deepseek' ? llmConfig.deepseek : llmConfig.local;
     this.provider = new OpenAICompatibleProvider(activeConfig);
     this.conversation = new ConversationManager(llmConfig.contextLimit);
-    this.tools = new ToolManager(llmConfig.search);
+    this.tools = new ToolManager(llmConfig.search, this.logger);
   }
 
   async ask(

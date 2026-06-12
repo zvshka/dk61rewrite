@@ -1,13 +1,17 @@
 import asyncio
+import logging
 import os
 import time
 
 from fastapi import FastAPI
 from pydantic import BaseModel
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger('search-service')
 
 app = FastAPI(title='Search Service')
 
@@ -40,6 +44,29 @@ async def search(req: SearchRequest):
     if cookie:
         headers['cookie'] = cookie
 
-    ddgs = DDGS(headers=headers or None)
-    results = ddgs.text(req.query, max_results=req.max_results)
-    return [SearchResult(**r) for r in results]
+    ddgs = DDGS(headers=headers if headers else None)
+
+    for backend in ('auto', 'bing'):
+        try:
+            results = ddgs.text(
+                req.query,
+                max_results=req.max_results,
+                backend=backend,
+            )
+            if results:
+                log.info(
+                    'query="%s" backend=%s results=%d',
+                    req.query, backend, len(results),
+                )
+                return [SearchResult(**r) for r in results]
+            log.warning(
+                'query="%s" backend=%s empty',
+                req.query, backend,
+            )
+        except Exception as e:
+            log.error(
+                'query="%s" backend=%s error=%s',
+                req.query, backend, e,
+            )
+
+    return []

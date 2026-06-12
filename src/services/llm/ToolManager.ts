@@ -1,3 +1,5 @@
+import type { Logger } from '@/services';
+
 import type { LLMToolCall, LLMToolDefinition, LLMToolResult } from './llm.types';
 import { WebSearchTool } from './tools/WebSearchTool';
 
@@ -11,8 +13,8 @@ interface SearchConfig {
 export class ToolManager {
   private webSearch: WebSearchTool;
 
-  constructor(searchConfig: SearchConfig) {
-    this.webSearch = new WebSearchTool(searchConfig);
+  constructor(searchConfig: SearchConfig, logger: Logger) {
+    this.webSearch = new WebSearchTool(searchConfig, logger);
   }
 
   getToolDefinitions(): LLMToolDefinition[] {
