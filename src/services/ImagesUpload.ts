@@ -11,7 +11,7 @@ import { ImgurClient } from 'imgur';
 import { Service } from '@/decorators';
 import { env } from '@/env';
 
-import { base64Encode, fileOrDirectoryExists, getFiles } from '@/utils/functions';
+import { base64Encode, fileOrDirectoryExists, getFiles, isNullOrWhitespace } from '@/utils/functions';
 
 const imageHasher = promisify(callbackImageHash);
 
@@ -20,7 +20,7 @@ export class ImagesUpload {
   private validImageExtensions = ['.png', '.jpg', '.jpeg'];
   private imageFolderPath = path.join(__dirname, '..', '..', 'assets', 'images');
 
-  private imgurClient: ImgurClient | null = env.IMGUR_CLIENT_ID
+  private imgurClient: ImgurClient | null = !isNullOrWhitespace(env.IMGUR_CLIENT_ID)
     ? new ImgurClient({
         clientId: env.IMGUR_CLIENT_ID,
       })
@@ -143,7 +143,7 @@ export class ImagesUpload {
           size: uploadResponse.data.size,
           tags: imageBasePath.split('/'),
           hash: imageHash,
-          deleteHash: uploadResponse.data.deletehash || '',
+          deleteHash: uploadResponse.data.deletehash ?? '',
         },
       });
 

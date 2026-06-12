@@ -3,7 +3,7 @@ import { Client } from 'discordx';
 import { Stats } from '@/services';
 import { Category } from '@discordx/utilities';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import relativeTime from 'dayjs/plugin/relativeTime.js';
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import { generalConfig } from '@/configs';

@@ -9,7 +9,7 @@ import {
   EmbedBuilder,
   ModalSubmitInteraction,
 } from 'discord.js';
-import { getColor, resolveGuild } from '@/utils/functions';
+import { getColor, isNullOrWhitespace, resolveGuild } from '@/utils/functions';
 import { getLocaleFromInteraction, L } from '@/i18n';
 
 @Discord()
@@ -29,7 +29,7 @@ export default class ProposalModal {
       where: { id: guild.id },
     });
 
-    if (!guildData?.proposalChannel) {
+    if (!guildData || isNullOrWhitespace(guildData.proposalChannel)) {
       await simpleModalSuccessEmbed(interaction, localize.COMMANDS.PROPOSAL.NO_CHANNEL());
       return;
     }

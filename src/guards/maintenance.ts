@@ -3,7 +3,7 @@ import { CommandInteraction, ContextMenuCommandInteraction } from 'discord.js';
 import { SimpleCommandMessage } from 'discordx';
 
 import { getLocaleFromInteraction, L } from '@/i18n';
-import { isDev, isInMaintenance, replyToInteraction, resolveUser } from '@/utils/functions';
+import { isDev, isInMaintenance, isNullOrUndefined, replyToInteraction, resolveUser } from '@/utils/functions';
 
 /**
  * Prevent interactions from running when bot is in maintenance
@@ -21,7 +21,7 @@ export const Maintenance: GuardFunction<ArgsOf<'messageCreate' | 'interactionCre
     const user = resolveUser(arg);
     const maintenance = await isInMaintenance();
 
-    if (maintenance && user?.id && !isDev(user.id)) {
+    if (maintenance && !isNullOrUndefined(user?.id) && !isDev(user.id)) {
       const locale = getLocaleFromInteraction(arg);
       const localizedReplyMessage = L[locale].GUARDS.MAINTENANCE();
 

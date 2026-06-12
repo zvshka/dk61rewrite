@@ -1,4 +1,5 @@
 export * from './Database';
+export * from './LLM';
 export * from './Store';
 export * from './Logger';
 export * from './Stats';

@@ -8,6 +8,7 @@ import { SlashGroup as SlashGroupX } from 'discordx';
 
 import {
   constantPreserveDots,
+  isNullOrUndefined,
   sanitizeLocales,
   setFallbackDescription,
   setOptionsLocalization,
@@ -99,13 +100,13 @@ export function SlashGroup<TRoot extends string>(
 
     options = sanitizeLocales(options);
 
-    if (!options.description) options = setFallbackDescription(options);
+    if (isNullOrUndefined(options.description)) options = setFallbackDescription(options);
 
     return SlashGroupX(
       options as SlashGroupOptionsX<VerifyName<string>, string, VerifyName<string>>
     );
   } else {
-    if (root) return SlashGroupX(options, root);
+    if (!isNullOrUndefined(root)) return SlashGroupX(options, root);
     else return SlashGroupX(options);
   }
 }

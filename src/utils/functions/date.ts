@@ -17,12 +17,6 @@ const dateMasks = {
   onlyDateFileName: 'YYYY-MM-DD',
 };
 
-/**
- * Format a date object to a templated string using the [date-and-time](https://www.npmjs.com/package/date-and-time) library.
- * @param date
- * @param mask - template for the date format
- * @returns formatted date
- */
 export function formatDate(date: Date, mask: keyof typeof dateMasks = 'default') {
   return datejs(date).format(dateMasks[mask]);
 }

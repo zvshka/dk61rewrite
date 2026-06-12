@@ -1,3 +1,4 @@
+export * from './string';
 export * from './array';
 export * from './colors';
 export * from './converter';
@@ -14,5 +15,4 @@ export * from './localization';
 export * from './maintenance';
 export * from './prefix';
 export * from './resolvers';
-export * from './string';
 export * from './synchronizer';

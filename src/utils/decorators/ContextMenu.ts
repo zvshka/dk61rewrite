@@ -4,6 +4,7 @@ import { ContextMenu as ContextMenuX } from 'discordx';
 import {
   constantPreserveDots,
   getCallerFile,
+  isNullOrUndefined,
   sanitizeLocales,
   setOptionsLocalization,
 } from '@/utils/functions';
@@ -26,10 +27,10 @@ export function ContextMenu(options: ContextMenuOptions) {
     localizationSource = constantPreserveDots(
       options.localizationSource
     ) as TranslationsNestedPaths;
-  else if (options.name)
+  else if (!isNullOrUndefined(options.name))
     localizationSource =
       `COMMANDS.${constantPreserveDots(options.name)}` as TranslationsNestedPaths;
-  else if (commandNameFromFile)
+  else if (!isNullOrUndefined(commandNameFromFile))
     localizationSource =
       `COMMANDS.${constantPreserveDots(commandNameFromFile)}` as TranslationsNestedPaths;
 

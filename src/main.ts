@@ -25,16 +25,12 @@ import {
   PluginsManager,
   Store,
 } from '@/services';
-import { initDataTable, resolveDependency } from '@/utils/functions';
+import { initDataTable, isNullOrWhitespace, resolveDependency } from '@/utils/functions';
 
 import { clientConfig } from './client';
 
 const importPattern = `${__dirname}/{events,commands}/**/*.{ts,js}`;
 
-/**
- * Import files
- * @param path glob pattern
- */
 async function loadFiles(path: string): Promise<void> {
   const files = await resolve(path);
   await Promise.all(
@@ -46,9 +42,6 @@ async function loadFiles(path: string): Promise<void> {
   );
 }
 
-/**
- * Hot reload
- */
 async function reload(client: Client) {
   const store = await resolveDependency(Store);
   store.set('botHasBeenReloaded', true);
@@ -57,35 +50,25 @@ async function reload(client: Client) {
   console.log('\n');
   logger.startSpinner('Hot reloading...');
 
-  // remove events
   client.removeEvents();
 
-  // get all instances to keep
   const instancesToKeep: Map<constructor<any>, any> = new Map();
   for (const target of keptInstances) {
     const instance = await resolveDependency(target);
     instancesToKeep.set(target, instance);
   }
 
-  // cleanup
   MetadataStorage.clear();
   DIService.engine.clearAllServices();
 
-  // transfer store instance to the new container in order to keep the same states
   for (const [target, instance] of instancesToKeep) container.registerInstance(target, instance);
-
-  // re-register the client instance
   container.registerInstance(Client, client);
 
-  // reload files
   await loadFiles(importPattern);
 
-  // rebuild
   await MetadataStorage.instance.build();
   await client.initApplicationCommands();
   client.initEvents();
-
-  // re-init services
 
   const pluginManager = await resolveDependency(PluginsManager);
   await pluginManager.loadPlugins();
@@ -99,91 +82,67 @@ async function reload(client: Client) {
 async function init() {
   const logger = await resolveDependency(Logger);
 
-  // check environment variables
   checkEnvironmentVariables();
 
-  // init error handler
   await resolveDependency(ErrorHandler);
 
-  // init plugins
   const pluginManager = await resolveDependency(PluginsManager);
   await pluginManager.loadPlugins();
   await pluginManager.syncTranslations();
 
-  // start spinner
   console.log('\n');
   logger.startSpinner('Starting...');
 
-  // init the database
   const db = await resolveDependency(Database);
   await db.initialize();
 
-  // init the client
   DIService.engine = tsyringeDependencyRegistryEngine.setInjector(container);
   const client = new Client(clientConfig());
 
-  // Load all new events
   await discordLogs(client, { debug: false });
   container.registerInstance(Client, client);
 
-  // import all the commands and events
   await loadFiles(importPattern);
-  // await pluginManager.importCommands()
-  // await pluginManager.importEvents()
 
-  const watcher = env.NODE_ENV === 'development' ? chokidar.watch(importPattern) : null;
-
-  // init the data table if it doesn't exist
   await initDataTable(db);
 
-  // init plugins services
   pluginManager.initServices();
-
-  // init the plugin main file
   pluginManager.execMains();
 
-  // log in with the bot token
   if (!env.BOT_TOKEN) throw new NoBotTokenError();
+
+  const watcher = env.NODE_ENV === 'development' ? chokidar.watch(importPattern) : null;
 
   client
     .login(env.BOT_TOKEN)
     .then(async () => {
       if (env.NODE_ENV === 'development') {
-
         logger.log('[DEV] ⚠️⚠️⚠️ Dev mode enabled ⚠️⚠️⚠️')
 
-        // reload commands and events when a file changes
         watcher?.on('change', () => reload(client));
-
-        // reload commands and events when a file is added
         watcher?.on('add', () => reload(client));
-
-        // reload commands and events when a file is deleted
         watcher?.on('unlink', () => reload(client));
       }
 
-      // start the api server
       if (apiConfig.enabled) {
         const server = await resolveDependency(Server);
         await server.start();
       }
 
-      // upload images to imgur if configured
-      if (env.IMGUR_CLIENT_ID && generalConfig.automaticUploadImagesToImgur) {
+      if (!isNullOrWhitespace(env.IMGUR_CLIENT_ID) && generalConfig.automaticUploadImagesToImgur) {
         const imagesUpload = await resolveDependency(ImagesUpload);
         await imagesUpload.syncWithDatabase();
       }
 
       const store = container.resolve(Store);
       store.select('ready').subscribe(async ready => {
-        // check that all properties that are not null are set to true
         if (
           Object.values(ready)
             .filter(value => value !== null)
             .every(value => value)
         ) {
           const eventManager = await resolveDependency(EventManager);
-          await eventManager.emit('templateReady'); // the template is fully ready!
+          await eventManager.emit('templateReady');
         }
       });
     })

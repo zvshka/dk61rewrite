@@ -112,6 +112,27 @@ const en = {
 			},
 			SUCCESS: 'Proposal successfully created and sent to the proposal channel!',
 		},
+		LLM: {
+			NAME: 'llm',
+			DESCRIPTION: 'Ask an AI assistant a question',
+			OPTIONS: {
+				SUBCOMMAND: {
+					NAME: 'subcommand',
+					DESCRIPTION: 'Choose an action',
+				},
+				QUESTION: {
+					NAME: 'question',
+					DESCRIPTION: 'Your question for the AI',
+				},
+			},
+			CHOICES: {
+				ASK: 'Ask',
+				RESET: 'Reset',
+			},
+			RESET_SUCCESS: 'Conversation history has been reset.',
+			NO_QUESTION: 'Please provide a question after selecting "Ask".',
+			ERROR: 'Error generating response: {error}',
+		},
 	},
 } satisfies BaseTranslation
 

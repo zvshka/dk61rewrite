@@ -38,6 +38,14 @@ export function constantPreserveDots(string: string) {
     .join('.');
 }
 
+export function isNullOrUndefined(value: unknown): value is null | undefined {
+  return value == null;
+}
+
+export function isNullOrWhitespace(value: unknown): value is null | undefined {
+  return value == null || (typeof value === 'string' && value.trim().length === 0);
+}
+
 export function isValidUrl(url: string) {
   try {
     new URL(url);

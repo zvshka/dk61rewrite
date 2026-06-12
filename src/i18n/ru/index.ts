@@ -112,6 +112,27 @@ const ru = {
 			},
 			SUCCESS: 'Предложение успешно создано и отправлено в канал голосовалки!',
 		},
+		LLM: {
+			NAME: 'llm',
+			DESCRIPTION: 'Задать вопрос ИИ-ассистенту',
+			OPTIONS: {
+				SUBCOMMAND: {
+					NAME: 'команда',
+					DESCRIPTION: 'Выберите действие',
+				},
+				QUESTION: {
+					NAME: 'вопрос',
+					DESCRIPTION: 'Ваш вопрос для ИИ',
+				},
+			},
+			CHOICES: {
+				ASK: 'Спросить',
+				RESET: 'Сбросить',
+			},
+			RESET_SUCCESS: 'История диалога сброшена.',
+			NO_QUESTION: 'Укажите вопрос после выбора "Спросить".',
+			ERROR: 'Ошибка при генерации ответа: {error}',
+		},
 	},
 } satisfies Translation
 

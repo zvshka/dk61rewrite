@@ -1,6 +1,7 @@
 import { Locales } from '@/i18n';
 import { generalConfig } from '@/configs';
 import { L, loadedLocales, locales } from '@/i18n';
+import { isNullOrWhitespace } from './string';
 
 export function getLocalizedInfo(
   target: 'NAME' | 'DESCRIPTION',
@@ -50,15 +51,17 @@ export function setOptionsLocalization<K extends SanitizedOptions & { name?: str
 
 export function sanitizeLocales<K extends SanitizedOptions>(option: K) {
   // convert 'en' localizations to 'en-US' and 'en-GB'
-  if (option?.nameLocalizations?.en) {
-    option.nameLocalizations['en-US'] = option.nameLocalizations.en;
-    option.nameLocalizations['en-GB'] = option.nameLocalizations.en;
-    delete option.nameLocalizations.en;
+  const nameLocales = option.nameLocalizations;
+  if (nameLocales && !isNullOrWhitespace(nameLocales.en)) {
+    nameLocales['en-US'] = nameLocales.en;
+    nameLocales['en-GB'] = nameLocales.en;
+    delete nameLocales.en;
   }
-  if (option?.descriptionLocalizations?.en) {
-    option.descriptionLocalizations['en-US'] = option.descriptionLocalizations.en;
-    option.descriptionLocalizations['en-GB'] = option.descriptionLocalizations.en;
-    delete option.descriptionLocalizations.en;
+  const descLocales = option.descriptionLocalizations;
+  if (descLocales && !isNullOrWhitespace(descLocales.en)) {
+    descLocales['en-US'] = descLocales.en;
+    descLocales['en-GB'] = descLocales.en;
+    delete descLocales.en;
   }
 
   return option;

@@ -1,5 +1,7 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import process from 'node:process';
+import { pathToFileURL } from 'node:url';
 
 import { env } from '@/env';
 
@@ -30,4 +32,10 @@ export function fileOrDirectoryExists(path: string): boolean {
 
 export function getSourceCodeLocation(): string {
   return `${process.cwd()}/${env.NODE_ENV === 'production' ? 'build' : 'src'}`;
+}
+
+export function toImportPath(p: string): string {
+  if (p.startsWith('file://')) return p;
+  if (path.isAbsolute(p)) return pathToFileURL(p).href;
+  return p;
 }

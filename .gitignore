@@ -25,3 +25,5 @@ src/generated/prisma
 
 /database/enmap.sqlite-shm
 /database/enmap.sqlite-wal
+
+.codegraph

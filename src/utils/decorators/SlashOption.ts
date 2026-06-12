@@ -5,6 +5,7 @@ import { SlashOption as SlashOptionX } from 'discordx';
 import { InvalidOptionName } from '@/errors';
 import {
   constantPreserveDots,
+  isNullOrUndefined,
   sanitizeLocales,
   setFallbackDescription,
   setOptionsLocalization,
@@ -51,7 +52,7 @@ export function SlashOption(options: SlashOptionOptions) {
     }
   }
 
-  if (!options.description) options = setFallbackDescription(options);
+  if (isNullOrUndefined(options.description)) options = setFallbackDescription(options);
 
   return SlashOptionX(options as SlashOptionOptionsX<VerifyName<string>, string>);
 }

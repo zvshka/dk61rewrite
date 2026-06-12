@@ -13,6 +13,8 @@ import {
 } from 'discord.js';
 import { SimpleCommandMessage } from 'discordx';
 
+import { isNullOrUndefined } from '@/utils/functions';
+
 import packageJson from '../../../package.json';
 
 const resolvers = {
@@ -103,10 +105,10 @@ const resolvers = {
     ChatInputCommandInteraction: (interaction: ChatInputCommandInteraction) => {
       return (
         interaction.commandName +
-        (interaction?.options.getSubcommandGroup(false)
+        (!isNullOrUndefined(interaction.options.getSubcommandGroup(false))
           ? ` ${interaction.options.getSubcommandGroup(false)}`
           : '') +
-        (interaction?.options.getSubcommand(false)
+        (!isNullOrUndefined(interaction.options.getSubcommand(false))
           ? ` ${interaction.options.getSubcommand(false)}`
           : '')
       );

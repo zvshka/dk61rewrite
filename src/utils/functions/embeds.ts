@@ -27,7 +27,7 @@ export function simpleSuccessEmbed(interaction: CommandInteraction | ButtonInter
  */
 export function simpleErrorEmbed(interaction: CommandInteraction | ButtonInteraction, message: string) {
   const embed = new EmbedBuilder()
-    .setColor(0xed4245) // RED // see: https://github.com/discordjs/discord.js/blob/main/packages/discord.js/src/util/Colors.js
+    .setColor(0xed4245) // RED // see: https://github.com/discordjs/discord.js/blob/main/packages/discordjs/src/util/Colors.js
     .setTitle(`❌ ${message}`);
 
   replyToInteraction(interaction, { embeds: [embed] }).catch(err =>

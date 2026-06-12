@@ -13,7 +13,7 @@ import { Discord, Injectable, SkipDefer, Slash, SlashOption } from '@/decorators
 import { UnknownReplyError } from '@/errors';
 import { Guard, GuildOnly } from '@/guards';
 import { Database } from '@/services';
-import { resolveGuild, simpleErrorEmbed } from '@/utils/functions';
+import { isNullOrWhitespace, resolveGuild, simpleErrorEmbed } from '@/utils/functions';
 
 @Discord()
 @Injectable()
@@ -51,7 +51,7 @@ export default class ProposalCommand {
       },
     });
 
-    if (!guildData?.proposalChannel) {
+    if (!guildData || isNullOrWhitespace(guildData.proposalChannel)) {
       return simpleErrorEmbed(interaction, localize.COMMANDS.PROPOSAL.NO_CHANNEL());
     }
 

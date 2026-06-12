@@ -67,7 +67,6 @@
     "package.json",
     "prettier.config.js"
   ],
-  "paths": ["node_modules/*", "src/utils/types/*", "src/plugins/*/utils/types/*"],
 
   "ts-node": {
     "require": ["tsconfig-paths/register"]

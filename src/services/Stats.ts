@@ -67,7 +67,7 @@ export class Stats {
     const value = resolveAction(interaction);
     const additionalData = {
       user: resolveUser(interaction)?.id,
-      guild: resolveGuild(interaction)?.id || 'dm',
+      guild: resolveGuild(interaction)?.id ?? 'dm',
       channel: resolveChannel(interaction)?.id,
     };
 
@@ -85,7 +85,7 @@ export class Stats {
     const value = command.name;
     const additionalData = {
       user: command.message.author.id,
-      guild: command.message.guild?.id || 'dm',
+      guild: command.message.guild?.id ?? 'dm',
       channel: command.message.channel.id,
     };
 

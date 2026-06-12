@@ -21,5 +21,5 @@ export async function getImage(imageName: string): Promise<string | null> {
     },
   });
 
-  return image?.url || null;
+  return image?.url ?? null;
 }

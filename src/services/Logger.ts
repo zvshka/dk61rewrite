@@ -26,6 +26,7 @@ import {
   fileOrDirectoryExists,
   formatDate,
   getTypeOfInteraction,
+  isNullOrWhitespace,
   numberAlign,
   oneLine,
   resolveAction,
@@ -179,7 +180,7 @@ export class Logger {
     message: string | BaseMessageOptions,
     level?: (typeof this.levels)[number]
   ) {
-    if (!this.client.token) return;
+    if (isNullOrWhitespace(this.client.token)) return;
 
     const channel = await this.client.channels.fetch(channelId).catch(() => null);
 
@@ -275,7 +276,7 @@ export class Logger {
     if (saveToFile) this.file(message, level);
 
     // send to discord channel
-    if (channelId) this.discordChannel(channelId, message, level);
+    if (!isNullOrWhitespace(channelId)) this.discordChannel(channelId, message, level);
   }
 
   // =================================
@@ -325,13 +326,13 @@ export class Logger {
 
     if (logsConfig.interaction.console) this.console(chalkedMessage);
     if (logsConfig.interaction.file) this.file(message);
-    if (logsConfig.interaction.channel) {
+    if (!isNullOrWhitespace(logsConfig.interaction.channel)) {
       this.discordChannel(logsConfig.interaction.channel, {
         embeds: [
           {
             author: {
               name: user ? `${user.username}#${user.discriminator}` : 'Unknown user',
-              icon_url: user?.avatar
+              icon_url: user != null && !isNullOrWhitespace(user.avatar)
                 ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`
                 : '',
             },
@@ -392,7 +393,7 @@ export class Logger {
 
     if (logsConfig.newUser.console) this.console(chalkedMessage);
     if (logsConfig.newUser.file) this.file(message);
-    if (logsConfig.newUser.channel) {
+    if (!isNullOrWhitespace(logsConfig.newUser.channel)) {
       this.discordChannel(logsConfig.newUser.channel, {
         embeds: [
           {
@@ -440,7 +441,7 @@ export class Logger {
 
       if (logsConfig.guild.console) this.console(chalkedMessage);
       if (logsConfig.guild.file) this.file(message);
-      if (logsConfig.guild.channel) {
+      if (!isNullOrWhitespace(logsConfig.guild.channel)) {
         this.discordChannel(logsConfig.guild.channel, {
           embeds: [
             {
@@ -513,7 +514,7 @@ export class Logger {
 
     if (logsConfig.error.console) this.console(chalkedMessage, 'error');
     if (logsConfig.error.file) this.file(message, 'error');
-    if (logsConfig.error.channel && env.NODE_ENV === 'production') {
+    if (!isNullOrWhitespace(logsConfig.error.channel) && env.NODE_ENV === 'production') {
       this.discordChannel(
         logsConfig.error.channel,
         {

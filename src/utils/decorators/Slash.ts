@@ -3,6 +3,7 @@ import { Slash as SlashX } from 'discordx';
 
 import {
   constantPreserveDots,
+  isNullOrUndefined,
   sanitizeLocales,
   setFallbackDescription,
   setOptionsLocalization,
@@ -27,7 +28,7 @@ export function Slash(options?: ApplicationCommandOptions | string) {
     localizationSource = constantPreserveDots(
       options.localizationSource
     ) as TranslationsNestedPaths;
-  else if (options.name)
+  else if (!isNullOrUndefined(options.name))
     localizationSource =
       `COMMANDS.${constantPreserveDots(options.name)}` as TranslationsNestedPaths;
 
@@ -47,7 +48,7 @@ export function Slash(options?: ApplicationCommandOptions | string) {
 
   options = sanitizeLocales(options);
 
-  if (!options.description) options = setFallbackDescription(options);
+  if (isNullOrUndefined(options.description)) options = setFallbackDescription(options);
 
   return SlashX(options as ApplicationCommandOptionsX<VerifyName<string>, string>);
 }

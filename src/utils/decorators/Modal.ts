@@ -2,6 +2,7 @@ import { ModalComponent as ModalComponentX } from 'discordx';
 
 import {
   constantPreserveDots,
+  isNullOrUndefined,
   sanitizeLocales,
   setFallbackDescription,
   setOptionsLocalization,
@@ -24,7 +25,7 @@ export function Modal(options?: ModalComponentOptions | string) {
     localizationSource = constantPreserveDots(
       options.localizationSource
     ) as TranslationsNestedPaths;
-  else if (options.command)
+  else if (!isNullOrUndefined(options.command))
     localizationSource =
       `COMMANDS.${constantPreserveDots(options.command)}` as TranslationsNestedPaths;
 
@@ -44,7 +45,7 @@ export function Modal(options?: ModalComponentOptions | string) {
 
   options = sanitizeLocales(options);
 
-  if (!options.command) options = setFallbackDescription(options);
+  if (isNullOrUndefined(options.command)) options = setFallbackDescription(options);
 
   return ModalComponentX(options);
 }

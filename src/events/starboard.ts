@@ -8,6 +8,7 @@ import {
 } from 'discord.js';
 import { ArgsOf } from 'discordx';
 import { Database, Logger } from '@/services';
+import { isNullOrWhitespace } from '@/utils/functions';
 
 import { Colors, EmbedBuilder, Events } from 'discord.js';
 import { Discord, Guard, Injectable, On } from '@/decorators';
@@ -50,12 +51,12 @@ export default class Starboard {
     user: User | PartialUser
   ) {
     if (reaction.partial) await this.fetchReaction(reaction);
-    if (!reaction.message.guildId) return null;
+    if (isNullOrWhitespace(reaction.message.guildId)) return null;
 
     const guildSettings = await this.db.prisma.guild.findUnique({
       where: { id: reaction.message.guildId },
     });
-    if (!guildSettings?.starboardChannel) return null;
+    if (!guildSettings || isNullOrWhitespace(guildSettings.starboardChannel)) return null;
     if (reaction.emoji.toString() !== guildSettings.starboardEmoji) return null;
 
     // После fetch() можно безопасно привести к полному типу
@@ -117,7 +118,7 @@ export default class Starboard {
         .addFields({ name: 'Source:', value: `[Jump!](${fullReaction.message.url})` }) // (Исправлена опечатка Souce -> Source)
         .setTimestamp();
 
-      if (fullReaction.message.content && fullReaction.message.content.length > 0) {
+      if (!isNullOrWhitespace(fullReaction.message.content)) {
         embed.setDescription(fullReaction.message.content);
       }
 

@@ -10,7 +10,7 @@ import {
 
 import { ButtonComponent, Discord, Injectable } from '@/decorators';
 import { Database } from '@/services';
-import { resolveGuild, simpleErrorEmbed } from '@/utils/functions';
+import { isNullOrUndefined, resolveGuild, simpleErrorEmbed } from '@/utils/functions';
 import ProposalScheduler from "./scheduler";
 
 @Discord()
@@ -24,7 +24,7 @@ export default class ProposalButtonHandler {
 
     const proposalId = interaction.message.embeds[0]?.footer?.text?.match(/#(\d+)/)?.[1];
 
-    if (!proposalId) {
+    if (isNullOrUndefined(proposalId)) {
       await this._handleError(interaction, localize.PROPOSAL_ERROR.NOT_PROPOSAL());
       return;
     }
@@ -158,7 +158,7 @@ export default class ProposalButtonHandler {
 
   private async _refreshEmbedAndButtons(interaction: ButtonInteraction) {
     const proposalId = interaction.message.embeds[0]?.footer?.text?.match(/#(\d+)/)?.[1];
-    if (!proposalId) return;
+    if (isNullOrUndefined(proposalId)) return;
 
     const proposal = await this.db.prisma.proposal.findUnique({
       where: { id: parseInt(proposalId) },

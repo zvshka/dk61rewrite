@@ -7,6 +7,7 @@ import axios from 'axios';
 import { AttachmentBuilder, MessageContextMenuCommandInteraction } from 'discord.js';
 
 import { fillWithEmoji } from './fillWithEmoji';
+import { isNullOrWhitespace } from './string';
 
 export const mainTextSize = 52;
 export const secondaryTextSize = 42;
@@ -32,7 +33,7 @@ export async function quoteMessage(
   // Если таковой нет, то кидаем ошибку.
   if (!targetMessage) return initiator.reply('Нет сообщения для цитирования.');
   // Если сообщение не содержит текст - кидаем ошибку.
-  if (!targetMessage.content || targetMessage.content.trim().length === 0)
+  if (isNullOrWhitespace(targetMessage.content))
     return initiator.reply('В сообщении нет текста.');
 
   // Создаем канвас для отрисовки

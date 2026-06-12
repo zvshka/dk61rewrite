@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 
 import { generalConfig } from '@/configs';
 import { Database } from '@/services';
-import { resolveDependency } from '@/utils/functions';
+import { isNullOrWhitespace, resolveDependency } from '@/utils/functions';
 
 /**
  * Get prefix from the database or from the config file.
@@ -20,7 +20,7 @@ export async function getPrefixFromMessage(message: Message) {
     },
   });
 
-  if (guildData?.prefix) {
+  if (guildData && !isNullOrWhitespace(guildData.prefix)) {
     prefixes.push(guildData.prefix);
   }
 

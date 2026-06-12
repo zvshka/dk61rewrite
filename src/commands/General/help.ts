@@ -6,7 +6,7 @@ import { ActionRowBuilder, EmbedBuilder, StringSelectMenuBuilder } from 'discord
 import { MetadataStorage, SelectMenuComponent } from 'discordx';
 
 import { Discord, Slash } from '@/decorators';
-import { chunkArray, getColor, resolveGuild, validString } from '@/utils/functions';
+import { chunkArray, getColor, isNullOrUndefined, isNullOrWhitespace, resolveGuild, validString } from '@/utils/functions';
 
 @Discord()
 @Category('General')
@@ -86,10 +86,10 @@ export default class HelpCommand {
 
       for (const category of this._categories) {
         const commands = category[1].map(cmd => {
-          return `</${cmd.group ? `${cmd.group} ` : ''}${cmd.subgroup ? `${cmd.subgroup} ` : ''}${
+          return `</${!isNullOrUndefined(cmd.group) ? `${cmd.group} ` : ''}${!isNullOrUndefined(cmd.subgroup) ? `${cmd.subgroup} ` : ''}${
             cmd.name
           }:${
-            applicationCommands.find(acmd => acmd.name === (cmd.group ? cmd.group : cmd.name))!.id
+            applicationCommands.find(acmd => acmd.name === (!isNullOrUndefined(cmd.group) ? cmd.group : cmd.name))!.id
           }>`;
         });
 
@@ -130,7 +130,7 @@ export default class HelpCommand {
 
       const { description } = item;
       const fieldValue = validString(description) ? description : 'No description';
-      const name = `</${item.group ? `${item.group} ` : ''}${item.subgroup ? `${item.subgroup} ` : ''}${item.name}:${applicationCommands.find(acmd => acmd.name === (item.group ? item.group : item.name))!.id}>`;
+      const name = `</${!isNullOrUndefined(item.group) ? `${item.group} ` : ''}${!isNullOrUndefined(item.subgroup) ? `${item.subgroup} ` : ''}${item.name}:${applicationCommands.find(acmd => acmd.name === (!isNullOrUndefined(item.group) ? item.group : item.name))!.id}>`;
 
       embed.addFields([
         {
@@ -180,7 +180,7 @@ export default class HelpCommand {
 
     for (const command of commands) {
       const { category } = command;
-      if (!category || !validString(category)) continue;
+      if (isNullOrWhitespace(category) || !validString(category)) continue;
 
       if (this._categories.has(category)) {
         this._categories.get(category)?.push(command);

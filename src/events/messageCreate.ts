@@ -5,6 +5,7 @@ import { generalConfig } from '@/configs';
 import { Discord, Guard, Injectable, On } from '@/decorators';
 import { Maintenance } from '@/guards';
 
+import { isNullOrUndefined } from '@/utils/functions';
 import { quoteMessage } from '../utils/functions/messageQuoting';
 
 @Discord()
@@ -24,7 +25,7 @@ export default class MessageCreateEvent {
     const background = message.attachments.filter(x => !x.height).first();
 
     let quotesPrefix = generalConfig.quoting;
-    if (message.guildId) {
+    if (!isNullOrUndefined(message.guildId)) {
       const guildSettings = await this.db.prisma.guild.findUnique({
         where: {
           id: message.guildId,

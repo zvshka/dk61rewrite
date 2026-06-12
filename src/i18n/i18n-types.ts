@@ -303,6 +303,61 @@ type RootTranslation = {
 			 */
 			SUCCESS: string
 		}
+		LLM: {
+			/**
+			 * l​l​m
+			 */
+			NAME: string
+			/**
+			 * A​s​k​ ​a​n​ ​A​I​ ​a​s​s​i​s​t​a​n​t​ ​a​ ​q​u​e​s​t​i​o​n
+			 */
+			DESCRIPTION: string
+			OPTIONS: {
+				SUBCOMMAND: {
+					/**
+					 * s​u​b​c​o​m​m​a​n​d
+					 */
+					NAME: string
+					/**
+					 * C​h​o​o​s​e​ ​a​n​ ​a​c​t​i​o​n
+					 */
+					DESCRIPTION: string
+				}
+				QUESTION: {
+					/**
+					 * q​u​e​s​t​i​o​n
+					 */
+					NAME: string
+					/**
+					 * Y​o​u​r​ ​q​u​e​s​t​i​o​n​ ​f​o​r​ ​t​h​e​ ​A​I
+					 */
+					DESCRIPTION: string
+				}
+			}
+			CHOICES: {
+				/**
+				 * A​s​k
+				 */
+				ASK: string
+				/**
+				 * R​e​s​e​t
+				 */
+				RESET: string
+			}
+			/**
+			 * C​o​n​v​e​r​s​a​t​i​o​n​ ​h​i​s​t​o​r​y​ ​h​a​s​ ​b​e​e​n​ ​r​e​s​e​t​.
+			 */
+			RESET_SUCCESS: string
+			/**
+			 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​ ​q​u​e​s​t​i​o​n​ ​a​f​t​e​r​ ​s​e​l​e​c​t​i​n​g​ ​"​A​s​k​"​.
+			 */
+			NO_QUESTION: string
+			/**
+			 * E​r​r​o​r​ ​g​e​n​e​r​a​t​i​n​g​ ​r​e​s​p​o​n​s​e​:​ ​{​e​r​r​o​r​}
+			 * @param {unknown} error
+			 */
+			ERROR: RequiredParams<'error'>
+		}
 	}
 }
 
@@ -587,6 +642,60 @@ export type TranslationFunctions = {
 			 * Proposal successfully created and sent to the proposal channel!
 			 */
 			SUCCESS: () => LocalizedString
+		}
+		LLM: {
+			/**
+			 * llm
+			 */
+			NAME: () => LocalizedString
+			/**
+			 * Ask an AI assistant a question
+			 */
+			DESCRIPTION: () => LocalizedString
+			OPTIONS: {
+				SUBCOMMAND: {
+					/**
+					 * subcommand
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Choose an action
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+				QUESTION: {
+					/**
+					 * question
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Your question for the AI
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+			}
+			CHOICES: {
+				/**
+				 * Ask
+				 */
+				ASK: () => LocalizedString
+				/**
+				 * Reset
+				 */
+				RESET: () => LocalizedString
+			}
+			/**
+			 * Conversation history has been reset.
+			 */
+			RESET_SUCCESS: () => LocalizedString
+			/**
+			 * Please provide a question after selecting "Ask".
+			 */
+			NO_QUESTION: () => LocalizedString
+			/**
+			 * Error generating response: {error}
+			 */
+			ERROR: (arg: { error: unknown }) => LocalizedString
 		}
 	}
 }

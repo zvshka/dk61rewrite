@@ -7,7 +7,7 @@ import { importx, resolve } from '@discordx/importer';
 
 import semver from 'semver';
 import { locales } from '@/i18n';
-import { getSourceCodeLocation, getTscordVersion } from '@/utils/functions';
+import { getSourceCodeLocation, getTscordVersion, isNullOrUndefined, toImportPath } from '@/utils/functions';
 
 export class Plugin {
   // Common values
@@ -31,7 +31,7 @@ export class Plugin {
     if (!fs.existsSync(`${this._path}/plugin.json`)) return this.stopLoad('plugin.json not found');
 
     // read plugin.json
-    const pluginConfig = await import(`${this._path}/plugin.json`);
+    const pluginConfig = await import(toImportPath(`${this._path}/plugin.json`));
 
     // check if the plugin.json is valid
     if (!pluginConfig.name) return this.stopLoad('Missing name in plugin.json');
@@ -41,7 +41,7 @@ export class Plugin {
 
     // check plugin.json values
     if (!/^[\w-]+$/.test(pluginConfig.name)) return this.stopLoad('Invalid name in plugin.json');
-    if (!semver.valid(pluginConfig.version)) return this.stopLoad('Invalid version in plugin.json');
+    if (isNullOrUndefined(semver.valid(pluginConfig.version))) return this.stopLoad('Invalid version in plugin.json');
 
     // check if the plugin is compatible with the current version of Tscord
     if (!semver.satisfies(semver.coerce(getTscordVersion())!, pluginConfig.tscordRequiredVersion))
@@ -70,19 +70,19 @@ export class Plugin {
   private async getControllers(): Promise<{ [key: string]: typeof BaseController }> {
     if (!fs.existsSync(`${this._path}/api/controllers`)) return {};
 
-    return import(`${this._path}/api/controllers`);
+    return import(toImportPath(`${this._path}/api/controllers`));
   }
 
   private async getEntities(): Promise<{ [key: string]: any }> {
     if (!fs.existsSync(`${this._path}/entities`)) return {};
 
-    return import(`${this._path}/entities`);
+    return import(toImportPath(`${this._path}/entities`));
   }
 
   private async getServices(): Promise<{ [key: string]: any }> {
     if (!fs.existsSync(`${this._path}/services`)) return {};
 
-    return import(`${this._path}/services`);
+    return import(toImportPath(`${this._path}/services`));
   }
 
   private async getTranslations(): Promise<{ [key: string]: BaseTranslation }> {
@@ -90,17 +90,17 @@ export class Plugin {
 
     const localesPath = await resolve(`${this._path}/i18n/*.{ts,js}`);
     for (const localeFile of localesPath) {
-      const locale = localeFile.split(sep).at(-1)?.split('.')[0] || 'unknown';
+      const locale = localeFile.split(sep).at(-1)?.split('.')[0] ?? 'unknown';
 
       translations[locale] = (await import(localeFile)).default;
     }
 
     for (const defaultLocale of locales) {
-      const path = `${getSourceCodeLocation()}/i18n/${defaultLocale}/${this._name}/_custom.`;
-      if (fs.existsSync(`${path}js`))
-        translations[defaultLocale] = (await import(`${path}js`)).default;
-      else if (fs.existsSync(`${path}ts`))
-        translations[defaultLocale] = (await import(`${path}ts`)).default;
+      const base = `${getSourceCodeLocation()}/i18n/${defaultLocale}/${this._name}/_custom.`;
+      if (fs.existsSync(`${base}js`))
+        translations[defaultLocale] = (await import(toImportPath(`${base}js`))).default;
+      else if (fs.existsSync(`${base}ts`))
+        translations[defaultLocale] = (await import(toImportPath(`${base}ts`))).default;
     }
 
     return translations;
@@ -108,7 +108,7 @@ export class Plugin {
 
   public execMain(): void {
     if (!fs.existsSync(`${this._path}/main.ts`)) return;
-    import(`${this._path}/main.ts`);
+    import(toImportPath(`${this._path}/main.ts`));
   }
 
   public async importCommands(): Promise<void> {

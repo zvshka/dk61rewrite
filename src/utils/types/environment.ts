@@ -24,6 +24,21 @@ export const env = cleanEnv(process.env, {
   API_ADMIN_TOKEN: str({ default: undefined }),
 
   IMGUR_CLIENT_ID: str({ default: undefined }),
+
+  LLM_PROVIDER: str({ choices: ['local', 'deepseek'], default: 'local' }),
+  LLM_LOCAL_URL: str({ default: 'http://localhost:1234/v1' }),
+  LLM_LOCAL_MODEL: str({ default: '' }),
+  LLM_DEEPSEEK_API_KEY: str({ default: undefined }),
+  LLM_DEEPSEEK_MODEL: str({ default: 'deepseek-chat' }),
+  LLM_MAX_TOKENS: num({ default: 2048 }),
+  LLM_TEMPERATURE: num({ default: 0.7 }),
+  LLM_CONTEXT_LIMIT: num({ default: 10 }),
+  LLM_RATE_LIMIT_MAX: num({ default: 10 }),
+  LLM_RATE_LIMIT_WINDOW: num({ default: 60000 }),
+
+  SEARCH_PROVIDER: str({ choices: ['duckduckgo', 'custom'], default: 'duckduckgo' }),
+  SEARCH_CUSTOM_URL: str({ default: undefined }),
+  SEARCH_CUSTOM_API_KEY: str({ default: undefined }),
 });
 
 export function checkEnvironmentVariables() {
@@ -37,6 +52,12 @@ export function checkEnvironmentVariables() {
   if (generalConfig.automaticUploadImagesToImgur) {
     cleanEnv(process.env, {
       IMGUR_CLIENT_ID: str(),
+    });
+  }
+
+  if (env.LLM_PROVIDER === 'deepseek') {
+    cleanEnv(process.env, {
+      LLM_DEEPSEEK_API_KEY: str(),
     });
   }
 }

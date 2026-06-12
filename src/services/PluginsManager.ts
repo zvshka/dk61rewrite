@@ -8,7 +8,7 @@ import { sep } from 'node:path';
 
 import { resolve } from '@discordx/importer';
 import { Service } from '@/decorators';
-import { locales } from '@/i18n';
+import { locales, loadedLocales } from '@/i18n';
 import { getSourceCodeLocation } from '@/utils/functions';
 
 @Service()
@@ -90,7 +90,7 @@ export class PluginsManager {
     const pluginsName = this._plugins.map(plugin => plugin.name);
 
     for (const path of await resolve(`${getSourceCodeLocation()}/i18n/*/*/index.ts`)) {
-      const name = path.split(sep).at(-2) || '';
+      const name = path.split(sep).at(-2) ?? '';
 
       if (!pluginsName.includes(name))
         fs.rmSync(path.slice(0, -8), { recursive: true, force: true });

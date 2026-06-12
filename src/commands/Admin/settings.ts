@@ -8,7 +8,7 @@ import { ApplicationCommandOptionType } from 'discord.js';
 import { Discord, Injectable, Slash, SlashOption } from '@/decorators';
 import { UnknownReplyError } from '@/errors';
 import { Guard, GuildOnly, UserPermissions } from '@/guards';
-import { resolveGuild, simpleSuccessEmbed } from '@/utils/functions';
+import { isNullOrUndefined, isNullOrWhitespace, resolveGuild, simpleSuccessEmbed } from '@/utils/functions';
 
 @Discord()
 @Injectable()
@@ -80,7 +80,7 @@ export default class SettingsCommand {
         });
       }
 
-      if (starboardEmoji && starboardEmoji.length > 0) {
+      if (!isNullOrWhitespace(starboardEmoji)) {
         const parsed = parse(starboardEmoji); // parsing to check later if emote is an twemoji
         const regExToSearch = /<?(a:|:)\w*:(\d*)>/;
         const matched = starboardEmoji.match(regExToSearch);
@@ -97,7 +97,7 @@ export default class SettingsCommand {
         }
       }
 
-      if (!(starboardEmojiCount == null) && starboardEmojiCount > 0) {
+      if (!isNullOrUndefined(starboardEmojiCount) && starboardEmojiCount > 0) {
         await this.db.prisma.guild.update({
           where: {
             id: guild.id,
@@ -108,7 +108,7 @@ export default class SettingsCommand {
         });
       }
 
-      if (!(quotesPrefix == null) && quotesPrefix.length > 0) {
+      if (!isNullOrUndefined(quotesPrefix) && quotesPrefix.length > 0) {
         await this.db.prisma.guild.update({
           where: {
             id: guild.id,
