@@ -39,17 +39,13 @@ async def search(req: SearchRequest):
         await asyncio.sleep(MIN_INTERVAL - elapsed)
     _last_search = time.time()
 
-    headers = {}
-    cookie = os.getenv('SEARCH_COOKIE')
-    if cookie:
-        headers['cookie'] = cookie
+    ddgs = DDGS(timeout=10)
 
-    ddgs = DDGS(headers=headers if headers else None)
-
-    for backend in ('auto', 'bing'):
+    for backend in ('auto', 'duckduckgo', 'bing', 'google', 'brave'):
         try:
             results = ddgs.text(
                 req.query,
+                region='wt-wt',
                 max_results=req.max_results,
                 backend=backend,
             )
