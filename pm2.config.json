@@ -4,6 +4,14 @@
       "name": "DK61",
       "script": "npm",
       "args": "run build:start"
+    },
+    {
+      "name": "search-service",
+      "script": "uvicorn",
+      "args": "main:app --port 8020",
+      "cwd": "services/search-service",
+      "exec_mode": "fork",
+      "max_restarts": 5
     }
   ]
 }

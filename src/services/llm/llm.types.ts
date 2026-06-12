@@ -52,7 +52,8 @@ export interface LLMConfig {
     windowMs: number;
   };
   search: {
-    provider: 'duckduckgo' | 'custom';
+    provider: 'microservice' | 'custom';
+    serviceUrl?: string;
     customUrl?: string;
     customApiKey?: string;
   };

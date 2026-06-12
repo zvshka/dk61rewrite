@@ -2,59 +2,48 @@ import axios from 'axios';
 
 import { isNullOrUndefined, isNullOrWhitespace } from '@/utils/functions';
 
-interface SearchConfig {
-  provider: 'duckduckgo' | 'custom';
-  customUrl?: string;
-  customApiKey?: string;
+interface SearchResult {
+  title: string;
+  href: string;
+  body: string;
 }
 
-interface DuckDuckGoResponse {
-  AbstractText?: string;
-  Answer?: string;
-  AbstractURL?: string;
-  RelatedTopics?: Array<{ Text: string; FirstURL?: string } | string>;
+interface SearchConfig {
+  provider: 'microservice' | 'custom';
+  serviceUrl?: string;
+  customUrl?: string;
+  customApiKey?: string;
 }
 
 export class WebSearchTool {
   constructor(private readonly config: SearchConfig) {}
 
   async execute(query: string): Promise<string> {
-    if (this.config.provider === 'duckduckgo') {
-      return this.searchDuckDuckGo(query);
+    if (this.config.provider === 'microservice') {
+      return this.searchViaMicroservice(query);
     }
 
     return this.searchCustom(query);
   }
 
-  private async searchDuckDuckGo(query: string): Promise<string> {
-    try {
-      const { data } = await axios.get<DuckDuckGoResponse>('https://api.duckduckgo.com/', {
-        params: { q: query, format: 'json', no_html: 1 },
-        timeout: 10_000,
-      });
-
-      const parts: string[] = [];
-
-      if (!isNullOrWhitespace(data.AbstractText)) {
-        parts.push(`Abstract: ${data.AbstractText}`);
-      }
-      if (!isNullOrWhitespace(data.Answer)) {
-        parts.push(`Answer: ${data.Answer}`);
-      }
-      if (!isNullOrWhitespace(data.AbstractURL)) {
-        parts.push(`Source: ${data.AbstractURL}`);
-      }
-      if (!isNullOrUndefined(data.RelatedTopics) && data.RelatedTopics.length > 0) {
-        const topics = data.RelatedTopics.slice(0, 5)
-          .map(t => (typeof t === 'string' ? t : t.Text))
-          .join('\n');
-        parts.push(`Related:\n${topics}`);
-      }
-
-      return parts.length > 0 ? parts.join('\n\n') : 'No results found.';
-    } catch {
-      return 'Web search is currently unavailable.';
+  private async searchViaMicroservice(query: string): Promise<string> {
+    if (isNullOrWhitespace(this.config.serviceUrl)) {
+      return 'Search service URL is not configured.';
     }
+
+    const { data } = await axios.post<SearchResult[]>(
+      `${this.config.serviceUrl}/search`,
+      { query, max_results: 8 },
+      { timeout: 15_000 },
+    );
+
+    if (!data || data.length === 0) {
+      return 'No results found.';
+    }
+
+    return data
+      .map(r => `**${r.title}**\n${r.body}\n${r.href}`)
+      .join('\n\n');
   }
 
   private async searchCustom(query: string): Promise<string> {
@@ -62,15 +51,11 @@ export class WebSearchTool {
       return 'Custom search URL is not configured.';
     }
 
-    try {
-      const { data } = await axios.get(this.config.customUrl, {
-        params: { q: query, api_key: this.config.customApiKey },
-        timeout: 10_000,
-      });
+    const { data } = await axios.get(this.config.customUrl, {
+      params: { q: query, api_key: this.config.customApiKey },
+      timeout: 10_000,
+    });
 
-      return typeof data === 'string' ? data : JSON.stringify(data);
-    } catch {
-      return 'Custom search is currently unavailable.';
-    }
+    return typeof data === 'string' ? data : JSON.stringify(data);
   }
 }

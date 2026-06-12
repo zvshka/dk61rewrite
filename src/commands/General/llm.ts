@@ -7,6 +7,7 @@ import { Discord, Guard, Injectable, Slash, SlashChoice, SlashOption } from '@/d
 import { GuildOnly } from '@/guards';
 import { LLM } from '@/services';
 import { isNullOrUndefined, isNullOrWhitespace, simpleSuccessEmbed } from '@/utils/functions';
+import { splitMessage } from "../../utils/functions/splitMessage";
 
 @Discord()
 @Injectable()
@@ -59,7 +60,7 @@ export default class LLMCommand {
     try {
       const answer = await this.llmService.ask(channelId, userId, question);
 
-      const chunks = this.splitMessage(answer);
+      const chunks = splitMessage(answer);
       if (chunks.length === 1) {
         await interaction.editReply(chunks[0]);
       } else {
@@ -72,24 +73,5 @@ export default class LLMCommand {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       await interaction.editReply(`⚠️ Error generating response:\n\`${errorMessage}\``);
     }
-  }
-
-  private splitMessage(text: string, maxLength = 1900): string[] {
-    if (text.length <= maxLength) return [text];
-
-    const chunks: string[] = [];
-    let current = '';
-
-    for (const line of text.split('\n')) {
-      if (current.length + line.length + 1 > maxLength) {
-        if (current) chunks.push(current.trim());
-        current = line;
-      } else {
-        current += (current ? '\n' : '') + line;
-      }
-    }
-
-    if (current) chunks.push(current.trim());
-    return chunks;
   }
 }

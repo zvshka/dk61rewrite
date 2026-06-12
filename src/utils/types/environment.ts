@@ -36,7 +36,9 @@ export const env = cleanEnv(process.env, {
   LLM_RATE_LIMIT_MAX: num({ default: 10 }),
   LLM_RATE_LIMIT_WINDOW: num({ default: 60000 }),
 
-  SEARCH_PROVIDER: str({ choices: ['duckduckgo', 'custom'], default: 'duckduckgo' }),
+  SEARCH_SERVICE_URL: str({ default: 'http://localhost:8020' }),
+
+  SEARCH_PROVIDER: str({ choices: ['microservice', 'custom'], default: 'microservice' }),
   SEARCH_CUSTOM_URL: str({ default: undefined }),
   SEARCH_CUSTOM_API_KEY: str({ default: undefined }),
 });

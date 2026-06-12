@@ -2,7 +2,8 @@ import type { LLMToolCall, LLMToolDefinition, LLMToolResult } from './llm.types'
 import { WebSearchTool } from './tools/WebSearchTool';
 
 interface SearchConfig {
-  provider: 'duckduckgo' | 'custom';
+  provider: 'microservice' | 'custom';
+  serviceUrl?: string;
   customUrl?: string;
   customApiKey?: string;
 }

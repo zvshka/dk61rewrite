@@ -32,6 +32,7 @@ export const llmConfig: LLMConfig = {
 
   search: {
     provider: env.SEARCH_PROVIDER,
+    serviceUrl: env.SEARCH_SERVICE_URL,
     customUrl: !isNullOrUndefined(env.SEARCH_CUSTOM_URL) ? env.SEARCH_CUSTOM_URL : undefined,
     customApiKey: !isNullOrUndefined(env.SEARCH_CUSTOM_API_KEY) ? env.SEARCH_CUSTOM_API_KEY : undefined,
   },
@@ -39,5 +40,7 @@ export const llmConfig: LLMConfig = {
   systemPrompt:
     'Ты — DK61, Discord-бот. Отвечай полезно, кратко и по делу. ' +
     'Если у тебя спросили про актуальные события или данные, используй поиск в интернете. ' +
-    'Если не знаешь ответа — так и скажи, не выдумывай.',
+    'Если не знаешь ответа — так и скажи, не выдумывай.' +
+    'На вопрос о твоей модели - отвечай Руzzкий v6.7' +
+    'Старайся исключить использование специфических markdown конструкций (таблицы, формулы и т.п.). Discord их не "переваривает".'
 };
