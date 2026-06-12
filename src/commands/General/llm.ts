@@ -1,7 +1,8 @@
-import { CommandInteraction } from 'discord.js';
+import { ApplicationCommandOptionType, ChannelType, CommandInteraction } from 'discord.js';
 import { Client } from 'discordx';
-import { ApplicationCommandOptionType } from 'discord.js';
 import { Category } from '@discordx/utilities';
+
+import type { DiscordContext } from '../../services/llm/llm.types';
 
 import { Discord, Guard, Injectable, Slash, SlashChoice, SlashOption } from '@/decorators';
 import { GuildOnly } from '@/guards';
@@ -58,7 +59,20 @@ export default class LLMCommand {
     await interaction.deferReply();
 
     try {
-      const answer = await this.llmService.ask(channelId, userId, question);
+      const discordContext: DiscordContext = {
+        guildName: interaction.guild?.name ?? 'Личные сообщения',
+        memberCount: interaction.guild?.memberCount,
+        channelName: interaction.channel?.type === ChannelType.GuildText
+          ? interaction.channel.name
+          : 'Личные сообщения',
+        channelId: interaction.channel?.id,
+        authorUsername: interaction.user.username,
+        authorId: interaction.user.id,
+        authorDisplayName: !isNullOrUndefined(interaction.member) && 'displayName' in interaction.member ?
+          interaction.member.displayName : interaction.user.displayName,
+      };
+
+      const answer = await this.llmService.ask(channelId, userId, question, discordContext);
 
       const chunks = splitMessage(answer);
       if (chunks.length === 1) {

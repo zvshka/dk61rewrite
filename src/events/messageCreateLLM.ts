@@ -1,7 +1,9 @@
 import { ArgsOf, Client } from 'discordx';
-import { MessageType } from 'discord.js';
+import { ChannelType, MessageType } from 'discord.js';
 
 import { isNullOrUndefined, isNullOrWhitespace } from '@/utils/functions';
+
+import type { DiscordContext } from '../services/llm/llm.types';
 
 import { Discord, Guard, Injectable, On } from '@/decorators';
 import { Maintenance } from '@/guards';
@@ -43,7 +45,24 @@ export default class MessageCreateLLMEvent {
     try {
       const channelId = message.channel.id;
       const userId = message.author.id;
-      const answer = await this.llm.ask(channelId, userId, query);
+
+      const discordContext: DiscordContext = {
+        guildName: message.guild?.name ?? 'личные сообщения',
+        memberCount: message.guild?.memberCount,
+        channelName: message.channel.type === ChannelType.GuildText || message.channel.type === ChannelType.PublicThread || message.channel.type === ChannelType.PrivateThread
+          ? message.channel.name
+          : undefined,
+        channelId: message.channel.id,
+        authorUsername: message.author.username,
+        authorId: message.author.id,
+        authorDisplayName: message.member?.displayName ?? message.author.displayName,
+        mentionedUsers: message.mentions.users
+          .filter(u => u.id !== client.user!.id)
+          .map(u => `${u.displayName} (@${u.username})`)
+          .join(', ') || undefined,
+      };
+
+      const answer = await this.llm.ask(channelId, userId, query, discordContext);
 
       const chunks = splitMessage(answer);
       for (const chunk of chunks) {

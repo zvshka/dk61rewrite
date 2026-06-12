@@ -1,4 +1,5 @@
-import type { LLMMessage } from './llm.types';
+import type { DiscordContext, LLMMessage } from './llm.types';
+import { isNullOrUndefined } from '@/utils/functions';
 
 interface ConversationEntry {
   messages: LLMMessage[];
@@ -34,13 +35,41 @@ export class ConversationManager {
     }
   }
 
-  getHistory(channelId: string, userId: string, systemPrompt: string): LLMMessage[] {
+  getHistory(
+    channelId: string,
+    userId: string,
+    systemPrompt: string,
+    discordContext?: DiscordContext
+  ): LLMMessage[] {
     const k = this.key(channelId, userId);
     const entry = this.conversations.get(k);
 
-    const messages: LLMMessage[] = [
-      { role: 'system', content: systemPrompt },
-    ];
+    const now = new Date().toLocaleString('ru-RU', {
+      timeZone: 'Europe/Moscow',
+      dateStyle: 'full',
+      timeStyle: 'short',
+    });
+
+    const contextParts = [`Текущие дата и время: ${now}.`];
+
+    if (discordContext) {
+      contextParts.push(
+        `Ты находишься на сервере «${discordContext.guildName}»${!isNullOrUndefined(discordContext.memberCount) ? ` (${discordContext.memberCount} участников)` : ''}.`
+      );
+      if (!isNullOrUndefined(discordContext.channelName)) {
+        contextParts.push(`Канал: #${discordContext.channelName}.`);
+      }
+      contextParts.push(
+        `Пользователь: ${discordContext.authorDisplayName} (@${discordContext.authorUsername}).`
+      );
+      if (!isNullOrUndefined(discordContext.mentionedUsers)) {
+        contextParts.push(`Упомянутые участники: ${discordContext.mentionedUsers}.`);
+      }
+    }
+
+    const systemContent = `${systemPrompt}\n\n${contextParts.join('\n')}`;
+
+    const messages: LLMMessage[] = [{ role: 'system', content: systemContent }];
 
     if (entry) {
       const nonSystem = entry.messages.filter(m => m.role !== 'system');

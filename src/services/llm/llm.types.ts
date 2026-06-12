@@ -60,6 +60,17 @@ export interface LLMConfig {
   systemPrompt: string;
 }
 
+export interface DiscordContext {
+  guildName: string;
+  memberCount?: number;
+  channelName?: string;
+  channelId?: string;
+  authorUsername: string;
+  authorId: string;
+  authorDisplayName: string;
+  mentionedUsers?: string;
+}
+
 export interface LLMResponse {
   content: string;
   toolCalls?: LLMToolCall[];

@@ -7,7 +7,7 @@ import { Service } from '@/decorators';
 import { Logger } from '@/services';
 
 import { ConversationManager } from './llm/ConversationManager';
-import type { LLMMessage, LLMResponse } from './llm/llm.types';
+import type { DiscordContext, LLMMessage, LLMResponse } from './llm/llm.types';
 import { LLMProvider } from './llm/LLMProvider';
 import { OpenAICompatibleProvider } from './llm/providers/OpenAICompatibleProvider';
 import { ToolManager } from './llm/ToolManager';
@@ -31,13 +31,14 @@ export class LLM {
     channelId: string,
     userId: string,
     userMessage: string,
+    discordContext?: DiscordContext,
   ): Promise<string> {
     this.conversation.addMessage(channelId, userId, {
       role: 'user',
       content: userMessage,
     });
 
-    const history = this.conversation.getHistory(channelId, userId, llmConfig.systemPrompt);
+    const history = this.conversation.getHistory(channelId, userId, llmConfig.systemPrompt, discordContext);
     const response = await this.generateWithTools(history);
 
     this.conversation.addMessage(channelId, userId, {
