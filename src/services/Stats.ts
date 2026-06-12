@@ -352,7 +352,7 @@ export class Stats {
   /**
    * Run each day at 23:59 to update daily stats.
    */
-  @Schedule('59 59 23 * * *')
+  @Schedule('59 23 * * *')
   async registerDailyStats() {
     const totalStats = await this.getTotalStats();
 

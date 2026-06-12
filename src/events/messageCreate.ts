@@ -20,7 +20,7 @@ export default class MessageCreateEvent {
 
   @On('messageCreate')
   @Guard(Maintenance)
-  async quotingHandler([message]: ArgsOf<'messageCreate'>, client: Client) {
+  async quotingHandler([message]: ArgsOf<'messageCreate'>) {
     const background = message.attachments.filter(x => !x.height).first();
 
     let quotesPrefix = generalConfig.quoting;

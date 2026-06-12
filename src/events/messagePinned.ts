@@ -1,11 +1,18 @@
 import { Message } from 'discord.js';
 
-import { Discord, On } from '@/decorators';
+import { Discord, Injectable, On } from '@/decorators';
+import { Logger } from '@/services';
 
 @Discord()
+@Injectable()
 export default class messagePinnedEvent {
+  constructor(private logger: Logger) {}
+
   @On('messagePinned')
   async messagePinnedHandler([message]: [Message]) {
-    console.log(`This message from ${message.author.tag} has been pinned : ${message.content}`);
+    this.logger.log(
+      `Message pinned by ${message.author.tag}: ${message.content.slice(0, 150)}`,
+      'info'
+    );
   }
 }

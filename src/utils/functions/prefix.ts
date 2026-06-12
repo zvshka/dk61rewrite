@@ -20,7 +20,7 @@ export async function getPrefixFromMessage(message: Message) {
     },
   });
 
-  if (guildData && guildData.prefix) {
+  if (guildData?.prefix) {
     prefixes.push(guildData.prefix);
   }
 

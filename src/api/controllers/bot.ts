@@ -9,62 +9,46 @@ import { BotOnline, DevAuthenticated } from '@/api/middlewares';
 import { generalConfig } from '@/configs';
 import { Database } from '@/services';
 import { BaseController } from '@/utils/classes';
-import {
-  getDevs,
-  isDev,
-  isInMaintenance,
-  resolveDependencies,
-  setMaintenance,
-} from '@/utils/functions';
+import { createLazyResolver, getDevs, isDev, isInMaintenance, setMaintenance } from '@/utils/functions';
 
 @Controller('/bot')
 @UseBefore(BotOnline, DevAuthenticated)
 export class BotController extends BaseController {
-  private client: Client;
-
-  // test
-  private db: Database;
-
-  constructor() {
-    super();
-
-    resolveDependencies([Client, Database]).then(([client, db]) => {
-      this.client = client;
-      this.db = db;
-    });
-  }
+  private readonly client = createLazyResolver<Client>(Client);
+  private readonly db = createLazyResolver<Database>(Database);
 
   @Get('/info')
   async info() {
-    const user: any = this.client.user?.toJSON();
+    const c = await this.client.resolve();
+    const user: any = c.user?.toJSON();
     if (user) {
-      user.iconURL = this.client.user?.displayAvatarURL();
-      user.bannerURL = this.client.user?.bannerURL();
+      user.iconURL = c.user?.displayAvatarURL();
+      user.bannerURL = c.user?.bannerURL();
     }
 
     return {
       user,
-      owner: (await this.client.users.fetch(generalConfig.ownerId).catch(() => null))?.toJSON(),
+      owner: (await c.users.fetch(generalConfig.ownerId).catch(() => null))?.toJSON(),
     };
   }
 
   @Get('/commands')
   commands() {
     const commands = MetadataStorage.instance.applicationCommands;
-
     return commands.map(command => command.toJSON());
   }
 
   @Get('/guilds')
   async guilds() {
     const body: Record<string, unknown>[] = [];
+    const db = await this.db.resolve();
 
-    for (const discordRawGuild of this.client.guilds.cache.values()) {
+    for (const discordRawGuild of (await this.client.resolve()).guilds.cache.values()) {
       const discordGuild: any = discordRawGuild.toJSON();
       discordGuild.iconURL = discordRawGuild.iconURL();
       discordGuild.bannerURL = discordRawGuild.bannerURL();
 
-      const databaseGuild = await this.db.prisma.guild.findUnique({
+      const databaseGuild = await db.prisma.guild.findUnique({
         where: { id: discordGuild.id },
       });
 
@@ -79,16 +63,16 @@ export class BotController extends BaseController {
 
   @Get('/guilds/:id')
   async guild(@PathParams('id') id: string) {
-    // get discord guild
-    const discordRawGuild = await this.client.guilds.fetch(id).catch(() => null);
+    const c = await this.client.resolve();
+    const db = await this.db.resolve();
+    const discordRawGuild = await c.guilds.fetch(id).catch(() => null);
     if (!discordRawGuild) throw new NotFound('Guild not found');
 
     const discordGuild: any = discordRawGuild.toJSON();
     discordGuild.iconURL = discordRawGuild.iconURL();
     discordGuild.bannerURL = discordRawGuild.bannerURL();
 
-    // get database guild
-    const databaseGuild = await this.db.prisma.guild.findUnique({
+    const databaseGuild = await db.prisma.guild.findUnique({
       where: { id: discordGuild.id },
     });
 
@@ -100,7 +84,7 @@ export class BotController extends BaseController {
 
   @Delete('/guilds/:id')
   async deleteGuild(@PathParams('id') id: string) {
-    const guild = await this.client.guilds.fetch(id).catch(() => null);
+    const guild = await (await this.client.resolve()).guilds.fetch(id).catch(() => null);
     if (!guild) throw new NotFound('Guild not found');
 
     await guild.leave();
@@ -113,7 +97,8 @@ export class BotController extends BaseController {
 
   @Get('/guilds/:id/invite')
   async invite(@PathParams('id') id: string) {
-    const guild = await this.client.guilds.fetch(id).catch(() => null);
+    const c = await this.client.resolve();
+    const guild = await c.guilds.fetch(id).catch(() => null);
     if (!guild) throw new NotFound('Guild not found');
 
     const guildChannels = await guild.channels.fetch();
@@ -142,10 +127,11 @@ export class BotController extends BaseController {
 
   @Get('/users')
   async users() {
+    const c = await this.client.resolve();
+    const db = await this.db.resolve();
     const users: any[] = [];
-    const guilds = this.client.guilds.cache.values();
 
-    for (const guild of guilds) {
+    for (const guild of c.guilds.cache.values()) {
       const members = await guild.members.fetch();
 
       for (const member of members.values()) {
@@ -154,7 +140,7 @@ export class BotController extends BaseController {
           discordUser.iconURL = member.user.displayAvatarURL();
           discordUser.bannerURL = member.user.bannerURL();
 
-          const databaseUser = await this.db.prisma.user.findUnique({
+          const databaseUser = await db.prisma.user.findUnique({
             where: { id: discordUser.id },
           });
 
@@ -171,16 +157,16 @@ export class BotController extends BaseController {
 
   @Get('/users/:id')
   async user(@PathParams('id') id: string) {
-    // get discord user
-    const discordRawUser = await this.client.users.fetch(id).catch(() => null);
+    const c = await this.client.resolve();
+    const db = await this.db.resolve();
+    const discordRawUser = await c.users.fetch(id).catch(() => null);
     if (!discordRawUser) throw new NotFound('User not found');
 
     const discordUser: any = discordRawUser.toJSON();
     discordUser.iconURL = discordRawUser.displayAvatarURL();
     discordUser.bannerURL = discordRawUser.bannerURL();
 
-    // get database user
-    const databaseUser = await this.db.prisma.user.findUnique({
+    const databaseUser = await db.prisma.user.findUnique({
       where: { id: discordUser.id },
     });
 
@@ -191,8 +177,9 @@ export class BotController extends BaseController {
   }
 
   @Get('/users/cached')
-  cachedUsers() {
-    return this.client.users.cache.map(user => user.toJSON());
+  async cachedUsers() {
+    const c = await this.client.resolve();
+    return c.users.cache.map(user => user.toJSON());
   }
 
   @Get('/maintenance')

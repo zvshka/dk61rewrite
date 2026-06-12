@@ -16,7 +16,7 @@ export const generalConfig: GeneralConfigType = {
 
   // useful links
   links: {
-    invite: 'https://discord.com/oauth2/authorize?client_id=595909192678768652&scope=bot',
+    invite: `https://discord.com/oauth2/authorize?client_id=${env.BOT_CLIENT_ID}&scope=bot`,
     supportServer: 'Сам себе помоги (❁´◡`❁)',
     gitRemoteRepo: 'https://github.com/zvshka/dk61rewrite',
   },

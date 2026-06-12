@@ -1,5 +1,4 @@
 import { MessageContextMenuCommandInteraction } from 'discord.js';
-import { Client } from 'discordx';
 import { Category } from '@discordx/utilities';
 import { GlobalFonts } from '@napi-rs/canvas';
 import { ApplicationCommandType } from 'discord.js';
@@ -22,9 +21,7 @@ export default class QuoteHandlers {
     localizationSource: 'COMMANDS.QUOTE'
   })
   async quoteContextHandler(
-    interaction: MessageContextMenuCommandInteraction,
-    client: Client,
-    { localize }: InteractionData
+    interaction: MessageContextMenuCommandInteraction
   ) {
     return quoteMessage(interaction);
   }

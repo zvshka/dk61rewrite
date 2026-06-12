@@ -63,7 +63,7 @@ export async function syncGuild(guildId: string, client: Client) {
         },
       });
 
-      stats.register('RECOVER_GUILD', guildId);
+      await stats.register('RECOVER_GUILD', guildId);
       logger.logGuild('RECOVER_GUILD', guildId);
     } else {
       // create new guild
@@ -74,7 +74,7 @@ export async function syncGuild(guildId: string, client: Client) {
         },
       });
 
-      stats.register('NEW_GUILD', guildId);
+      await stats.register('NEW_GUILD', guildId);
       logger.logGuild('NEW_GUILD', guildId);
     }
   } else if (!fetchedGuild) {
@@ -89,7 +89,7 @@ export async function syncGuild(guildId: string, client: Client) {
       },
     });
 
-    stats.register('DELETE_GUILD', guildId);
+    await stats.register('DELETE_GUILD', guildId);
     logger.logGuild('DELETE_GUILD', guildId);
   }
 }

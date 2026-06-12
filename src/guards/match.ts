@@ -6,7 +6,7 @@ import { ArgsOf, GuardFunction } from 'discordx';
  */
 export function Match(regex: RegExp) {
   const guard: GuardFunction<ArgsOf<'messageCreate'>> = async ([message], client, next) => {
-    if (message.content.match(regex)) next();
+    if (message.content.match(regex)) await next();
   };
 
   return guard;

@@ -4,76 +4,62 @@ import { Client } from 'discordx';
 import { DevAuthenticated } from '@/api/middlewares';
 import { Database, Logger, Stats } from '@/services';
 import { BaseController } from '@/utils/classes';
-import { isInMaintenance, resolveDependencies } from '@/utils/functions';
+import { createLazyResolver } from '@/utils/functions';
+import { isInMaintenance } from '@/utils/functions';
 
 @Controller('/health')
 export class HealthController extends BaseController {
-  private client: Client;
-  private db: Database;
-  private stats: Stats;
-  private logger: Logger;
-
-  constructor() {
-    super();
-
-    resolveDependencies([Client, Database, Stats, Logger]).then(([client, db, stats, logger]) => {
-      this.client = client;
-      this.db = db;
-      this.stats = stats;
-      this.logger = logger;
-    });
-  }
+  private readonly client = createLazyResolver<Client>(Client);
+  private readonly db = createLazyResolver<Database>(Database);
+  private readonly stats = createLazyResolver<Stats>(Stats);
+  private readonly logger = createLazyResolver<Logger>(Logger);
 
   @Get('/check')
   async healthcheck() {
+    const c = await this.client.resolve();
     return {
-      online: this.client.user?.presence.status !== 'offline',
-      uptime: this.client.uptime,
-      lastStartup: await this.db.dataStore.get('lastStartup'),
+      online: c.user?.presence.status !== 'offline',
+      uptime: c.uptime,
+      lastStartup: await (await this.db.resolve()).dataStore.get('lastStartup'),
     };
   }
 
   @Get('/latency')
   async latency() {
-    return this.stats.getLatency();
+    return (await this.stats.resolve()).getLatency();
   }
 
   @Get('/usage')
   async usage() {
-    const body = await this.stats.getPidUsage();
-
-    return body;
+    return (await this.stats.resolve()).getPidUsage();
   }
 
   @Get('/host')
   async host() {
-    const body = await this.stats.getHostUsage();
-
-    return body;
+    return (await this.stats.resolve()).getHostUsage();
   }
 
   @Get('/monitoring')
   @UseBefore(DevAuthenticated)
   async monitoring() {
-    const body = {
+    const stats = await this.stats.resolve();
+    const c = await this.client.resolve();
+    const db = await this.db.resolve();
+    return {
       botStatus: {
         online: true,
-        uptime: this.client.uptime,
+        uptime: c.uptime,
         maintenance: await isInMaintenance(),
       },
-      host: await this.stats.getHostUsage(),
-      pid: await this.stats.getPidUsage(),
-      latency: this.stats.getLatency(),
+      host: await stats.getHostUsage(),
+      pid: await stats.getPidUsage(),
+      latency: stats.getLatency(),
     };
-
-    return body;
   }
 
   @Get('/logs')
   @UseBefore(DevAuthenticated)
   async logs() {
-    const body = await this.logger.getLastLogs();
-
-    return body;
+    return (await this.logger.resolve()).getLastLogs();
   }
 }

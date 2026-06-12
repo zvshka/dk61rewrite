@@ -10,6 +10,7 @@ export const env = cleanEnv(process.env, {
   BOT_TOKEN: str(),
   TEST_GUILD_ID: str(),
   BOT_OWNER_ID: str(),
+  BOT_CLIENT_ID: str({ default: undefined }),
 
   DATABASE_URL: str(),
 

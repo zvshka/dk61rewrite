@@ -244,7 +244,6 @@ export class Logger {
 
     for (const archive of archives) {
       const date = dayjs(archive.split('logs-')[1].split('.tar.gz')[0]);
-      console.log(date.format('YYYY-MM-DD'));
       if (date.isBefore(dayjs().subtract(logsConfig.archive.retention, 'day')))
         await unlink(`${this.logArchivePath}/${archive}`);
     }
