@@ -7,7 +7,7 @@
     },
     {
       "name": "search-service",
-      "interpreter": "python3",
+      "interpreter": "none",
       "script": "./.venv/bin/uvicorn",
       "args": "main:app --port 8020",
       "cwd": "./services/search-service",
