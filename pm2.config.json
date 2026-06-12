@@ -7,7 +7,7 @@
     },
     {
       "name": "search-service",
-      "script": "uvicorn",
+      "script": "services/search-service/.venv/bin/uvicorn",
       "args": "main:app --port 8020",
       "cwd": "services/search-service",
       "exec_mode": "fork",
