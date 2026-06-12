@@ -7,7 +7,8 @@
     },
     {
       "name": "search-service",
-      "script": "./venv/bin/uvicorn",
+      "interpreter": "python3",
+      "script": "./.venv/bin/uvicorn",
       "args": "main:app --port 8020",
       "cwd": "./services/search-service",
       "exec_mode": "fork",
