@@ -9,3 +9,6 @@ export * from './notBot';
 export * from './nsfw';
 export { RateLimit, PermissionGuard as UserPermissions } from '@discordx/utilities';
 export { Guard } from 'discordx';
+
+export * from './contentFilter';
+export * from './messageRateLimit';

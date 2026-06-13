@@ -36,6 +36,10 @@ export const env = cleanEnv(process.env, {
   LLM_RATE_LIMIT_MAX: num({ default: 10 }),
   LLM_RATE_LIMIT_WINDOW: num({ default: 60000 }),
 
+  ANTISPAM_RATE_LIMIT_MAX: num({ default: 5 }),
+  ANTISPAM_RATE_LIMIT_WINDOW: num({ default: 10000 }),
+  ANTISPAM_MAX_LENGTH: num({ default: 1500 }),
+
   SEARCH_SERVICE_URL: str({ default: 'http://localhost:8020' }),
 
   SEARCH_PROVIDER: str({ choices: ['microservice', 'custom'], default: 'microservice' }),
