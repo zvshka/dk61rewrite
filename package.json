@@ -14,7 +14,7 @@
     "build": "npm run build:clean && npm run build:prisma && npm run build:compile",
     "build:prisma": "prisma generate",
     "build:clean": "rimraf build/",
-    "build:compile": "tsc --project tsconfig.json --skipLibCheck && npm run build:alias ",
+    "build:compile": "swc src -d build --source-maps --strip-leading-paths && npm run build:alias",
     "build:alias": "tsc-alias -p tsconfig.json",
     "build:start": "npm run build && npm run start",
     "install:plugins": "installoop --rootDir=./build/plugins",
@@ -88,6 +88,8 @@
   "devDependencies": {
     "@antfu/eslint-config": "~8.2.0",
     "@eslint/js": "^10.0.1",
+    "@swc/cli": "^0.8.1",
+    "@swc/core": "^1.15.41",
     "@types/archiver": "~7.0.0",
     "@types/body-parser": "~1.19.6",
     "@types/dateformat": "~5.0.3",

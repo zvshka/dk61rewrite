@@ -1,4 +1,4 @@
-import { inject, delay } from 'tsyringe';
+import { delay, inject } from 'tsyringe';
 
 import { isNullOrUndefined } from '@/utils/functions';
 
@@ -18,9 +18,7 @@ export class LLM {
   private conversation: ConversationManager;
   private tools: ToolManager;
 
-  constructor(
-    @inject(delay(() => Logger)) private logger: Logger,
-  ) {
+  constructor(@inject(delay(() => Logger)) private logger: Logger) {
     const activeConfig = llmConfig.provider === 'deepseek' ? llmConfig.deepseek : llmConfig.local;
     this.provider = new OpenAICompatibleProvider(activeConfig);
     this.conversation = new ConversationManager(llmConfig.contextLimit);
@@ -31,14 +29,19 @@ export class LLM {
     channelId: string,
     userId: string,
     userMessage: string,
-    discordContext?: DiscordContext,
+    discordContext?: DiscordContext
   ): Promise<string> {
     this.conversation.addMessage(channelId, userId, {
       role: 'user',
       content: userMessage,
     });
 
-    const history = this.conversation.getHistory(channelId, userId, llmConfig.systemPrompt, discordContext);
+    const history = this.conversation.getHistory(
+      channelId,
+      userId,
+      llmConfig.systemPrompt,
+      discordContext
+    );
     const response = await this.generateWithTools(history);
 
     this.conversation.addMessage(channelId, userId, {
@@ -54,16 +57,13 @@ export class LLM {
     this.conversation.reset(channelId, userId);
   }
 
-  private async generateWithTools(
-    messages: LLMMessage[],
-    depth = 0,
-  ): Promise<LLMResponse> {
-    if (depth > 5) {
-      return { content: 'Maximum tool call depth reached.' };
-    }
-
+  private async generateWithTools(messages: LLMMessage[], depth = 0): Promise<LLMResponse> {
     const toolDefs = this.tools.getToolDefinitions();
     const response = await this.provider.generate(messages, toolDefs);
+
+    if (depth > 5) {
+      return response;
+    }
 
     if (!isNullOrUndefined(response.toolCalls) && response.toolCalls.length > 0) {
       const toolResults = await this.tools.execute(response.toolCalls);
