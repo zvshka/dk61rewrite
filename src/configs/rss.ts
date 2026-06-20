@@ -5,6 +5,7 @@ export const rssConfig = {
   translateTargetLang: 'Russian',
   titleSimilarityThreshold: 0.55,
   bigramSimilarityThreshold: 0.5,
-  dedupWindowHours: 72,
+  dedupWindowHours: 48,
   minStemWords: 4,
+  entityBoostFactor: 0.35,
 };

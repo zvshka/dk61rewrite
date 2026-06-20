@@ -243,6 +243,7 @@ export class RssService {
     });
 
     const candidateDomain = !isNullOrWhitespace(link) ? getDomain(link) : '';
+    const candidateEntities = extractEntities(title);
 
     for (const existing of recentEntries) {
       const existingText = !isNullOrWhitespace(existing.description)
@@ -256,6 +257,15 @@ export class RssService {
       if (candidateDomain && !isNullOrWhitespace(existing.link)) {
         if (candidateDomain === getDomain(existing.link)) {
           boost = 0.15;
+        }
+      }
+
+      if (candidateEntities.length > 0) {
+        const existingEntities = extractEntities(existing.title);
+        const shared = candidateEntities.filter(e => existingEntities.includes(e));
+        if (shared.length > 0) {
+          const ratio = shared.length / candidateEntities.length;
+          boost += ratio * rssConfig.entityBoostFactor;
         }
       }
 
@@ -382,6 +392,20 @@ function getDomain(url: string): string {
   } catch {
     return '';
   }
+}
+
+function extractEntities(text: string): string[] {
+  const entities: string[] = [];
+  const words = text.split(/\s+/);
+
+  for (const word of words) {
+    const cleaned = word.replace(/[^a-zA-Z0-9]/g, '');
+    if (cleaned.length >= 2 && cleaned === cleaned.toUpperCase() && /[A-Z]/.test(cleaned)) {
+      entities.push(cleaned);
+    }
+  }
+
+  return entities;
 }
 
 const TRACKING_PARAMS = [
