@@ -16,6 +16,7 @@ type FeedItem = {
   description: string | undefined;
   author: string | undefined;
   publishedAt: Date | undefined;
+  imageUrl: string | undefined;
 };
 
 @Service()
@@ -27,7 +28,14 @@ export class RssService {
     private logger: Logger,
     @inject(delay(() => LLM)) private llm: LLM
   ) {
-    this.parser = new RssParser();
+    this.parser = new RssParser({
+      customFields: {
+        item: [
+          ['media:content', 'media:content', { keepArray: true }],
+          ['media:thumbnail', 'media:thumbnail', { keepArray: true }],
+        ],
+      },
+    });
   }
 
   async addFeed(guildId: string, channelId: string, url: string, name?: string): Promise<string> {
@@ -191,6 +199,7 @@ export class RssService {
         description: entry.description ?? undefined,
         author: entry.author ?? undefined,
         publishedAt: entry.publishedAt ?? undefined,
+        imageUrl: extractImageUrl(item as Record<string, unknown>),
       });
     }
 
@@ -296,6 +305,7 @@ export class RssService {
       description: item.contentSnippet ?? item.content ?? undefined,
       author: item.creator ?? undefined,
       publishedAt: !isNullOrUndefined(item.pubDate) ? new Date(item.pubDate) : undefined,
+      imageUrl: extractImageUrl(item as Record<string, unknown>),
     }));
   }
 
@@ -306,6 +316,7 @@ export class RssService {
       .setAuthor({ name: feedLabel });
 
     if (!isNullOrWhitespace(entry.link)) embed.setURL(entry.link);
+    if (!isNullOrWhitespace(entry.imageUrl)) embed.setImage(entry.imageUrl);
     if (!isNullOrWhitespace(entry.author)) embed.setFooter({ text: entry.author });
     if (entry.publishedAt) embed.setTimestamp(entry.publishedAt);
 
@@ -406,6 +417,31 @@ function extractEntities(text: string): string[] {
   }
 
   return entities;
+}
+
+function extractImageUrl(item: Record<string, unknown>): string | undefined {
+  if (item.enclosure) {
+    const enc = item.enclosure as { url?: string; type?: string };
+    if (enc.url && enc.type?.startsWith('image/')) return enc.url;
+  }
+
+  const mediaContent = item['media:content'];
+  if (Array.isArray(mediaContent)) {
+    for (const mc of mediaContent) {
+      const url = (mc as Record<string, unknown>)?.$ as Record<string, string> | undefined;
+      if (url?.url) return url.url;
+    }
+  }
+
+  const mediaThumb = item['media:thumbnail'];
+  if (Array.isArray(mediaThumb)) {
+    for (const mt of mediaThumb) {
+      const url = (mt as Record<string, unknown>)?.$ as Record<string, string> | undefined;
+      if (url?.url) return url.url;
+    }
+  }
+
+  return undefined;
 }
 
 const TRACKING_PARAMS = [
