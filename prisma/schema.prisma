@@ -31,6 +31,7 @@ model Guild {
   updatedAt    DateTime @default(now()) @updatedAt
 
   starredMessages StarredMessage[]
+  rssFeeds        RssFeed[]
   welcomeImages   WelcomeImage[]
   answers         PingAnswer[]
   welcomeMessages WelcomeMessage[]
@@ -128,6 +129,41 @@ model Proposal {
   endsAt            DateTime
   proposalMessageId String?        @map("proposal_message_id")
   status            ProposalStatus @default(ACTIVE)
+}
+
+model RssFeed {
+  id        String   @id @default(nanoid())
+  guildId   String
+  channelId String
+  url       String
+  name      String?
+
+  lastCheckedAt DateTime?
+
+  guild   Guild      @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  entries RssEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([guildId, url])
+}
+
+model RssEntry {
+  id     String @id @default(nanoid())
+  feedId String
+  guid   String
+  title  String
+  link   String?
+  description String? @db.Text
+  author  String?
+  publishedAt DateTime?
+
+  feed RssFeed @relation(fields: [feedId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([feedId, guid])
 }
 
 enum ProposalStatus {

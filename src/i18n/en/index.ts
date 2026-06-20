@@ -133,6 +133,64 @@ const en = {
 			NO_QUESTION: 'Please provide a question after selecting "Ask".',
 			ERROR: 'Error generating response: {error}',
 		},
+		RSS: {
+			NAME: 'rss',
+			DESCRIPTION: 'Manage server RSS news feeds',
+			ADD: {
+				NAME: 'add',
+				DESCRIPTION: 'Add a new RSS feed',
+			},
+			REMOVE: {
+				NAME: 'remove',
+				DESCRIPTION: 'Remove an RSS feed from the server',
+			},
+			LIST: {
+				NAME: 'list',
+				DESCRIPTION: 'Show all RSS feeds on the server',
+			},
+			CHANNEL: {
+				NAME: 'channel',
+				DESCRIPTION: 'Change the channel for an RSS feed',
+			},
+			TEST: {
+				NAME: 'test',
+				DESCRIPTION: 'Test an RSS feed without saving',
+			},
+			OPTIONS: {
+				ACTION: {
+					NAME: 'action',
+					DESCRIPTION: 'Choose an action',
+				},
+				URL: {
+					NAME: 'url',
+					DESCRIPTION: 'RSS feed URL',
+				},
+				NAME: {
+					NAME: 'name',
+					DESCRIPTION: 'Display name for the feed',
+				},
+				CHANNEL: {
+					NAME: 'channel',
+					DESCRIPTION: 'Channel to send news to',
+				},
+				FEED_ID: {
+					NAME: 'feed',
+					DESCRIPTION: 'Feed ID to modify/remove',
+				},
+			},
+			ADDED: 'RSS feed added successfully!',
+			REMOVED: 'RSS feed removed successfully!',
+			LIST_TITLE: 'Server RSS Feeds',
+			NO_FEEDS: 'No RSS feeds configured on this server.',
+			CHANNEL_UPDATED: 'RSS feed channel updated!',
+			TEST_EMPTY: 'Feed has no entries or is invalid.',
+			ERRORS: {
+				NO_URL: 'Please provide an RSS feed URL.',
+				NO_FEED_ID: 'Please provide a feed ID.',
+				NO_CHANNEL: 'Please provide a channel.',
+				UNKNOWN_ACTION: 'Unknown action. Use: add, remove, list, channel, test.',
+			},
+		},
 	},
 } satisfies BaseTranslation
 

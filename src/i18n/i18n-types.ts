@@ -358,6 +358,160 @@ type RootTranslation = {
 			 */
 			ERROR: RequiredParams<'error'>
 		}
+		RSS: {
+			/**
+			 * r​s​s
+			 */
+			NAME: string
+			/**
+			 * M​a​n​a​g​e​ ​s​e​r​v​e​r​ ​R​S​S​ ​n​e​w​s​ ​f​e​e​d​s
+			 */
+			DESCRIPTION: string
+			ADD: {
+				/**
+				 * a​d​d
+				 */
+				NAME: string
+				/**
+				 * A​d​d​ ​a​ ​n​e​w​ ​R​S​S​ ​f​e​e​d
+				 */
+				DESCRIPTION: string
+			}
+			REMOVE: {
+				/**
+				 * r​e​m​o​v​e
+				 */
+				NAME: string
+				/**
+				 * R​e​m​o​v​e​ ​a​n​ ​R​S​S​ ​f​e​e​d​ ​f​r​o​m​ ​t​h​e​ ​s​e​r​v​e​r
+				 */
+				DESCRIPTION: string
+			}
+			LIST: {
+				/**
+				 * l​i​s​t
+				 */
+				NAME: string
+				/**
+				 * S​h​o​w​ ​a​l​l​ ​R​S​S​ ​f​e​e​d​s​ ​o​n​ ​t​h​e​ ​s​e​r​v​e​r
+				 */
+				DESCRIPTION: string
+			}
+			CHANNEL: {
+				/**
+				 * c​h​a​n​n​e​l
+				 */
+				NAME: string
+				/**
+				 * C​h​a​n​g​e​ ​t​h​e​ ​c​h​a​n​n​e​l​ ​f​o​r​ ​a​n​ ​R​S​S​ ​f​e​e​d
+				 */
+				DESCRIPTION: string
+			}
+			TEST: {
+				/**
+				 * t​e​s​t
+				 */
+				NAME: string
+				/**
+				 * T​e​s​t​ ​a​n​ ​R​S​S​ ​f​e​e​d​ ​w​i​t​h​o​u​t​ ​s​a​v​i​n​g
+				 */
+				DESCRIPTION: string
+			}
+			OPTIONS: {
+				ACTION: {
+					/**
+					 * a​c​t​i​o​n
+					 */
+					NAME: string
+					/**
+					 * C​h​o​o​s​e​ ​a​n​ ​a​c​t​i​o​n
+					 */
+					DESCRIPTION: string
+				}
+				URL: {
+					/**
+					 * u​r​l
+					 */
+					NAME: string
+					/**
+					 * R​S​S​ ​f​e​e​d​ ​U​R​L
+					 */
+					DESCRIPTION: string
+				}
+				NAME: {
+					/**
+					 * n​a​m​e
+					 */
+					NAME: string
+					/**
+					 * D​i​s​p​l​a​y​ ​n​a​m​e​ ​f​o​r​ ​t​h​e​ ​f​e​e​d
+					 */
+					DESCRIPTION: string
+				}
+				CHANNEL: {
+					/**
+					 * c​h​a​n​n​e​l
+					 */
+					NAME: string
+					/**
+					 * C​h​a​n​n​e​l​ ​t​o​ ​s​e​n​d​ ​n​e​w​s​ ​t​o
+					 */
+					DESCRIPTION: string
+				}
+				FEED_ID: {
+					/**
+					 * f​e​e​d
+					 */
+					NAME: string
+					/**
+					 * F​e​e​d​ ​I​D​ ​t​o​ ​m​o​d​i​f​y​/​r​e​m​o​v​e
+					 */
+					DESCRIPTION: string
+				}
+			}
+			/**
+			 * R​S​S​ ​f​e​e​d​ ​a​d​d​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 */
+			ADDED: string
+			/**
+			 * R​S​S​ ​f​e​e​d​ ​r​e​m​o​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 */
+			REMOVED: string
+			/**
+			 * S​e​r​v​e​r​ ​R​S​S​ ​F​e​e​d​s
+			 */
+			LIST_TITLE: string
+			/**
+			 * N​o​ ​R​S​S​ ​f​e​e​d​s​ ​c​o​n​f​i​g​u​r​e​d​ ​o​n​ ​t​h​i​s​ ​s​e​r​v​e​r​.
+			 */
+			NO_FEEDS: string
+			/**
+			 * R​S​S​ ​f​e​e​d​ ​c​h​a​n​n​e​l​ ​u​p​d​a​t​e​d​!
+			 */
+			CHANNEL_UPDATED: string
+			/**
+			 * F​e​e​d​ ​h​a​s​ ​n​o​ ​e​n​t​r​i​e​s​ ​o​r​ ​i​s​ ​i​n​v​a​l​i​d​.
+			 */
+			TEST_EMPTY: string
+			ERRORS: {
+				/**
+				 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​n​ ​R​S​S​ ​f​e​e​d​ ​U​R​L​.
+				 */
+				NO_URL: string
+				/**
+				 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​ ​f​e​e​d​ ​I​D​.
+				 */
+				NO_FEED_ID: string
+				/**
+				 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​ ​c​h​a​n​n​e​l​.
+				 */
+				NO_CHANNEL: string
+				/**
+				 * U​n​k​n​o​w​n​ ​a​c​t​i​o​n​.​ ​U​s​e​:​ ​a​d​d​,​ ​r​e​m​o​v​e​,​ ​l​i​s​t​,​ ​c​h​a​n​n​e​l​,​ ​t​e​s​t​.
+				 */
+				UNKNOWN_ACTION: string
+			}
+		}
 	}
 }
 
@@ -696,6 +850,160 @@ export type TranslationFunctions = {
 			 * Error generating response: {error}
 			 */
 			ERROR: (arg: { error: unknown }) => LocalizedString
+		}
+		RSS: {
+			/**
+			 * rss
+			 */
+			NAME: () => LocalizedString
+			/**
+			 * Manage server RSS news feeds
+			 */
+			DESCRIPTION: () => LocalizedString
+			ADD: {
+				/**
+				 * add
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Add a new RSS feed
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			REMOVE: {
+				/**
+				 * remove
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Remove an RSS feed from the server
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			LIST: {
+				/**
+				 * list
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Show all RSS feeds on the server
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			CHANNEL: {
+				/**
+				 * channel
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Change the channel for an RSS feed
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			TEST: {
+				/**
+				 * test
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Test an RSS feed without saving
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			OPTIONS: {
+				ACTION: {
+					/**
+					 * action
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Choose an action
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+				URL: {
+					/**
+					 * url
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * RSS feed URL
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+				NAME: {
+					/**
+					 * name
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Display name for the feed
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+				CHANNEL: {
+					/**
+					 * channel
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Channel to send news to
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+				FEED_ID: {
+					/**
+					 * feed
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Feed ID to modify/remove
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+			}
+			/**
+			 * RSS feed added successfully!
+			 */
+			ADDED: () => LocalizedString
+			/**
+			 * RSS feed removed successfully!
+			 */
+			REMOVED: () => LocalizedString
+			/**
+			 * Server RSS Feeds
+			 */
+			LIST_TITLE: () => LocalizedString
+			/**
+			 * No RSS feeds configured on this server.
+			 */
+			NO_FEEDS: () => LocalizedString
+			/**
+			 * RSS feed channel updated!
+			 */
+			CHANNEL_UPDATED: () => LocalizedString
+			/**
+			 * Feed has no entries or is invalid.
+			 */
+			TEST_EMPTY: () => LocalizedString
+			ERRORS: {
+				/**
+				 * Please provide an RSS feed URL.
+				 */
+				NO_URL: () => LocalizedString
+				/**
+				 * Please provide a feed ID.
+				 */
+				NO_FEED_ID: () => LocalizedString
+				/**
+				 * Please provide a channel.
+				 */
+				NO_CHANNEL: () => LocalizedString
+				/**
+				 * Unknown action. Use: add, remove, list, channel, test.
+				 */
+				UNKNOWN_ACTION: () => LocalizedString
+			}
 		}
 	}
 }

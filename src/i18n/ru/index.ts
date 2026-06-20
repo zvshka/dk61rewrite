@@ -133,6 +133,64 @@ const ru = {
 			NO_QUESTION: 'Укажите вопрос после выбора "Спросить".',
 			ERROR: 'Ошибка при генерации ответа: {error}',
 		},
+		RSS: {
+			NAME: 'рсс',
+			DESCRIPTION: 'Управление RSS-лентами новостей сервера',
+			ADD: {
+				NAME: 'добавить',
+				DESCRIPTION: 'Добавить новую RSS-ленту',
+			},
+			REMOVE: {
+				NAME: 'удалить',
+				DESCRIPTION: 'Удалить RSS-ленту с сервера',
+			},
+			LIST: {
+				NAME: 'список',
+				DESCRIPTION: 'Показать все RSS-ленты сервера',
+			},
+			CHANNEL: {
+				NAME: 'канал',
+				DESCRIPTION: 'Изменить канал для RSS-ленты',
+			},
+			TEST: {
+				NAME: 'тест',
+				DESCRIPTION: 'Проверить RSS-ленту без сохранения',
+			},
+			OPTIONS: {
+				ACTION: {
+					NAME: 'действие',
+					DESCRIPTION: 'Выберите действие',
+				},
+				URL: {
+					NAME: 'url',
+					DESCRIPTION: 'Ссылка на RSS-ленту',
+				},
+				NAME: {
+					NAME: 'название',
+					DESCRIPTION: 'Отображаемое название ленты',
+				},
+				CHANNEL: {
+					NAME: 'канал',
+					DESCRIPTION: 'Канал для отправки новостей',
+				},
+				FEED_ID: {
+					NAME: 'фид',
+					DESCRIPTION: 'ID фида для изменения/удаления',
+				},
+			},
+			ADDED: 'RSS-лента успешно добавлена!',
+			REMOVED: 'RSS-лента успешно удалена!',
+			LIST_TITLE: 'RSS-ленты сервера',
+			NO_FEEDS: 'На сервере нет добавленных RSS-лент.',
+			CHANNEL_UPDATED: 'Канал для RSS-ленты обновлён!',
+			TEST_EMPTY: 'Лента не содержит записей или невалидна.',
+			ERRORS: {
+				NO_URL: 'Укажите ссылку на RSS-ленту.',
+				NO_FEED_ID: 'Укажите ID фида.',
+				NO_CHANNEL: 'Укажите канал.',
+				UNKNOWN_ACTION: 'Неизвестное действие. Используйте: add, remove, list, channel, test.',
+			},
+		},
 	},
 } satisfies Translation
 

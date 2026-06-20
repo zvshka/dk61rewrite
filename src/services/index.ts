@@ -8,3 +8,4 @@ export * from './ErrorHandler';
 export * from './Scheduler';
 export * from './PluginsManager';
 export * from './EventManager';
+export * from './RssService';

@@ -4,7 +4,7 @@ import { Database, EventManager, Logger, Stats } from '@/services';
 import { Guard, SimpleCommandMessage } from 'discordx';
 import { Discord, Injectable, On, OnCustom } from '@/decorators';
 import { Maintenance } from '@/guards';
-import { syncUser } from '@/utils/functions';
+import { isNullOrUndefined, syncUser } from '@/utils/functions';
 
 @Discord()
 @Injectable()
@@ -25,24 +25,32 @@ export default class SimpleCommandCreateEvent {
     // insert user in db if not exists
     await syncUser(command.message.author);
 
+    const lastInteract = new Date();
+
     // update last interaction time of both user and guild
     await this.db.prisma.user.update({
       where: {
         id: command.message.author.id,
       },
       data: {
-        lastInteract: new Date(),
+        lastInteract,
       },
     });
 
-    await this.db.prisma.guild.update({
-      where: {
-        id: command.message.guild?.id,
-      },
-      data: {
-        lastInteract: new Date(),
-      },
-    });
+    if (!isNullOrUndefined(command.message.guild)) {
+      await this.db.prisma.guild.upsert({
+        where: {
+          id: command.message.guild.id,
+        },
+        create: {
+          id: command.message.guild.id,
+          lastInteract
+        },
+        update: {
+          lastInteract
+        }
+      });
+    }
 
     await this.stats.registerSimpleCommand(command);
     this.logger.logInteraction(command);
@@ -57,11 +65,11 @@ export default class SimpleCommandCreateEvent {
   async simpleCommandCreateEmitter([message]: ArgsOf<'messageCreate'>, client: Client) {
     const command = await client.parseCommand(message, false);
 
-    if (command && command instanceof SimpleCommandMessage) {
+    if (!isNullOrUndefined(command) && command instanceof SimpleCommandMessage) {
       /**
        * @param {SimpleCommandMessage} command
        */
-      this.eventManager.emit('simpleCommandCreate', command);
+      await this.eventManager.emit('simpleCommandCreate', command);
     }
   }
 }

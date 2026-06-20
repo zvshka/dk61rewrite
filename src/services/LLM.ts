@@ -57,6 +57,19 @@ export class LLM {
     this.conversation.reset(channelId, userId);
   }
 
+  async translate(text: string, targetLang: string): Promise<string> {
+    const messages: LLMMessage[] = [
+      {
+        role: 'system',
+        content: `Translate the following text to ${targetLang}. Output ONLY the translation, no explanations, no notes, no additional text. Keep the same formatting.`,
+      },
+      { role: 'user', content: text },
+    ];
+
+    const response = await this.provider.generate(messages);
+    return response.content.trim();
+  }
+
   private async generateWithTools(messages: LLMMessage[], depth = 0): Promise<LLMResponse> {
     const toolDefs = this.tools.getToolDefinitions();
     const response = await this.provider.generate(messages, toolDefs);
