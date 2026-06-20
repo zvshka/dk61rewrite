@@ -199,7 +199,7 @@ export class RssService {
         description: entry.description ?? undefined,
         author: entry.author ?? undefined,
         publishedAt: entry.publishedAt ?? undefined,
-        imageUrl: extractImageUrl(item as Record<string, unknown>),
+        imageUrl: extractImageUrl(item),
       });
     }
 
@@ -420,24 +420,24 @@ function extractEntities(text: string): string[] {
 }
 
 function extractImageUrl(item: Record<string, unknown>): string | undefined {
-  if (item.enclosure) {
+  if (!isNullOrUndefined(item.enclosure)) {
     const enc = item.enclosure as { url?: string; type?: string };
-    if (enc.url && enc.type?.startsWith('image/')) return enc.url;
+    if (!isNullOrWhitespace(enc.url) && !isNullOrWhitespace(enc.type) && enc.type.startsWith('image/')) return enc.url;
   }
 
   const mediaContent = item['media:content'];
   if (Array.isArray(mediaContent)) {
     for (const mc of mediaContent) {
-      const url = (mc as Record<string, unknown>)?.$ as Record<string, string> | undefined;
-      if (url?.url) return url.url;
+      const item = (mc as Record<string, unknown>).$ as Record<string, string> | undefined;
+      if (!isNullOrUndefined(item) && 'url' in item && typeof item.url === 'string') return item.url;
     }
   }
 
   const mediaThumb = item['media:thumbnail'];
   if (Array.isArray(mediaThumb)) {
     for (const mt of mediaThumb) {
-      const url = (mt as Record<string, unknown>)?.$ as Record<string, string> | undefined;
-      if (url?.url) return url.url;
+      const item = (mt as Record<string, unknown>).$ as Record<string, string> | undefined;
+      if (!isNullOrUndefined(item) && 'url' in item && typeof item.url === 'string') return item.url;
     }
   }
 
