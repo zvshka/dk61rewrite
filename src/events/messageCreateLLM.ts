@@ -6,7 +6,7 @@ import { isNullOrUndefined, isNullOrWhitespace } from '@/utils/functions';
 import type { DiscordContext } from '../services/llm/llm.types';
 
 import { Discord, Guard, Injectable, On } from '@/decorators';
-import { ContentFilter, Maintenance, MessageRateLimit } from '@/guards';
+import { ContentFilter, Disabled, Maintenance, MessageRateLimit } from '@/guards';
 import { LLM } from '@/services';
 import { splitMessage } from "../utils/functions/splitMessage";
 
@@ -15,7 +15,7 @@ import { splitMessage } from "../utils/functions/splitMessage";
 export default class MessageCreateLLMEvent {
   constructor(private llm: LLM) {}
 
-  @On('messageCreate')
+  // @On('messageCreate')
   @Guard(Maintenance, MessageRateLimit, ContentFilter)
   async llmHandler([message]: ArgsOf<'messageCreate'>, client: Client): Promise<void> {
     if (message.type !== MessageType.Default && message.type !== MessageType.Reply) return;
