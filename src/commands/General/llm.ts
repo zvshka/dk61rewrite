@@ -5,7 +5,7 @@ import { Category } from '@discordx/utilities';
 import type { DiscordContext } from '../../services/llm/llm.types';
 
 import { Discord, Guard, Injectable, Slash, SlashChoice, SlashOption } from '@/decorators';
-import { GuildOnly } from '@/guards';
+import { Disabled, GuildOnly } from '@/guards';
 import { LLM } from '@/services';
 import { isNullOrUndefined, isNullOrWhitespace, simpleSuccessEmbed } from '@/utils/functions';
 import { splitMessage } from "../../utils/functions/splitMessage";
@@ -17,7 +17,7 @@ export default class LLMCommand {
   constructor(private llmService: LLM) {}
 
   @Slash({ name: 'llm' })
-  @Guard(GuildOnly)
+  @Guard(GuildOnly, Disabled)
   async handle(
     @SlashOption({
       name: 'subcommand',
