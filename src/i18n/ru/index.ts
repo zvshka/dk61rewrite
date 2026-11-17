@@ -112,83 +112,112 @@ const ru = {
 			},
 			SUCCESS: 'Предложение успешно создано и отправлено в канал голосовалки!',
 		},
-		LLM: {
-			NAME: 'llm',
-			DESCRIPTION: 'Задать вопрос ИИ-ассистенту',
-			OPTIONS: {
-				SUBCOMMAND: {
-					NAME: 'команда',
-					DESCRIPTION: 'Выберите действие',
-				},
-				QUESTION: {
-					NAME: 'вопрос',
-					DESCRIPTION: 'Ваш вопрос для ИИ',
-				},
+		VOICE: {
+			NAME: 'voice',
+			DESCRIPTION: 'Персональные временные голосовые комнаты',
+			SETUP: {
+				NAME: 'setup',
+				DESCRIPTION: 'Настроить канал-хаб и категорию для персональных комнат',
+				SAVED: 'Сохранено — хаб: {hub}, шаблон имени: {template}, лимит по умолчанию: {limit}',
 			},
-			CHOICES: {
-				ASK: 'Спросить',
-				RESET: 'Сбросить',
+			RENAME: {
+				NAME: 'rename',
+				DESCRIPTION: 'Переименовать свою комнату',
 			},
-			RESET_SUCCESS: 'История диалога сброшена.',
-			NO_QUESTION: 'Укажите вопрос после выбора "Спросить".',
-			ERROR: 'Ошибка при генерации ответа: {error}',
-		},
-		RSS: {
-			NAME: 'рсс',
-			DESCRIPTION: 'Управление RSS-лентами новостей сервера',
-			ADD: {
-				NAME: 'добавить',
-				DESCRIPTION: 'Добавить новую RSS-ленту',
+			LIMIT: {
+				NAME: 'limit',
+				DESCRIPTION: 'Задать лимит участников (0 — без лимита)',
 			},
-			REMOVE: {
-				NAME: 'удалить',
-				DESCRIPTION: 'Удалить RSS-ленту с сервера',
+			LOCK: {
+				NAME: 'lock',
+				DESCRIPTION: 'Закрыть комнату для всех, кроме разрешённых',
 			},
-			LIST: {
-				NAME: 'список',
-				DESCRIPTION: 'Показать все RSS-ленты сервера',
+			UNLOCK: {
+				NAME: 'unlock',
+				DESCRIPTION: 'Снова открыть комнату для всех',
 			},
-			CHANNEL: {
-				NAME: 'канал',
-				DESCRIPTION: 'Изменить канал для RSS-ленты',
+			PERMIT: {
+				NAME: 'permit',
+				DESCRIPTION: 'Разрешить пользователю вход в свою комнату',
 			},
-			TEST: {
-				NAME: 'тест',
-				DESCRIPTION: 'Проверить RSS-ленту без сохранения',
+			DENY: {
+				NAME: 'deny',
+				DESCRIPTION: 'Запретить пользователю вход в свою комнату',
+			},
+			KICK: {
+				NAME: 'kick',
+				DESCRIPTION: 'Выгнать пользователя из своей комнаты',
 			},
 			OPTIONS: {
-				ACTION: {
-					NAME: 'действие',
-					DESCRIPTION: 'Выберите действие',
+				HUB: {
+					NAME: 'hub',
+					DESCRIPTION: 'Канал-хаб: вход в него создаёт комнату',
 				},
-				URL: {
-					NAME: 'url',
-					DESCRIPTION: 'Ссылка на RSS-ленту',
+				CATEGORY: {
+					NAME: 'category',
+					DESCRIPTION: 'Категория для временных каналов',
+				},
+				TEMPLATE: {
+					NAME: 'template',
+					DESCRIPTION: 'Шаблон имени канала, ник участника подставляется автоматически',
+				},
+				DEFAULT_LIMIT: {
+					NAME: 'default_limit',
+					DESCRIPTION: 'Лимит участников по умолчанию для новых комнат',
 				},
 				NAME: {
-					NAME: 'название',
-					DESCRIPTION: 'Отображаемое название ленты',
+					NAME: 'name',
+					DESCRIPTION: 'Новое имя канала',
 				},
-				CHANNEL: {
-					NAME: 'канал',
-					DESCRIPTION: 'Канал для отправки новостей',
+				LIMIT: {
+					NAME: 'limit',
+					DESCRIPTION: 'Лимит участников, 0 — без лимита',
 				},
-				FEED_ID: {
-					NAME: 'фид',
-					DESCRIPTION: 'ID фида для изменения/удаления',
+				USER: {
+					NAME: 'user',
+					DESCRIPTION: 'Пользователь',
 				},
 			},
-			ADDED: 'RSS-лента успешно добавлена!',
-			REMOVED: 'RSS-лента успешно удалена!',
-			LIST_TITLE: 'RSS-ленты сервера',
-			NO_FEEDS: 'На сервере нет добавленных RSS-лент.',
-			CHANNEL_UPDATED: 'Канал для RSS-ленты обновлён!',
-			TEST_EMPTY: 'Лента не содержит записей или невалидна.',
+			PANEL: {
+				TITLE: 'Ваша голосовая комната',
+				DESCRIPTION: `Владелец: {owner}
+Лимит: {limit}
+Доступ: {lockState}`,
+				LOCKED: 'закрыта',
+				UNLOCKED: 'открыта',
+				UNLIMITED: 'без лимита',
+				BTN_RENAME: 'Переименовать',
+				BTN_LIMIT: 'Лимит',
+				BTN_LOCK: 'Закрыть',
+				BTN_UNLOCK: 'Открыть',
+				SEL_PERMIT: 'Разрешить пользователю',
+				SEL_DENY: 'Запретить пользователю',
+				SEL_KICK: 'Выгнать пользователя',
+			},
+			MODAL: {
+				RENAME_TITLE: 'Переименование комнаты',
+				RENAME_LABEL: 'Новое имя',
+				LIMIT_TITLE: 'Лимит участников',
+				LIMIT_LABEL: 'Лимит (0 — без лимита)',
+			},
 			ERRORS: {
-				NO_URL: 'Укажите ссылку на RSS-ленту.',
-				NO_FEED_ID: 'Укажите ID фида.',
-				NO_CHANNEL: 'Укажите канал.',
-				UNKNOWN_ACTION: 'Неизвестное действие. Используйте: add, remove, list, channel, test.',
+				NOT_IN_ROOM: 'Сначала зайди в свою временную комнату — управление доступно только из неё.',
+				NOT_OWNER: 'Это может сделать только владелец комнаты.',
+				NOT_TEMP_CHANNEL: 'Это не временная комната.',
+				INVALID_NAME: 'Имя не может быть пустым.',
+				INVALID_LIMIT: 'Лимит должен быть от {min} до {max}.',
+				TARGET_IS_OWNER: 'Это нельзя сделать с самим собой.',
+				USER_NOT_IN_ROOM: 'Этого пользователя нет в твоей комнате.',
+				MISSING_PERMISSIONS: 'Мне не хватает прав: {permissions}',
+			},
+			SUCCESS: {
+				RENAMED: 'Комната переименована.',
+				LIMIT_SET: 'Лимит обновлён: {limit}',
+				LOCKED: 'Комната закрыта.',
+				UNLOCKED: 'Комната открыта.',
+				PERMITTED: 'Доступ разрешён: {user}',
+				DENIED: 'Доступ запрещён: {user}',
+				KICKED: '{user} выгнан из комнаты.',
 			},
 		},
 	},

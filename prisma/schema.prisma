@@ -24,6 +24,11 @@ model Guild {
   starboardCount   Int     @default(3) @map("starboard_count")
   proposalChannel  String? @map("proposal_channel")
 
+  voiceHubChannel   String? @map("voice_hub_channel")
+  voiceCategory     String? @map("voice_category")
+  voiceNameTemplate String? @map("voice_name_template")
+  voiceDefaultLimit Int?    @map("voice_default_limit")
+
   deleted Boolean @default(false)
 
   lastInteract DateTime @default(now())
@@ -31,11 +36,11 @@ model Guild {
   updatedAt    DateTime @default(now()) @updatedAt
 
   starredMessages StarredMessage[]
-  rssFeeds        RssFeed[]
   welcomeImages   WelcomeImage[]
   answers         PingAnswer[]
   welcomeMessages WelcomeMessage[]
   proposals       Proposal[]
+  tempVoiceRooms  TempVoiceRoom[]
 }
 
 model User {
@@ -131,43 +136,34 @@ model Proposal {
   status            ProposalStatus @default(ACTIVE)
 }
 
-model RssFeed {
-  id        String   @id @default(nanoid())
-  guildId   String
-  channelId String
-  url       String
-  name      String?
-
-  lastCheckedAt DateTime?
-
-  guild   Guild      @relation(fields: [guildId], references: [id], onDelete: Cascade)
-  entries RssEntry[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([guildId, url])
-}
-
-model RssEntry {
-  id     String @id @default(nanoid())
-  feedId String
-  guid   String
-  title  String
-  link   String?
-  description String? @db.Text
-  author  String?
-  publishedAt DateTime?
-
-  feed RssFeed @relation(fields: [feedId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([feedId, guid])
-}
-
 enum ProposalStatus {
   ACTIVE
   COMPLETED
   CANCELLED
+}
+
+/// Временный персональный голосовой канал, созданный хабом.
+model TempVoiceRoom {
+  id String @id @default(nanoid())
+
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guildId String
+
+  channelId String @unique
+  ownerId   String
+
+  panelMessageId String? @map("panel_message_id")
+
+  locked    Boolean @default(false)
+  userLimit Int     @default(0) @map("user_limit")
+
+  /// когда канал опустел; по истечении таймаута комната удаляется
+  emptySince DateTime? @map("empty_since")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([guildId])
+  @@index([ownerId])
+  @@index([emptySince])
 }

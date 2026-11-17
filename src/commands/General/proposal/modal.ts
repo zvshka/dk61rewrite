@@ -44,6 +44,12 @@ export default class ProposalModal {
 
     const endsAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+    const channel = await client.channels.fetch(guildData.proposalChannel);
+    if (channel?.isSendable() === false) {
+      await simpleModalSuccessEmbed(interaction, localize.PROPOSAL_ERROR.CHANNEL_INVALID());
+      return;
+    }
+
     const proposal = await this.db.prisma.proposal.create({
       data: {
         text: topic,
@@ -59,12 +65,6 @@ export default class ProposalModal {
         author: true,
       },
     });
-
-    const channel = await client.channels.fetch(guildData.proposalChannel);
-    if (channel?.isSendable() === false) {
-      await simpleModalSuccessEmbed(interaction, localize.PROPOSAL_ERROR.CHANNEL_INVALID());
-      return;
-    }
 
     const discordUser = await client.users.fetch(proposal.authorId);
 

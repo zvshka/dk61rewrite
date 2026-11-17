@@ -5,7 +5,7 @@ import { CommandInteraction } from 'discord.js';
 import { generalConfig } from '@/configs';
 import { Discord, Guard, Injectable, On, skipDeferCommands } from '@/decorators';
 import { Maintenance } from '@/guards';
-import { syncUser } from '@/utils/functions';
+import { isNullOrUndefined, syncUser } from '@/utils/functions';
 
 @Discord()
 @Injectable()
@@ -40,19 +40,25 @@ export default class InteractionCreateEvent {
       },
     });
 
-    await this.db.prisma.guild.update({
-      where: {
-        id: interaction.guild?.id,
-      },
-      data: {
-        lastInteract: new Date(),
-      },
-    });
+    if (!isNullOrUndefined(interaction.guildId)) {
+      await this.db.prisma.guild.upsert({
+        where: {
+          id: interaction.guildId,
+        },
+        create: {
+          id: interaction.guildId,
+          lastInteract: new Date(),
+        },
+        update: {
+          lastInteract: new Date(),
+        }
+      });
+    }
 
     // register logs and stats
     await this.stats.registerInteraction(interaction as AllInteractions);
     this.logger.logInteraction(interaction as AllInteractions);
 
-    client.executeInteraction(interaction);
+    await client.executeInteraction(interaction);
   }
 }

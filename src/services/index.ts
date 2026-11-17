@@ -1,5 +1,4 @@
 export * from './Database';
-export * from './LLM';
 export * from './Store';
 export * from './Logger';
 export * from './Stats';
@@ -8,4 +7,4 @@ export * from './ErrorHandler';
 export * from './Scheduler';
 export * from './PluginsManager';
 export * from './EventManager';
-export * from './RssService';
+export * from './TempVoiceService';

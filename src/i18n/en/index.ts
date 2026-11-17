@@ -112,83 +112,112 @@ const en = {
 			},
 			SUCCESS: 'Proposal successfully created and sent to the proposal channel!',
 		},
-		LLM: {
-			NAME: 'llm',
-			DESCRIPTION: 'Ask an AI assistant a question',
-			OPTIONS: {
-				SUBCOMMAND: {
-					NAME: 'subcommand',
-					DESCRIPTION: 'Choose an action',
-				},
-				QUESTION: {
-					NAME: 'question',
-					DESCRIPTION: 'Your question for the AI',
-				},
+		VOICE: {
+			NAME: 'voice',
+			DESCRIPTION: 'Personal temporary voice rooms',
+			SETUP: {
+				NAME: 'setup',
+				DESCRIPTION: 'Configure the hub channel and category for personal rooms',
+				SAVED: 'Saved — hub: {hub}, name template: {template}, default limit: {limit}',
 			},
-			CHOICES: {
-				ASK: 'Ask',
-				RESET: 'Reset',
+			RENAME: {
+				NAME: 'rename',
+				DESCRIPTION: 'Rename your room',
 			},
-			RESET_SUCCESS: 'Conversation history has been reset.',
-			NO_QUESTION: 'Please provide a question after selecting "Ask".',
-			ERROR: 'Error generating response: {error}',
-		},
-		RSS: {
-			NAME: 'rss',
-			DESCRIPTION: 'Manage server RSS news feeds',
-			ADD: {
-				NAME: 'add',
-				DESCRIPTION: 'Add a new RSS feed',
+			LIMIT: {
+				NAME: 'limit',
+				DESCRIPTION: 'Set the member limit (0 — unlimited)',
 			},
-			REMOVE: {
-				NAME: 'remove',
-				DESCRIPTION: 'Remove an RSS feed from the server',
+			LOCK: {
+				NAME: 'lock',
+				DESCRIPTION: 'Close your room for everyone except permitted users',
 			},
-			LIST: {
-				NAME: 'list',
-				DESCRIPTION: 'Show all RSS feeds on the server',
+			UNLOCK: {
+				NAME: 'unlock',
+				DESCRIPTION: 'Open your room for everyone again',
 			},
-			CHANNEL: {
-				NAME: 'channel',
-				DESCRIPTION: 'Change the channel for an RSS feed',
+			PERMIT: {
+				NAME: 'permit',
+				DESCRIPTION: 'Allow a user to join your room',
 			},
-			TEST: {
-				NAME: 'test',
-				DESCRIPTION: 'Test an RSS feed without saving',
+			DENY: {
+				NAME: 'deny',
+				DESCRIPTION: 'Deny a user access to your room',
+			},
+			KICK: {
+				NAME: 'kick',
+				DESCRIPTION: 'Kick a user out of your room',
 			},
 			OPTIONS: {
-				ACTION: {
-					NAME: 'action',
-					DESCRIPTION: 'Choose an action',
+				HUB: {
+					NAME: 'hub',
+					DESCRIPTION: 'Hub voice channel: joining it creates a room',
 				},
-				URL: {
-					NAME: 'url',
-					DESCRIPTION: 'RSS feed URL',
+				CATEGORY: {
+					NAME: 'category',
+					DESCRIPTION: 'Category for temporary channels',
+				},
+				TEMPLATE: {
+					NAME: 'template',
+					DESCRIPTION: 'Channel name template, the member nickname is substituted automatically',
+				},
+				DEFAULT_LIMIT: {
+					NAME: 'default_limit',
+					DESCRIPTION: 'Default member limit for new rooms',
 				},
 				NAME: {
 					NAME: 'name',
-					DESCRIPTION: 'Display name for the feed',
+					DESCRIPTION: 'New channel name',
 				},
-				CHANNEL: {
-					NAME: 'channel',
-					DESCRIPTION: 'Channel to send news to',
+				LIMIT: {
+					NAME: 'limit',
+					DESCRIPTION: 'Member limit, 0 — unlimited',
 				},
-				FEED_ID: {
-					NAME: 'feed',
-					DESCRIPTION: 'Feed ID to modify/remove',
+				USER: {
+					NAME: 'user',
+					DESCRIPTION: 'User',
 				},
 			},
-			ADDED: 'RSS feed added successfully!',
-			REMOVED: 'RSS feed removed successfully!',
-			LIST_TITLE: 'Server RSS Feeds',
-			NO_FEEDS: 'No RSS feeds configured on this server.',
-			CHANNEL_UPDATED: 'RSS feed channel updated!',
-			TEST_EMPTY: 'Feed has no entries or is invalid.',
+			PANEL: {
+				TITLE: 'Your voice room',
+				DESCRIPTION: `Owner: {owner}
+Limit: {limit}
+Access: {lockState}`,
+				LOCKED: 'closed',
+				UNLOCKED: 'open',
+				UNLIMITED: 'unlimited',
+				BTN_RENAME: 'Rename',
+				BTN_LIMIT: 'Limit',
+				BTN_LOCK: 'Close',
+				BTN_UNLOCK: 'Open',
+				SEL_PERMIT: 'Allow a user',
+				SEL_DENY: 'Deny a user',
+				SEL_KICK: 'Kick a user',
+			},
+			MODAL: {
+				RENAME_TITLE: 'Rename room',
+				RENAME_LABEL: 'New name',
+				LIMIT_TITLE: 'Member limit',
+				LIMIT_LABEL: 'Limit (0 — unlimited)',
+			},
 			ERRORS: {
-				NO_URL: 'Please provide an RSS feed URL.',
-				NO_FEED_ID: 'Please provide a feed ID.',
-				NO_CHANNEL: 'Please provide a channel.',
-				UNKNOWN_ACTION: 'Unknown action. Use: add, remove, list, channel, test.',
+				NOT_IN_ROOM: 'Join your own temporary channel first to manage it.',
+				NOT_OWNER: 'Only the room owner can do that.',
+				NOT_TEMP_CHANNEL: 'This is not a temporary room.',
+				INVALID_NAME: 'Name must not be empty.',
+				INVALID_LIMIT: 'Limit must be between {min} and {max}.',
+				TARGET_IS_OWNER: 'You cannot do that to yourself.',
+				USER_NOT_IN_ROOM: 'That user is not in your room.',
+				MISSING_PERMISSIONS: 'I am missing permissions: {permissions}',
+			},
+			SUCCESS: {
+				RENAMED: 'Room renamed.',
+				LIMIT_SET: 'Limit updated: {limit}',
+				LOCKED: 'Room closed.',
+				UNLOCKED: 'Room opened.',
+				PERMITTED: 'Access granted to {user}.',
+				DENIED: 'Access denied to {user}.',
+				KICKED: '{user} was kicked out.',
 			},
 		},
 	},

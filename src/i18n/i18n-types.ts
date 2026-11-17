@@ -303,138 +303,140 @@ type RootTranslation = {
 			 */
 			SUCCESS: string
 		}
-		LLM: {
+		VOICE: {
 			/**
-			 * l​l​m
+			 * v​o​i​c​e
 			 */
 			NAME: string
 			/**
-			 * A​s​k​ ​a​n​ ​A​I​ ​a​s​s​i​s​t​a​n​t​ ​a​ ​q​u​e​s​t​i​o​n
+			 * P​e​r​s​o​n​a​l​ ​t​e​m​p​o​r​a​r​y​ ​v​o​i​c​e​ ​r​o​o​m​s
 			 */
 			DESCRIPTION: string
-			OPTIONS: {
-				SUBCOMMAND: {
-					/**
-					 * s​u​b​c​o​m​m​a​n​d
-					 */
-					NAME: string
-					/**
-					 * C​h​o​o​s​e​ ​a​n​ ​a​c​t​i​o​n
-					 */
-					DESCRIPTION: string
-				}
-				QUESTION: {
-					/**
-					 * q​u​e​s​t​i​o​n
-					 */
-					NAME: string
-					/**
-					 * Y​o​u​r​ ​q​u​e​s​t​i​o​n​ ​f​o​r​ ​t​h​e​ ​A​I
-					 */
-					DESCRIPTION: string
-				}
-			}
-			CHOICES: {
+			SETUP: {
 				/**
-				 * A​s​k
-				 */
-				ASK: string
-				/**
-				 * R​e​s​e​t
-				 */
-				RESET: string
-			}
-			/**
-			 * C​o​n​v​e​r​s​a​t​i​o​n​ ​h​i​s​t​o​r​y​ ​h​a​s​ ​b​e​e​n​ ​r​e​s​e​t​.
-			 */
-			RESET_SUCCESS: string
-			/**
-			 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​ ​q​u​e​s​t​i​o​n​ ​a​f​t​e​r​ ​s​e​l​e​c​t​i​n​g​ ​"​A​s​k​"​.
-			 */
-			NO_QUESTION: string
-			/**
-			 * E​r​r​o​r​ ​g​e​n​e​r​a​t​i​n​g​ ​r​e​s​p​o​n​s​e​:​ ​{​e​r​r​o​r​}
-			 * @param {unknown} error
-			 */
-			ERROR: RequiredParams<'error'>
-		}
-		RSS: {
-			/**
-			 * r​s​s
-			 */
-			NAME: string
-			/**
-			 * M​a​n​a​g​e​ ​s​e​r​v​e​r​ ​R​S​S​ ​n​e​w​s​ ​f​e​e​d​s
-			 */
-			DESCRIPTION: string
-			ADD: {
-				/**
-				 * a​d​d
+				 * s​e​t​u​p
 				 */
 				NAME: string
 				/**
-				 * A​d​d​ ​a​ ​n​e​w​ ​R​S​S​ ​f​e​e​d
+				 * C​o​n​f​i​g​u​r​e​ ​t​h​e​ ​h​u​b​ ​c​h​a​n​n​e​l​ ​a​n​d​ ​c​a​t​e​g​o​r​y​ ​f​o​r​ ​p​e​r​s​o​n​a​l​ ​r​o​o​m​s
+				 */
+				DESCRIPTION: string
+				/**
+				 * S​a​v​e​d​ ​—​ ​h​u​b​:​ ​{​h​u​b​}​,​ ​n​a​m​e​ ​t​e​m​p​l​a​t​e​:​ ​{​t​e​m​p​l​a​t​e​}​,​ ​d​e​f​a​u​l​t​ ​l​i​m​i​t​:​ ​{​l​i​m​i​t​}
+				 * @param {unknown} hub
+				 * @param {unknown} limit
+				 * @param {unknown} template
+				 */
+				SAVED: RequiredParams<'hub' | 'limit' | 'template'>
+			}
+			RENAME: {
+				/**
+				 * r​e​n​a​m​e
+				 */
+				NAME: string
+				/**
+				 * R​e​n​a​m​e​ ​y​o​u​r​ ​r​o​o​m
 				 */
 				DESCRIPTION: string
 			}
-			REMOVE: {
+			LIMIT: {
 				/**
-				 * r​e​m​o​v​e
+				 * l​i​m​i​t
 				 */
 				NAME: string
 				/**
-				 * R​e​m​o​v​e​ ​a​n​ ​R​S​S​ ​f​e​e​d​ ​f​r​o​m​ ​t​h​e​ ​s​e​r​v​e​r
+				 * S​e​t​ ​t​h​e​ ​m​e​m​b​e​r​ ​l​i​m​i​t​ ​(​0​ ​—​ ​u​n​l​i​m​i​t​e​d​)
 				 */
 				DESCRIPTION: string
 			}
-			LIST: {
+			LOCK: {
 				/**
-				 * l​i​s​t
+				 * l​o​c​k
 				 */
 				NAME: string
 				/**
-				 * S​h​o​w​ ​a​l​l​ ​R​S​S​ ​f​e​e​d​s​ ​o​n​ ​t​h​e​ ​s​e​r​v​e​r
+				 * C​l​o​s​e​ ​y​o​u​r​ ​r​o​o​m​ ​f​o​r​ ​e​v​e​r​y​o​n​e​ ​e​x​c​e​p​t​ ​p​e​r​m​i​t​t​e​d​ ​u​s​e​r​s
 				 */
 				DESCRIPTION: string
 			}
-			CHANNEL: {
+			UNLOCK: {
 				/**
-				 * c​h​a​n​n​e​l
+				 * u​n​l​o​c​k
 				 */
 				NAME: string
 				/**
-				 * C​h​a​n​g​e​ ​t​h​e​ ​c​h​a​n​n​e​l​ ​f​o​r​ ​a​n​ ​R​S​S​ ​f​e​e​d
+				 * O​p​e​n​ ​y​o​u​r​ ​r​o​o​m​ ​f​o​r​ ​e​v​e​r​y​o​n​e​ ​a​g​a​i​n
 				 */
 				DESCRIPTION: string
 			}
-			TEST: {
+			PERMIT: {
 				/**
-				 * t​e​s​t
+				 * p​e​r​m​i​t
 				 */
 				NAME: string
 				/**
-				 * T​e​s​t​ ​a​n​ ​R​S​S​ ​f​e​e​d​ ​w​i​t​h​o​u​t​ ​s​a​v​i​n​g
+				 * A​l​l​o​w​ ​a​ ​u​s​e​r​ ​t​o​ ​j​o​i​n​ ​y​o​u​r​ ​r​o​o​m
+				 */
+				DESCRIPTION: string
+			}
+			DENY: {
+				/**
+				 * d​e​n​y
+				 */
+				NAME: string
+				/**
+				 * D​e​n​y​ ​a​ ​u​s​e​r​ ​a​c​c​e​s​s​ ​t​o​ ​y​o​u​r​ ​r​o​o​m
+				 */
+				DESCRIPTION: string
+			}
+			KICK: {
+				/**
+				 * k​i​c​k
+				 */
+				NAME: string
+				/**
+				 * K​i​c​k​ ​a​ ​u​s​e​r​ ​o​u​t​ ​o​f​ ​y​o​u​r​ ​r​o​o​m
 				 */
 				DESCRIPTION: string
 			}
 			OPTIONS: {
-				ACTION: {
+				HUB: {
 					/**
-					 * a​c​t​i​o​n
+					 * h​u​b
 					 */
 					NAME: string
 					/**
-					 * C​h​o​o​s​e​ ​a​n​ ​a​c​t​i​o​n
+					 * H​u​b​ ​v​o​i​c​e​ ​c​h​a​n​n​e​l​:​ ​j​o​i​n​i​n​g​ ​i​t​ ​c​r​e​a​t​e​s​ ​a​ ​r​o​o​m
 					 */
 					DESCRIPTION: string
 				}
-				URL: {
+				CATEGORY: {
 					/**
-					 * u​r​l
+					 * c​a​t​e​g​o​r​y
 					 */
 					NAME: string
 					/**
-					 * R​S​S​ ​f​e​e​d​ ​U​R​L
+					 * C​a​t​e​g​o​r​y​ ​f​o​r​ ​t​e​m​p​o​r​a​r​y​ ​c​h​a​n​n​e​l​s
+					 */
+					DESCRIPTION: string
+				}
+				TEMPLATE: {
+					/**
+					 * t​e​m​p​l​a​t​e
+					 */
+					NAME: string
+					/**
+					 * C​h​a​n​n​e​l​ ​n​a​m​e​ ​t​e​m​p​l​a​t​e​,​ ​t​h​e​ ​m​e​m​b​e​r​ ​n​i​c​k​n​a​m​e​ ​i​s​ ​s​u​b​s​t​i​t​u​t​e​d​ ​a​u​t​o​m​a​t​i​c​a​l​l​y
+					 */
+					DESCRIPTION: string
+				}
+				DEFAULT_LIMIT: {
+					/**
+					 * d​e​f​a​u​l​t​_​l​i​m​i​t
+					 */
+					NAME: string
+					/**
+					 * D​e​f​a​u​l​t​ ​m​e​m​b​e​r​ ​l​i​m​i​t​ ​f​o​r​ ​n​e​w​ ​r​o​o​m​s
 					 */
 					DESCRIPTION: string
 				}
@@ -444,72 +446,174 @@ type RootTranslation = {
 					 */
 					NAME: string
 					/**
-					 * D​i​s​p​l​a​y​ ​n​a​m​e​ ​f​o​r​ ​t​h​e​ ​f​e​e​d
+					 * N​e​w​ ​c​h​a​n​n​e​l​ ​n​a​m​e
 					 */
 					DESCRIPTION: string
 				}
-				CHANNEL: {
+				LIMIT: {
 					/**
-					 * c​h​a​n​n​e​l
+					 * l​i​m​i​t
 					 */
 					NAME: string
 					/**
-					 * C​h​a​n​n​e​l​ ​t​o​ ​s​e​n​d​ ​n​e​w​s​ ​t​o
+					 * M​e​m​b​e​r​ ​l​i​m​i​t​,​ ​0​ ​—​ ​u​n​l​i​m​i​t​e​d
 					 */
 					DESCRIPTION: string
 				}
-				FEED_ID: {
+				USER: {
 					/**
-					 * f​e​e​d
+					 * u​s​e​r
 					 */
 					NAME: string
 					/**
-					 * F​e​e​d​ ​I​D​ ​t​o​ ​m​o​d​i​f​y​/​r​e​m​o​v​e
+					 * U​s​e​r
 					 */
 					DESCRIPTION: string
 				}
 			}
-			/**
-			 * R​S​S​ ​f​e​e​d​ ​a​d​d​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
-			 */
-			ADDED: string
-			/**
-			 * R​S​S​ ​f​e​e​d​ ​r​e​m​o​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
-			 */
-			REMOVED: string
-			/**
-			 * S​e​r​v​e​r​ ​R​S​S​ ​F​e​e​d​s
-			 */
-			LIST_TITLE: string
-			/**
-			 * N​o​ ​R​S​S​ ​f​e​e​d​s​ ​c​o​n​f​i​g​u​r​e​d​ ​o​n​ ​t​h​i​s​ ​s​e​r​v​e​r​.
-			 */
-			NO_FEEDS: string
-			/**
-			 * R​S​S​ ​f​e​e​d​ ​c​h​a​n​n​e​l​ ​u​p​d​a​t​e​d​!
-			 */
-			CHANNEL_UPDATED: string
-			/**
-			 * F​e​e​d​ ​h​a​s​ ​n​o​ ​e​n​t​r​i​e​s​ ​o​r​ ​i​s​ ​i​n​v​a​l​i​d​.
-			 */
-			TEST_EMPTY: string
+			PANEL: {
+				/**
+				 * Y​o​u​r​ ​v​o​i​c​e​ ​r​o​o​m
+				 */
+				TITLE: string
+				/**
+				 * O​w​n​e​r​:​ ​{​o​w​n​e​r​}​
+			​L​i​m​i​t​:​ ​{​l​i​m​i​t​}​
+			​A​c​c​e​s​s​:​ ​{​l​o​c​k​S​t​a​t​e​}
+				 * @param {unknown} limit
+				 * @param {unknown} lockState
+				 * @param {unknown} owner
+				 */
+				DESCRIPTION: RequiredParams<'limit' | 'lockState' | 'owner'>
+				/**
+				 * c​l​o​s​e​d
+				 */
+				LOCKED: string
+				/**
+				 * o​p​e​n
+				 */
+				UNLOCKED: string
+				/**
+				 * u​n​l​i​m​i​t​e​d
+				 */
+				UNLIMITED: string
+				/**
+				 * R​e​n​a​m​e
+				 */
+				BTN_RENAME: string
+				/**
+				 * L​i​m​i​t
+				 */
+				BTN_LIMIT: string
+				/**
+				 * C​l​o​s​e
+				 */
+				BTN_LOCK: string
+				/**
+				 * O​p​e​n
+				 */
+				BTN_UNLOCK: string
+				/**
+				 * A​l​l​o​w​ ​a​ ​u​s​e​r
+				 */
+				SEL_PERMIT: string
+				/**
+				 * D​e​n​y​ ​a​ ​u​s​e​r
+				 */
+				SEL_DENY: string
+				/**
+				 * K​i​c​k​ ​a​ ​u​s​e​r
+				 */
+				SEL_KICK: string
+			}
+			MODAL: {
+				/**
+				 * R​e​n​a​m​e​ ​r​o​o​m
+				 */
+				RENAME_TITLE: string
+				/**
+				 * N​e​w​ ​n​a​m​e
+				 */
+				RENAME_LABEL: string
+				/**
+				 * M​e​m​b​e​r​ ​l​i​m​i​t
+				 */
+				LIMIT_TITLE: string
+				/**
+				 * L​i​m​i​t​ ​(​0​ ​—​ ​u​n​l​i​m​i​t​e​d​)
+				 */
+				LIMIT_LABEL: string
+			}
 			ERRORS: {
 				/**
-				 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​n​ ​R​S​S​ ​f​e​e​d​ ​U​R​L​.
+				 * J​o​i​n​ ​y​o​u​r​ ​o​w​n​ ​t​e​m​p​o​r​a​r​y​ ​c​h​a​n​n​e​l​ ​f​i​r​s​t​ ​t​o​ ​m​a​n​a​g​e​ ​i​t​.
 				 */
-				NO_URL: string
+				NOT_IN_ROOM: string
 				/**
-				 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​ ​f​e​e​d​ ​I​D​.
+				 * O​n​l​y​ ​t​h​e​ ​r​o​o​m​ ​o​w​n​e​r​ ​c​a​n​ ​d​o​ ​t​h​a​t​.
 				 */
-				NO_FEED_ID: string
+				NOT_OWNER: string
 				/**
-				 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​ ​c​h​a​n​n​e​l​.
+				 * T​h​i​s​ ​i​s​ ​n​o​t​ ​a​ ​t​e​m​p​o​r​a​r​y​ ​r​o​o​m​.
 				 */
-				NO_CHANNEL: string
+				NOT_TEMP_CHANNEL: string
 				/**
-				 * U​n​k​n​o​w​n​ ​a​c​t​i​o​n​.​ ​U​s​e​:​ ​a​d​d​,​ ​r​e​m​o​v​e​,​ ​l​i​s​t​,​ ​c​h​a​n​n​e​l​,​ ​t​e​s​t​.
+				 * N​a​m​e​ ​m​u​s​t​ ​n​o​t​ ​b​e​ ​e​m​p​t​y​.
 				 */
-				UNKNOWN_ACTION: string
+				INVALID_NAME: string
+				/**
+				 * L​i​m​i​t​ ​m​u​s​t​ ​b​e​ ​b​e​t​w​e​e​n​ ​{​m​i​n​}​ ​a​n​d​ ​{​m​a​x​}​.
+				 * @param {unknown} max
+				 * @param {unknown} min
+				 */
+				INVALID_LIMIT: RequiredParams<'max' | 'min'>
+				/**
+				 * Y​o​u​ ​c​a​n​n​o​t​ ​d​o​ ​t​h​a​t​ ​t​o​ ​y​o​u​r​s​e​l​f​.
+				 */
+				TARGET_IS_OWNER: string
+				/**
+				 * T​h​a​t​ ​u​s​e​r​ ​i​s​ ​n​o​t​ ​i​n​ ​y​o​u​r​ ​r​o​o​m​.
+				 */
+				USER_NOT_IN_ROOM: string
+				/**
+				 * I​ ​a​m​ ​m​i​s​s​i​n​g​ ​p​e​r​m​i​s​s​i​o​n​s​:​ ​{​p​e​r​m​i​s​s​i​o​n​s​}
+				 * @param {unknown} permissions
+				 */
+				MISSING_PERMISSIONS: RequiredParams<'permissions'>
+			}
+			SUCCESS: {
+				/**
+				 * R​o​o​m​ ​r​e​n​a​m​e​d​.
+				 */
+				RENAMED: string
+				/**
+				 * L​i​m​i​t​ ​u​p​d​a​t​e​d​:​ ​{​l​i​m​i​t​}
+				 * @param {unknown} limit
+				 */
+				LIMIT_SET: RequiredParams<'limit'>
+				/**
+				 * R​o​o​m​ ​c​l​o​s​e​d​.
+				 */
+				LOCKED: string
+				/**
+				 * R​o​o​m​ ​o​p​e​n​e​d​.
+				 */
+				UNLOCKED: string
+				/**
+				 * A​c​c​e​s​s​ ​g​r​a​n​t​e​d​ ​t​o​ ​{​u​s​e​r​}​.
+				 * @param {unknown} user
+				 */
+				PERMITTED: RequiredParams<'user'>
+				/**
+				 * A​c​c​e​s​s​ ​d​e​n​i​e​d​ ​t​o​ ​{​u​s​e​r​}​.
+				 * @param {unknown} user
+				 */
+				DENIED: RequiredParams<'user'>
+				/**
+				 * {​u​s​e​r​}​ ​w​a​s​ ​k​i​c​k​e​d​ ​o​u​t​.
+				 * @param {unknown} user
+				 */
+				KICKED: RequiredParams<'user'>
 			}
 		}
 	}
@@ -797,137 +901,137 @@ export type TranslationFunctions = {
 			 */
 			SUCCESS: () => LocalizedString
 		}
-		LLM: {
+		VOICE: {
 			/**
-			 * llm
+			 * voice
 			 */
 			NAME: () => LocalizedString
 			/**
-			 * Ask an AI assistant a question
+			 * Personal temporary voice rooms
 			 */
 			DESCRIPTION: () => LocalizedString
-			OPTIONS: {
-				SUBCOMMAND: {
-					/**
-					 * subcommand
-					 */
-					NAME: () => LocalizedString
-					/**
-					 * Choose an action
-					 */
-					DESCRIPTION: () => LocalizedString
-				}
-				QUESTION: {
-					/**
-					 * question
-					 */
-					NAME: () => LocalizedString
-					/**
-					 * Your question for the AI
-					 */
-					DESCRIPTION: () => LocalizedString
-				}
-			}
-			CHOICES: {
+			SETUP: {
 				/**
-				 * Ask
-				 */
-				ASK: () => LocalizedString
-				/**
-				 * Reset
-				 */
-				RESET: () => LocalizedString
-			}
-			/**
-			 * Conversation history has been reset.
-			 */
-			RESET_SUCCESS: () => LocalizedString
-			/**
-			 * Please provide a question after selecting "Ask".
-			 */
-			NO_QUESTION: () => LocalizedString
-			/**
-			 * Error generating response: {error}
-			 */
-			ERROR: (arg: { error: unknown }) => LocalizedString
-		}
-		RSS: {
-			/**
-			 * rss
-			 */
-			NAME: () => LocalizedString
-			/**
-			 * Manage server RSS news feeds
-			 */
-			DESCRIPTION: () => LocalizedString
-			ADD: {
-				/**
-				 * add
+				 * setup
 				 */
 				NAME: () => LocalizedString
 				/**
-				 * Add a new RSS feed
+				 * Configure the hub channel and category for personal rooms
+				 */
+				DESCRIPTION: () => LocalizedString
+				/**
+				 * Saved — hub: {hub}, name template: {template}, default limit: {limit}
+				 */
+				SAVED: (arg: { hub: unknown, limit: unknown, template: unknown }) => LocalizedString
+			}
+			RENAME: {
+				/**
+				 * rename
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Rename your room
 				 */
 				DESCRIPTION: () => LocalizedString
 			}
-			REMOVE: {
+			LIMIT: {
 				/**
-				 * remove
+				 * limit
 				 */
 				NAME: () => LocalizedString
 				/**
-				 * Remove an RSS feed from the server
+				 * Set the member limit (0 — unlimited)
 				 */
 				DESCRIPTION: () => LocalizedString
 			}
-			LIST: {
+			LOCK: {
 				/**
-				 * list
+				 * lock
 				 */
 				NAME: () => LocalizedString
 				/**
-				 * Show all RSS feeds on the server
+				 * Close your room for everyone except permitted users
 				 */
 				DESCRIPTION: () => LocalizedString
 			}
-			CHANNEL: {
+			UNLOCK: {
 				/**
-				 * channel
+				 * unlock
 				 */
 				NAME: () => LocalizedString
 				/**
-				 * Change the channel for an RSS feed
+				 * Open your room for everyone again
 				 */
 				DESCRIPTION: () => LocalizedString
 			}
-			TEST: {
+			PERMIT: {
 				/**
-				 * test
+				 * permit
 				 */
 				NAME: () => LocalizedString
 				/**
-				 * Test an RSS feed without saving
+				 * Allow a user to join your room
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			DENY: {
+				/**
+				 * deny
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Deny a user access to your room
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			KICK: {
+				/**
+				 * kick
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Kick a user out of your room
 				 */
 				DESCRIPTION: () => LocalizedString
 			}
 			OPTIONS: {
-				ACTION: {
+				HUB: {
 					/**
-					 * action
+					 * hub
 					 */
 					NAME: () => LocalizedString
 					/**
-					 * Choose an action
+					 * Hub voice channel: joining it creates a room
 					 */
 					DESCRIPTION: () => LocalizedString
 				}
-				URL: {
+				CATEGORY: {
 					/**
-					 * url
+					 * category
 					 */
 					NAME: () => LocalizedString
 					/**
-					 * RSS feed URL
+					 * Category for temporary channels
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+				TEMPLATE: {
+					/**
+					 * template
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Channel name template, the member nickname is substituted automatically
+					 */
+					DESCRIPTION: () => LocalizedString
+				}
+				DEFAULT_LIMIT: {
+					/**
+					 * default_limit
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Default member limit for new rooms
 					 */
 					DESCRIPTION: () => LocalizedString
 				}
@@ -937,72 +1041,164 @@ export type TranslationFunctions = {
 					 */
 					NAME: () => LocalizedString
 					/**
-					 * Display name for the feed
+					 * New channel name
 					 */
 					DESCRIPTION: () => LocalizedString
 				}
-				CHANNEL: {
+				LIMIT: {
 					/**
-					 * channel
+					 * limit
 					 */
 					NAME: () => LocalizedString
 					/**
-					 * Channel to send news to
+					 * Member limit, 0 — unlimited
 					 */
 					DESCRIPTION: () => LocalizedString
 				}
-				FEED_ID: {
+				USER: {
 					/**
-					 * feed
+					 * user
 					 */
 					NAME: () => LocalizedString
 					/**
-					 * Feed ID to modify/remove
+					 * User
 					 */
 					DESCRIPTION: () => LocalizedString
 				}
 			}
-			/**
-			 * RSS feed added successfully!
-			 */
-			ADDED: () => LocalizedString
-			/**
-			 * RSS feed removed successfully!
-			 */
-			REMOVED: () => LocalizedString
-			/**
-			 * Server RSS Feeds
-			 */
-			LIST_TITLE: () => LocalizedString
-			/**
-			 * No RSS feeds configured on this server.
-			 */
-			NO_FEEDS: () => LocalizedString
-			/**
-			 * RSS feed channel updated!
-			 */
-			CHANNEL_UPDATED: () => LocalizedString
-			/**
-			 * Feed has no entries or is invalid.
-			 */
-			TEST_EMPTY: () => LocalizedString
+			PANEL: {
+				/**
+				 * Your voice room
+				 */
+				TITLE: () => LocalizedString
+				/**
+				 * Owner: {owner}
+			Limit: {limit}
+			Access: {lockState}
+				 */
+				DESCRIPTION: (arg: { limit: unknown, lockState: unknown, owner: unknown }) => LocalizedString
+				/**
+				 * closed
+				 */
+				LOCKED: () => LocalizedString
+				/**
+				 * open
+				 */
+				UNLOCKED: () => LocalizedString
+				/**
+				 * unlimited
+				 */
+				UNLIMITED: () => LocalizedString
+				/**
+				 * Rename
+				 */
+				BTN_RENAME: () => LocalizedString
+				/**
+				 * Limit
+				 */
+				BTN_LIMIT: () => LocalizedString
+				/**
+				 * Close
+				 */
+				BTN_LOCK: () => LocalizedString
+				/**
+				 * Open
+				 */
+				BTN_UNLOCK: () => LocalizedString
+				/**
+				 * Allow a user
+				 */
+				SEL_PERMIT: () => LocalizedString
+				/**
+				 * Deny a user
+				 */
+				SEL_DENY: () => LocalizedString
+				/**
+				 * Kick a user
+				 */
+				SEL_KICK: () => LocalizedString
+			}
+			MODAL: {
+				/**
+				 * Rename room
+				 */
+				RENAME_TITLE: () => LocalizedString
+				/**
+				 * New name
+				 */
+				RENAME_LABEL: () => LocalizedString
+				/**
+				 * Member limit
+				 */
+				LIMIT_TITLE: () => LocalizedString
+				/**
+				 * Limit (0 — unlimited)
+				 */
+				LIMIT_LABEL: () => LocalizedString
+			}
 			ERRORS: {
 				/**
-				 * Please provide an RSS feed URL.
+				 * Join your own temporary channel first to manage it.
 				 */
-				NO_URL: () => LocalizedString
+				NOT_IN_ROOM: () => LocalizedString
 				/**
-				 * Please provide a feed ID.
+				 * Only the room owner can do that.
 				 */
-				NO_FEED_ID: () => LocalizedString
+				NOT_OWNER: () => LocalizedString
 				/**
-				 * Please provide a channel.
+				 * This is not a temporary room.
 				 */
-				NO_CHANNEL: () => LocalizedString
+				NOT_TEMP_CHANNEL: () => LocalizedString
 				/**
-				 * Unknown action. Use: add, remove, list, channel, test.
+				 * Name must not be empty.
 				 */
-				UNKNOWN_ACTION: () => LocalizedString
+				INVALID_NAME: () => LocalizedString
+				/**
+				 * Limit must be between {min} and {max}.
+				 */
+				INVALID_LIMIT: (arg: { max: unknown, min: unknown }) => LocalizedString
+				/**
+				 * You cannot do that to yourself.
+				 */
+				TARGET_IS_OWNER: () => LocalizedString
+				/**
+				 * That user is not in your room.
+				 */
+				USER_NOT_IN_ROOM: () => LocalizedString
+				/**
+				 * I am missing permissions: {permissions}
+				 */
+				MISSING_PERMISSIONS: (arg: { permissions: unknown }) => LocalizedString
+			}
+			SUCCESS: {
+				/**
+				 * Room renamed.
+				 */
+				RENAMED: () => LocalizedString
+				/**
+				 * Limit updated: {limit}
+				 */
+				LIMIT_SET: (arg: { limit: unknown }) => LocalizedString
+				/**
+				 * Room closed.
+				 */
+				LOCKED: () => LocalizedString
+				/**
+				 * Room opened.
+				 */
+				UNLOCKED: () => LocalizedString
+				/**
+				 * Access granted to {user}.
+				 */
+				PERMITTED: (arg: { user: unknown }) => LocalizedString
+				/**
+				 * Access denied to {user}.
+				 */
+				DENIED: (arg: { user: unknown }) => LocalizedString
+				/**
+				 * {user} was kicked out.
+				 */
+				KICKED: (arg: { user: unknown }) => LocalizedString
 			}
 		}
 	}

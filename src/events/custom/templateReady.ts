@@ -1,7 +1,8 @@
-import { Discord, OnCustom } from '@/decorators';
+import { Discord, Injectable, OnCustom } from '@/decorators';
 import { Logger } from '@/services';
 
 @Discord()
+@Injectable()
 export default class TemplateReadyEvent {
   constructor(private logger: Logger) {}
 

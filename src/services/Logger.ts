@@ -583,24 +583,6 @@ export class Logger {
       true
     );
 
-    // entities
-    const entities = fs
-      .readdirSync(path.join(__dirname, '..', 'entities'))
-      .filter(entity => !entity.startsWith('index') && !entity.startsWith('BaseEntity'));
-
-    const pluginsEntitesCount = this.pluginsManager.plugins.reduce(
-      (acc, plugin) => acc + Object.values(plugin.entities).length,
-      0
-    );
-
-    this.console(
-      chalk.red(
-        `${symbol} ${numberAlign(entities.length + pluginsEntitesCount)} ${chalk.bold('entities')} loaded`
-      ),
-      'info',
-      true
-    );
-
     // services
     const services = fs
       .readdirSync(path.join(__dirname, '..', 'services'))
