@@ -113,10 +113,13 @@ export default class VoiceCommand {
       interaction,
       localize.COMMANDS.VOICE.SETUP.SAVED({
         hub: isNullOrWhitespace(settings.hubChannelId)
-          ? '—'
+          ? '-'
           : `<#${settings.hubChannelId}>`,
         template: settings.nameTemplate,
-        limit: settings.defaultLimit > 0 ? String(settings.defaultLimit) : '∞',
+        limit:
+          settings.defaultLimit > 0
+            ? String(settings.defaultLimit)
+            : localize.COMMANDS.VOICE.PANEL.UNLIMITED(),
       })
     );
   }
@@ -179,7 +182,10 @@ export default class VoiceCommand {
     await respond(
       interaction,
       localize.COMMANDS.VOICE.SUCCESS.LIMIT_SET({
-        limit: updated.userLimit > 0 ? String(updated.userLimit) : '∞',
+        limit:
+          updated.userLimit > 0
+            ? String(updated.userLimit)
+            : localize.COMMANDS.VOICE.PANEL.UNLIMITED(),
       })
     );
   }
@@ -288,6 +294,33 @@ export default class VoiceCommand {
         ? localize.COMMANDS.VOICE.SUCCESS.KICKED({ user: `<@${user.id}>` })
         : localize.COMMANDS.VOICE.ERRORS.USER_NOT_IN_ROOM()
     );
+  }
+
+  @SlashGroup('voice')
+  @Slash({ name: 'reset', localizationSource: 'COMMANDS.VOICE.RESET' })
+  @Guard(GuildOnly)
+  async reset(interaction: ChatInputCommandInteraction) {
+    const localize = L[getLocaleFromInteraction(interaction)];
+    const room = await this.ownedRoom(interaction);
+    if (isNullOrUndefined(room)) return;
+
+    const updated = await this.voice.resetRoom(room);
+
+    await respond(interaction, localize.COMMANDS.VOICE.SUCCESS.RESET());
+    await this.voice.refreshPanel(updated);
+  }
+
+  @SlashGroup('voice')
+  @Slash({ name: 'delete', localizationSource: 'COMMANDS.VOICE.DELETE' })
+  @Guard(GuildOnly)
+  async delete(interaction: ChatInputCommandInteraction) {
+    const localize = L[getLocaleFromInteraction(interaction)];
+    const room = await this.ownedRoom(interaction);
+    if (isNullOrUndefined(room)) return;
+
+    // отвечаем до удаления канала, иначе интеракции уже некуда ответить
+    await respond(interaction, localize.COMMANDS.VOICE.SUCCESS.DELETED());
+    await this.voice.deleteRoom(room, 'Комната удалена владельцем');
   }
 
   // =============================

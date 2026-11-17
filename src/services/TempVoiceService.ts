@@ -6,6 +6,7 @@ import {
   EmbedBuilder,
   Guild,
   GuildMember,
+  OverwriteResolvable,
   PermissionFlagsBits,
   UserSelectMenuBuilder,
   VoiceChannel,
@@ -31,6 +32,8 @@ export const VOICE_IDS = {
   permit: 'voice:permit',
   deny: 'voice:deny',
   kick: 'voice:kick',
+  reset: 'voice:reset',
+  delete: 'voice:delete',
   modalRename: 'voice:modal:rename',
   modalLimit: 'voice:modal:limit',
 } as const;
@@ -49,6 +52,24 @@ export interface VoiceSettings {
   categoryId: string | null;
   nameTemplate: string;
   defaultLimit: number;
+}
+
+/** сохранённые настройки комнаты конкретного владельца */
+export interface VoiceProfileData {
+  channelName: string | null;
+  userLimit: number | null;
+  locked: boolean;
+  allowedUserIds: string[];
+  deniedUserIds: string[];
+}
+
+/** итоговые параметры создаваемой комнаты: серверные настройки, перекрытые профилем */
+interface VoiceRoomSpec {
+  name: string;
+  userLimit: number;
+  locked: boolean;
+  allowedUserIds: string[];
+  deniedUserIds: string[];
 }
 
 /** подмножество полей модели, которого достаточно сервису */
@@ -114,6 +135,17 @@ export function buildVoicePanel(room: VoiceRoom): VoicePanelPayload {
       .setStyle(room.locked ? ButtonStyle.Success : ButtonStyle.Danger)
   );
 
+  const actions = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(VOICE_IDS.reset)
+      .setLabel(panel.BTN_RESET())
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId(VOICE_IDS.delete)
+      .setLabel(panel.BTN_DELETE())
+      .setStyle(ButtonStyle.Danger)
+  );
+
   const permit = new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
     new UserSelectMenuBuilder()
       .setCustomId(VOICE_IDS.permit)
@@ -140,7 +172,7 @@ export function buildVoicePanel(room: VoiceRoom): VoicePanelPayload {
 
   return {
     embeds: [embed],
-    components: [buttons.toJSON(), permit.toJSON(), deny.toJSON(), kick.toJSON()],
+    components: [buttons.toJSON(), actions.toJSON(), permit.toJSON(), deny.toJSON(), kick.toJSON()],
   };
 }
 
@@ -195,6 +227,88 @@ export class TempVoiceService {
   }
 
   // =============================
+  // ====== профиль владельца ====
+  // =============================
+
+  async getProfile(guildId: string, ownerId: string): Promise<VoiceProfileData | null> {
+    return this.db.prisma.voiceProfile.findUnique({
+      where: { guildId_ownerId: { guildId, ownerId } },
+    });
+  }
+
+  /** Дописывает профиль, сохраняя всё, что не передано в патче. */
+  private async saveProfile(
+    guildId: string,
+    ownerId: string,
+    patch: Partial<VoiceProfileData>
+  ): Promise<void> {
+    const current = await this.getProfile(guildId, ownerId);
+
+    const next: VoiceProfileData = {
+      channelName: isNullOrUndefined(patch.channelName)
+        ? (current?.channelName ?? null)
+        : patch.channelName,
+      userLimit: isNullOrUndefined(patch.userLimit)
+        ? (current?.userLimit ?? null)
+        : patch.userLimit,
+      locked: isNullOrUndefined(patch.locked) ? (current?.locked ?? false) : patch.locked,
+      allowedUserIds: patch.allowedUserIds ?? current?.allowedUserIds ?? [],
+      deniedUserIds: patch.deniedUserIds ?? current?.deniedUserIds ?? [],
+    };
+
+    await this.db.prisma.voiceProfile.upsert({
+      where: { guildId_ownerId: { guildId, ownerId } },
+      create: { guildId, ownerId, ...next },
+      update: next,
+    });
+  }
+
+  /**
+   * Возвращает комнату к дефолтам сервера и стирает профиль:
+   * после этого следующая комната создастся «как в первый раз».
+   */
+  async resetRoom(room: VoiceRoom): Promise<VoiceRoom> {
+    const settings = await this.getSettings(room.guildId);
+    const profile = await this.getProfile(room.guildId, room.ownerId);
+    const channel = await this.fetchVoiceChannel(room.channelId);
+
+    if (!isNullOrUndefined(channel)) {
+      const overwritten = new Set([
+        ...(profile?.allowedUserIds ?? []),
+        ...(profile?.deniedUserIds ?? []),
+      ]);
+
+      for (const userId of overwritten) {
+        if (userId === room.ownerId) continue;
+        await channel.permissionOverwrites.delete(userId).catch(() => null);
+      }
+
+      await channel.permissionOverwrites
+        .edit(
+          channel.guild.roles.everyone.id,
+          { Connect: null },
+          { reason: 'Сброс настроек комнаты' }
+        )
+        .catch(() => null);
+
+      await channel.setUserLimit(settings.defaultLimit, 'Сброс настроек комнаты').catch(() => null);
+
+      const owner = await channel.guild.members.fetch(room.ownerId).catch(() => null);
+      if (!isNullOrUndefined(owner)) {
+        await channel
+          .setName(this.formatChannelName(settings.nameTemplate, owner), 'Сброс настроек комнаты')
+          .catch(() => null);
+      }
+    }
+
+    await this.db.prisma.voiceProfile
+      .deleteMany({ where: { guildId: room.guildId, ownerId: room.ownerId } })
+      .catch(() => null);
+
+    return this.updateRoom(room.id, { locked: false, userLimit: settings.defaultLimit });
+  }
+
+  // =============================
   // ========== комнаты ==========
   // =============================
 
@@ -225,7 +339,7 @@ export class TempVoiceService {
 
   /**
    * Создаёт комнату для участника и переносит его туда.
-   * Если комната у него уже есть — переносит в неё, чтобы не плодить каналы.
+   * Если комната у него уже есть - переносит в неё, чтобы не плодить каналы.
    */
   async createRoomFor(member: GuildMember): Promise<VoiceRoom | null> {
     const guild = member.guild;
@@ -235,7 +349,7 @@ export class TempVoiceService {
     if (!isNullOrUndefined(existing)) {
       const existingChannel = await this.fetchVoiceChannel(existing.channelId);
 
-      // комната ещё жива — просто возвращаем владельца в неё, новые каналы не плодим
+      // комната ещё жива - просто возвращаем владельца в неё, новые каналы не плодим
       if (!isNullOrUndefined(existingChannel)) {
         await member.voice.setChannel(existingChannel).catch(() => null);
 
@@ -245,7 +359,20 @@ export class TempVoiceService {
       await this.deleteRoomRow(existing.id);
     }
 
-    const channel = await this.createVoiceChannel(guild, member, settings);
+    const profile = await this.getProfile(guild.id, member.id);
+    const savedName = profile?.channelName;
+
+    const spec: VoiceRoomSpec = {
+      name: isNullOrWhitespace(savedName)
+        ? this.formatChannelName(settings.nameTemplate, member)
+        : savedName,
+      userLimit: profile?.userLimit ?? settings.defaultLimit,
+      locked: profile?.locked ?? false,
+      allowedUserIds: profile?.allowedUserIds ?? [],
+      deniedUserIds: profile?.deniedUserIds ?? [],
+    };
+
+    const channel = await this.createVoiceChannel(guild, member, settings, spec);
     if (isNullOrUndefined(channel)) return null;
 
     const room = await this.db.prisma.tempVoiceRoom.create({
@@ -253,7 +380,8 @@ export class TempVoiceService {
         guildId: guild.id,
         channelId: channel.id,
         ownerId: member.id,
-        userLimit: settings.defaultLimit,
+        userLimit: spec.userLimit,
+        locked: spec.locked,
         // канал считается пустым, пока в него реально никто не зашёл:
         // если перенос не удастся, комнату подберёт уборщик
         emptySince: new Date(),
@@ -275,29 +403,60 @@ export class TempVoiceService {
   private async createVoiceChannel(
     guild: Guild,
     member: GuildMember,
-    settings: VoiceSettings
+    settings: VoiceSettings,
+    spec: VoiceRoomSpec
   ): Promise<VoiceChannel | null> {
+    const overwrites: OverwriteResolvable[] = [
+      {
+        id: member.id,
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.Connect,
+          PermissionFlagsBits.ManageChannels,
+          PermissionFlagsBits.MoveMembers,
+        ],
+      },
+    ];
+
+    if (spec.locked) {
+      overwrites.push({
+        id: guild.roles.everyone.id,
+        deny: [PermissionFlagsBits.Connect],
+      });
+    }
+
+    const allowed = new Set(spec.allowedUserIds);
+
+    for (const userId of allowed) {
+      if (userId === member.id) continue;
+
+      overwrites.push({
+        id: userId,
+        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect],
+      });
+    }
+
+    for (const userId of spec.deniedUserIds) {
+      if (userId === member.id || allowed.has(userId)) continue;
+
+      overwrites.push({ id: userId, deny: [PermissionFlagsBits.Connect] });
+    }
+
     const channel = await guild.channels
       .create({
-        name: this.formatChannelName(settings.nameTemplate, member),
+        name: spec.name,
         type: ChannelType.GuildVoice,
         parent: settings.categoryId ?? null,
-        userLimit: settings.defaultLimit,
-        permissionOverwrites: [
-          {
-            id: member.id,
-            allow: [
-              PermissionFlagsBits.ViewChannel,
-              PermissionFlagsBits.Connect,
-              PermissionFlagsBits.ManageChannels,
-              PermissionFlagsBits.MoveMembers,
-            ],
-          },
-        ],
+        userLimit: spec.userLimit,
+        permissionOverwrites: overwrites,
         reason: 'Временный персональный канал',
       })
       .catch(error => {
-        this.logger.log(`[Voice] не удалось создать канал: ${this.describeError(error)}`, 'error', true);
+        this.logger.log(
+          `[Voice] не удалось создать канал: ${this.describeError(error)}`,
+          'error',
+          true
+        );
 
         return null;
       });
@@ -362,15 +521,18 @@ export class TempVoiceService {
 
   async setLocked(room: VoiceRoom, locked: boolean): Promise<VoiceRoom> {
     const channel = await this.fetchVoiceChannel(room.channelId);
-    if (isNullOrUndefined(channel)) return room;
 
-    await channel.permissionOverwrites
-      .edit(
-        channel.guild.roles.everyone.id,
-        { Connect: locked ? false : null },
-        { reason: locked ? 'Комната закрыта' : 'Комната открыта' }
-      )
-      .catch(() => null);
+    if (!isNullOrUndefined(channel)) {
+      await channel.permissionOverwrites
+        .edit(
+          channel.guild.roles.everyone.id,
+          { Connect: locked ? false : null },
+          { reason: locked ? 'Комната закрыта' : 'Комната открыта' }
+        )
+        .catch(() => null);
+    }
+
+    await this.saveProfile(room.guildId, room.ownerId, { locked });
 
     return this.updateRoom(room.id, { locked });
   }
@@ -380,16 +542,17 @@ export class TempVoiceService {
     const channel = await this.fetchVoiceChannel(room.channelId);
 
     await channel?.setUserLimit(clamped, 'Лимит участников').catch(() => null);
+    await this.saveProfile(room.guildId, room.ownerId, { userLimit: clamped });
 
     return this.updateRoom(room.id, { userLimit: clamped });
   }
 
   async setName(room: VoiceRoom, name: string): Promise<void> {
+    const trimmed = name.slice(0, MAX_NAME_LENGTH);
     const channel = await this.fetchVoiceChannel(room.channelId);
 
-    await channel
-      ?.setName(name.slice(0, MAX_NAME_LENGTH), 'Переименование комнаты')
-      .catch(() => null);
+    await channel?.setName(trimmed, 'Переименование комнаты').catch(() => null);
+    await this.saveProfile(room.guildId, room.ownerId, { channelName: trimmed });
   }
 
   async permitUser(room: VoiceRoom, userId: string): Promise<void> {
@@ -398,17 +561,42 @@ export class TempVoiceService {
     await channel?.permissionOverwrites
       .edit(userId, { ViewChannel: true, Connect: true }, { reason: 'Разрешён вход' })
       .catch(() => null);
+
+    const profile = await this.getProfile(room.guildId, room.ownerId);
+    const allowed = new Set(profile?.allowedUserIds ?? []);
+    const denied = new Set(profile?.deniedUserIds ?? []);
+
+    allowed.add(userId);
+    denied.delete(userId);
+
+    await this.saveProfile(room.guildId, room.ownerId, {
+      allowedUserIds: [...allowed],
+      deniedUserIds: [...denied],
+    });
   }
 
   async denyUser(room: VoiceRoom, userId: string): Promise<void> {
     const channel = await this.fetchVoiceChannel(room.channelId);
-    if (isNullOrUndefined(channel)) return;
 
-    await channel.permissionOverwrites
-      .edit(userId, { Connect: false }, { reason: 'Запрещён вход' })
-      .catch(() => null);
+    if (!isNullOrUndefined(channel)) {
+      await channel.permissionOverwrites
+        .edit(userId, { Connect: false }, { reason: 'Запрещён вход' })
+        .catch(() => null);
 
-    await this.disconnectIfInside(channel, userId);
+      await this.disconnectIfInside(channel, userId);
+    }
+
+    const profile = await this.getProfile(room.guildId, room.ownerId);
+    const allowed = new Set(profile?.allowedUserIds ?? []);
+    const denied = new Set(profile?.deniedUserIds ?? []);
+
+    denied.add(userId);
+    allowed.delete(userId);
+
+    await this.saveProfile(room.guildId, room.ownerId, {
+      allowedUserIds: [...allowed],
+      deniedUserIds: [...denied],
+    });
   }
 
   async kickUser(room: VoiceRoom, userId: string): Promise<boolean> {
@@ -478,7 +666,7 @@ export class TempVoiceService {
         try {
           await channel.delete('Временный канал пуст');
         } catch (error) {
-          // не смогли удалить — оставляем запись, попробуем в следующий раз
+          // не смогли удалить - оставляем запись, попробуем в следующий раз
           this.logger.log(
             `[Voice] не удалось удалить пустой канал ${room.channelId}: ${
               error instanceof Error ? error.message : 'Unknown'

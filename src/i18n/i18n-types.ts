@@ -322,7 +322,7 @@ type RootTranslation = {
 				 */
 				DESCRIPTION: string
 				/**
-				 * S​a​v​e​d​ ​—​ ​h​u​b​:​ ​{​h​u​b​}​,​ ​n​a​m​e​ ​t​e​m​p​l​a​t​e​:​ ​{​t​e​m​p​l​a​t​e​}​,​ ​d​e​f​a​u​l​t​ ​l​i​m​i​t​:​ ​{​l​i​m​i​t​}
+				 * S​a​v​e​d​ ​-​ ​h​u​b​:​ ​{​h​u​b​}​,​ ​n​a​m​e​ ​t​e​m​p​l​a​t​e​:​ ​{​t​e​m​p​l​a​t​e​}​,​ ​d​e​f​a​u​l​t​ ​l​i​m​i​t​:​ ​{​l​i​m​i​t​}
 				 * @param {unknown} hub
 				 * @param {unknown} limit
 				 * @param {unknown} template
@@ -345,7 +345,7 @@ type RootTranslation = {
 				 */
 				NAME: string
 				/**
-				 * S​e​t​ ​t​h​e​ ​m​e​m​b​e​r​ ​l​i​m​i​t​ ​(​0​ ​—​ ​u​n​l​i​m​i​t​e​d​)
+				 * S​e​t​ ​t​h​e​ ​m​e​m​b​e​r​ ​l​i​m​i​t​ ​(​0​ ​-​ ​u​n​l​i​m​i​t​e​d​)
 				 */
 				DESCRIPTION: string
 			}
@@ -396,6 +396,26 @@ type RootTranslation = {
 				NAME: string
 				/**
 				 * K​i​c​k​ ​a​ ​u​s​e​r​ ​o​u​t​ ​o​f​ ​y​o​u​r​ ​r​o​o​m
+				 */
+				DESCRIPTION: string
+			}
+			RESET: {
+				/**
+				 * r​e​s​e​t
+				 */
+				NAME: string
+				/**
+				 * R​e​s​e​t​ ​y​o​u​r​ ​r​o​o​m​ ​t​o​ ​t​h​e​ ​s​e​r​v​e​r​ ​d​e​f​a​u​l​t​s​ ​a​n​d​ ​f​o​r​g​e​t​ ​s​a​v​e​d​ ​s​e​t​t​i​n​g​s
+				 */
+				DESCRIPTION: string
+			}
+			DELETE: {
+				/**
+				 * d​e​l​e​t​e
+				 */
+				NAME: string
+				/**
+				 * D​e​l​e​t​e​ ​y​o​u​r​ ​r​o​o​m​ ​r​i​g​h​t​ ​n​o​w
 				 */
 				DESCRIPTION: string
 			}
@@ -456,7 +476,7 @@ type RootTranslation = {
 					 */
 					NAME: string
 					/**
-					 * M​e​m​b​e​r​ ​l​i​m​i​t​,​ ​0​ ​—​ ​u​n​l​i​m​i​t​e​d
+					 * M​e​m​b​e​r​ ​l​i​m​i​t​,​ ​0​ ​-​ ​u​n​l​i​m​i​t​e​d
 					 */
 					DESCRIPTION: string
 				}
@@ -514,6 +534,14 @@ type RootTranslation = {
 				 */
 				BTN_UNLOCK: string
 				/**
+				 * R​e​s​e​t
+				 */
+				BTN_RESET: string
+				/**
+				 * D​e​l​e​t​e
+				 */
+				BTN_DELETE: string
+				/**
 				 * A​l​l​o​w​ ​a​ ​u​s​e​r
 				 */
 				SEL_PERMIT: string
@@ -540,7 +568,7 @@ type RootTranslation = {
 				 */
 				LIMIT_TITLE: string
 				/**
-				 * L​i​m​i​t​ ​(​0​ ​—​ ​u​n​l​i​m​i​t​e​d​)
+				 * L​i​m​i​t​ ​(​0​ ​-​ ​u​n​l​i​m​i​t​e​d​)
 				 */
 				LIMIT_LABEL: string
 			}
@@ -614,6 +642,14 @@ type RootTranslation = {
 				 * @param {unknown} user
 				 */
 				KICKED: RequiredParams<'user'>
+				/**
+				 * R​o​o​m​ ​r​e​s​e​t​ ​t​o​ ​t​h​e​ ​s​e​r​v​e​r​ ​d​e​f​a​u​l​t​s​.
+				 */
+				RESET: string
+				/**
+				 * R​o​o​m​ ​d​e​l​e​t​e​d​.
+				 */
+				DELETED: string
 			}
 		}
 	}
@@ -920,7 +956,7 @@ export type TranslationFunctions = {
 				 */
 				DESCRIPTION: () => LocalizedString
 				/**
-				 * Saved — hub: {hub}, name template: {template}, default limit: {limit}
+				 * Saved - hub: {hub}, name template: {template}, default limit: {limit}
 				 */
 				SAVED: (arg: { hub: unknown, limit: unknown, template: unknown }) => LocalizedString
 			}
@@ -940,7 +976,7 @@ export type TranslationFunctions = {
 				 */
 				NAME: () => LocalizedString
 				/**
-				 * Set the member limit (0 — unlimited)
+				 * Set the member limit (0 - unlimited)
 				 */
 				DESCRIPTION: () => LocalizedString
 			}
@@ -991,6 +1027,26 @@ export type TranslationFunctions = {
 				NAME: () => LocalizedString
 				/**
 				 * Kick a user out of your room
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			RESET: {
+				/**
+				 * reset
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Reset your room to the server defaults and forget saved settings
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			DELETE: {
+				/**
+				 * delete
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Delete your room right now
 				 */
 				DESCRIPTION: () => LocalizedString
 			}
@@ -1051,7 +1107,7 @@ export type TranslationFunctions = {
 					 */
 					NAME: () => LocalizedString
 					/**
-					 * Member limit, 0 — unlimited
+					 * Member limit, 0 - unlimited
 					 */
 					DESCRIPTION: () => LocalizedString
 				}
@@ -1106,6 +1162,14 @@ export type TranslationFunctions = {
 				 */
 				BTN_UNLOCK: () => LocalizedString
 				/**
+				 * Reset
+				 */
+				BTN_RESET: () => LocalizedString
+				/**
+				 * Delete
+				 */
+				BTN_DELETE: () => LocalizedString
+				/**
 				 * Allow a user
 				 */
 				SEL_PERMIT: () => LocalizedString
@@ -1132,7 +1196,7 @@ export type TranslationFunctions = {
 				 */
 				LIMIT_TITLE: () => LocalizedString
 				/**
-				 * Limit (0 — unlimited)
+				 * Limit (0 - unlimited)
 				 */
 				LIMIT_LABEL: () => LocalizedString
 			}
@@ -1199,6 +1263,14 @@ export type TranslationFunctions = {
 				 * {user} was kicked out.
 				 */
 				KICKED: (arg: { user: unknown }) => LocalizedString
+				/**
+				 * Room reset to the server defaults.
+				 */
+				RESET: () => LocalizedString
+				/**
+				 * Room deleted.
+				 */
+				DELETED: () => LocalizedString
 			}
 		}
 	}

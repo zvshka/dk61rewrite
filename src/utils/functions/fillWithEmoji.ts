@@ -76,7 +76,7 @@ export async function fillWithEmoji(ctx: SKRSContext2D, text: string, x: number,
     }
 
     // Определяем, нужно ли применять отступы:
-    // - если это эмодзи, и следующий/предыдущий элемент — тоже эмодзи → отступы не нужны
+    // - если это эмодзи, и следующий/предыдущий элемент тоже эмодзи, то отступы не нужны
     const applyEmojiMargins = isEmoji && !lastWasEmoji; // упрощённо: отступы только при смене типа
 
     let img: Image | null = null;

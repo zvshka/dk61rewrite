@@ -121,6 +121,30 @@ export default class VoicePanelHandler {
     await this.voice.refreshPanel(updated);
   }
 
+  @ButtonComponent({ id: VOICE_IDS.reset })
+  async resetRoom(interaction: ButtonInteraction) {
+    const room = await this.resolveRoom(interaction);
+    if (isNullOrUndefined(room)) return;
+
+    const localize = L[localeOf(interaction)];
+    const updated = await this.voice.resetRoom(room);
+
+    await this.reply(interaction, localize.COMMANDS.VOICE.SUCCESS.RESET());
+    await this.voice.refreshPanel(updated);
+  }
+
+  @ButtonComponent({ id: VOICE_IDS.delete })
+  async deleteRoom(interaction: ButtonInteraction) {
+    const room = await this.resolveRoom(interaction);
+    if (isNullOrUndefined(room)) return;
+
+    const localize = L[localeOf(interaction)];
+
+    // отвечаем до удаления канала, иначе интеракции уже некуда ответить
+    await this.reply(interaction, localize.COMMANDS.VOICE.SUCCESS.DELETED());
+    await this.voice.deleteRoom(room, 'Комната удалена владельцем');
+  }
+
   // =============================
   // ========== селекты ==========
   // =============================
@@ -228,7 +252,10 @@ export default class VoicePanelHandler {
     await this.reply(
       interaction,
       localize.COMMANDS.VOICE.SUCCESS.LIMIT_SET({
-        limit: updated.userLimit > 0 ? String(updated.userLimit) : '∞',
+        limit:
+          updated.userLimit > 0
+            ? String(updated.userLimit)
+            : localize.COMMANDS.VOICE.PANEL.UNLIMITED(),
       })
     );
 

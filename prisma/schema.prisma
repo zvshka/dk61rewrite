@@ -41,6 +41,7 @@ model Guild {
   welcomeMessages WelcomeMessage[]
   proposals       Proposal[]
   tempVoiceRooms  TempVoiceRoom[]
+  voiceProfiles   VoiceProfile[]
 }
 
 model User {
@@ -166,4 +167,31 @@ model TempVoiceRoom {
   @@index([guildId])
   @@index([ownerId])
   @@index([emptySince])
+}
+
+/// Сохранённые настройки персональной комнаты: применяются при каждом новом создании.
+model VoiceProfile {
+  id String @id @default(nanoid())
+
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guildId String
+
+  ownerId String
+
+  /// переопределение имени; null - имя строится по шаблону сервера
+  channelName String? @map("channel_name")
+
+  /// переопределение лимита; null - берётся лимит сервера по умолчанию
+  userLimit Int? @map("user_limit")
+
+  locked Boolean @default(false)
+
+  allowedUserIds String[] @default([]) @map("allowed_user_ids")
+  deniedUserIds  String[] @default([]) @map("denied_user_ids")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([guildId, ownerId])
+  @@index([guildId])
 }

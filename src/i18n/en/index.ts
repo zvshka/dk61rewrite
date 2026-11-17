@@ -118,7 +118,7 @@ const en = {
 			SETUP: {
 				NAME: 'setup',
 				DESCRIPTION: 'Configure the hub channel and category for personal rooms',
-				SAVED: 'Saved — hub: {hub}, name template: {template}, default limit: {limit}',
+				SAVED: 'Saved - hub: {hub}, name template: {template}, default limit: {limit}',
 			},
 			RENAME: {
 				NAME: 'rename',
@@ -126,7 +126,7 @@ const en = {
 			},
 			LIMIT: {
 				NAME: 'limit',
-				DESCRIPTION: 'Set the member limit (0 — unlimited)',
+				DESCRIPTION: 'Set the member limit (0 - unlimited)',
 			},
 			LOCK: {
 				NAME: 'lock',
@@ -147,6 +147,14 @@ const en = {
 			KICK: {
 				NAME: 'kick',
 				DESCRIPTION: 'Kick a user out of your room',
+			},
+			RESET: {
+				NAME: 'reset',
+				DESCRIPTION: 'Reset your room to the server defaults and forget saved settings',
+			},
+			DELETE: {
+				NAME: 'delete',
+				DESCRIPTION: 'Delete your room right now',
 			},
 			OPTIONS: {
 				HUB: {
@@ -171,7 +179,7 @@ const en = {
 				},
 				LIMIT: {
 					NAME: 'limit',
-					DESCRIPTION: 'Member limit, 0 — unlimited',
+					DESCRIPTION: 'Member limit, 0 - unlimited',
 				},
 				USER: {
 					NAME: 'user',
@@ -190,6 +198,8 @@ Access: {lockState}`,
 				BTN_LIMIT: 'Limit',
 				BTN_LOCK: 'Close',
 				BTN_UNLOCK: 'Open',
+				BTN_RESET: 'Reset',
+				BTN_DELETE: 'Delete',
 				SEL_PERMIT: 'Allow a user',
 				SEL_DENY: 'Deny a user',
 				SEL_KICK: 'Kick a user',
@@ -198,7 +208,7 @@ Access: {lockState}`,
 				RENAME_TITLE: 'Rename room',
 				RENAME_LABEL: 'New name',
 				LIMIT_TITLE: 'Member limit',
-				LIMIT_LABEL: 'Limit (0 — unlimited)',
+				LIMIT_LABEL: 'Limit (0 - unlimited)',
 			},
 			ERRORS: {
 				NOT_IN_ROOM: 'Join your own temporary channel first to manage it.',
@@ -218,6 +228,8 @@ Access: {lockState}`,
 				PERMITTED: 'Access granted to {user}.',
 				DENIED: 'Access denied to {user}.',
 				KICKED: '{user} was kicked out.',
+				RESET: 'Room reset to the server defaults.',
+				DELETED: 'Room deleted.',
 			},
 		},
 	},
